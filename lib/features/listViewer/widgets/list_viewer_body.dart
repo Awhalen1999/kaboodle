@@ -17,9 +17,7 @@ class ListViewerBody extends StatelessWidget {
     return Consumer<PackingListCache>(
       builder: (context, cache, child) {
         if (cache.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (cache.error != null) {
@@ -27,16 +25,11 @@ class ListViewerBody extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                Icon(Icons.error_outline,
+                    size: 64, color: Theme.of(context).colorScheme.error),
                 const SizedBox(height: 16),
-                Text(
-                  'Error loading packing list',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('Error loading packing list',
+                    style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
                 Text(
                   cache.error!,
@@ -54,16 +47,12 @@ class ListViewerBody extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.inbox_outlined,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                Icon(Icons.inbox_outlined,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(height: 16),
-                Text(
-                  'Packing list not found',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('Packing list not found',
+                    style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
                 Text(
                   'The packing list you\'re looking for doesn\'t exist or has been deleted.',

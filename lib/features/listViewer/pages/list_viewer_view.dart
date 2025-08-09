@@ -1,5 +1,5 @@
-import 'package:kaboodle/features/listViewer/widgets/list_viewer_body.dart';
 import 'package:flutter/material.dart';
+import 'package:kaboodle/features/listViewer/widgets/list_viewer_body.dart';
 import 'package:kaboodle/shared/widgets/custom_app_bar.dart';
 
 class ListViewerView extends StatelessWidget {
