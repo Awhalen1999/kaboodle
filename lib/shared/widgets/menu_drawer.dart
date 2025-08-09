@@ -25,6 +25,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
     super.initState();
     // Load lists when drawer is first opened
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<PackingListCache>().getLists();
     });
   }
@@ -137,9 +138,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.add_rounded),
-                      padding: EdgeInsets.all(
-                        0,
-                      ),
+                      padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       style: const ButtonStyle(
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,

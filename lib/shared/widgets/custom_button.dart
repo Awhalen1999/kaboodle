@@ -3,7 +3,6 @@ import 'package:kaboodle/theme/light_mode.dart';
 
 class CustomButton extends StatelessWidget {
   final String? buttonText;
-  // onPressed has been kept null to allow for the button to be disabled
   final Function()? onPressed;
   final Color? buttonColor;
   final Color textColor;
@@ -52,21 +51,19 @@ class CustomButton extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                icon != null
-                    ? Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: icon,
-                      )
-                    : Container(),
-                buttonText == null && buttonText!.isEmpty
-                    ? Container()
-                    : Text(
-                        buttonText ?? "",
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: textColor,
-                            ),
-                      ),
+                if (icon != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: icon,
+                  ),
+                if (!(buttonText == null || buttonText!.isEmpty))
+                  Text(
+                    buttonText!,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: textColor,
+                        ),
+                  ),
               ],
             ),
           )

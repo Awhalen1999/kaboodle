@@ -46,7 +46,7 @@ class CustomCheckboxListTile extends StatelessWidget {
                 child: Row(
                   children: [
                     // Left container for checkbox and icon.
-                    Container(
+                    SizedBox(
                       width: 80,
                       child: Row(
                         children: [
