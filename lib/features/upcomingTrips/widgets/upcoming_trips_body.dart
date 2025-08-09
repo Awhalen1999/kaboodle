@@ -17,6 +17,15 @@ class _UpcomingTripsBodyState extends State<UpcomingTripsBody> {
   final _refreshController = StreamController<SwipeRefreshState>.broadcast();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<PackingListCache>().getLists();
+    });
+  }
+
+  @override
   void dispose() {
     _refreshController.close();
     super.dispose();
