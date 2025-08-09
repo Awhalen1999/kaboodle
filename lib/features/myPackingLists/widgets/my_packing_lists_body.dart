@@ -20,6 +20,7 @@ class _MyPackingListsBodyState extends State<MyPackingListsBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<PackingListCache>().getLists();
     });
   }
