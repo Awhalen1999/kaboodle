@@ -1,5 +1,5 @@
-import 'package:kaboodle/features/editPackingList/widgets/edit_packing_list_body.dart';
 import 'package:flutter/material.dart';
+import 'package:kaboodle/features/editPackingList/widgets/edit_packing_list_body.dart';
 import 'package:kaboodle/shared/widgets/custom_app_bar.dart';
 
 class EditPackingListView extends StatelessWidget {
@@ -11,7 +11,6 @@ class EditPackingListView extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Edit packing list',
-        // close button
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),

@@ -24,11 +24,10 @@ class _EditPackingListBodyState extends State<EditPackingListBody> {
     super.initState();
     // Ensure cache is loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final cache = context.read<PackingListCache>();
-        if (!cache.hasLoaded) {
-          cache.getLists();
-        }
+      if (!mounted) return;
+      final cache = context.read<PackingListCache>();
+      if (!cache.hasLoaded) {
+        cache.getLists();
       }
     });
   }
@@ -39,43 +38,37 @@ class _EditPackingListBodyState extends State<EditPackingListBody> {
       case 1:
         editPage = Scaffold(
           appBar: AppBar(
-            title: Text('Edit Trip Details'),
+            title: const Text('Edit Trip Details'),
             leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_rounded),
+              icon: const Icon(Icons.arrow_back_ios_rounded),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-          body: SafeArea(
-            child: EditStepOneBody(listId: widget.listId),
-          ),
+          body: SafeArea(child: EditStepOneBody(listId: widget.listId)),
         );
         break;
       case 2:
         editPage = Scaffold(
           appBar: AppBar(
-            title: Text('Edit Trip Requirements'),
+            title: const Text('Edit Trip Requirements'),
             leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_rounded),
+              icon: const Icon(Icons.arrow_back_ios_rounded),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-          body: SafeArea(
-            child: EditStepTwoBody(listId: widget.listId),
-          ),
+          body: SafeArea(child: EditStepTwoBody(listId: widget.listId)),
         );
         break;
       case 3:
         editPage = Scaffold(
           appBar: AppBar(
-            title: Text('Edit Packing List'),
+            title: const Text('Edit Packing List'),
             leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_rounded),
+              icon: const Icon(Icons.arrow_back_ios_rounded),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-          body: SafeArea(
-            child: EditStepThreeBody(listId: widget.listId),
-          ),
+          body: SafeArea(child: EditStepThreeBody(listId: widget.listId)),
         );
         break;
       default:
@@ -92,9 +85,7 @@ class _EditPackingListBodyState extends State<EditPackingListBody> {
     return Consumer<PackingListCache>(
       builder: (context, cache, child) {
         if (cache.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (cache.error != null) {
@@ -102,16 +93,11 @@ class _EditPackingListBodyState extends State<EditPackingListBody> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                Icon(Icons.error_outline,
+                    size: 64, color: Theme.of(context).colorScheme.error),
                 const SizedBox(height: 16),
-                Text(
-                  'Error loading packing list',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('Error loading packing list',
+                    style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
                 Text(
                   cache.error!,
@@ -129,16 +115,12 @@ class _EditPackingListBodyState extends State<EditPackingListBody> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.inbox_outlined,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                Icon(Icons.inbox_outlined,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(height: 16),
-                Text(
-                  'Packing list not found',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text('Packing list not found',
+                    style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
                 Text(
                   'The packing list you\'re looking for doesn\'t exist or has been deleted.',
@@ -184,17 +166,14 @@ class _EditPackingListBodyState extends State<EditPackingListBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "$title",
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-              ),
+              Text(title,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      )),
               const SizedBox(height: 8),
-              Text(
-                "Edit your packing list details. You can add, remove, and edit items.",
-                style: Theme.of(context).textTheme.bodyLarge,
+              const Text(
+                'Edit your packing list details. You can add, remove, and edit items.',
               ),
               const SizedBox(height: 16),
               TripDetailsOverview(
