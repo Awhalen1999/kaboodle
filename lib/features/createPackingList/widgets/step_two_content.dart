@@ -13,12 +13,12 @@ class StepTwoContent extends StatelessWidget {
   final double tripLength;
   final String? accommodation;
   final List<String> selectedItems;
-  final Function(String?) onGenderChanged;
-  final Function(String?) onTripPurposeChanged;
-  final Function(String?) onWeatherConditionChanged;
-  final Function(double) onTripLengthChanged;
-  final Function(String?) onAccommodationChanged;
-  final Function(String) onItemToggled;
+  final ValueChanged<String?> onGenderChanged;
+  final ValueChanged<String?> onTripPurposeChanged;
+  final ValueChanged<String?> onWeatherConditionChanged;
+  final ValueChanged<double> onTripLengthChanged;
+  final ValueChanged<String?> onAccommodationChanged;
+  final ValueChanged<String> onItemToggled;
 
   const StepTwoContent({
     super.key,

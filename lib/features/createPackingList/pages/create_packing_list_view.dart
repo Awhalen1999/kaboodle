@@ -128,10 +128,16 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
 
   String _getButtonText() {
     if (_isSaving) return 'Saving...';
-    if (_currentStep == 2) return 'Build List';
-    if (_currentStep == 3) return 'Review List';
-    if (_currentStep == 4) return 'Finish';
-    return 'Next';
+    switch (_currentStep) {
+      case 2:
+        return 'Build List';
+      case 3:
+        return 'Review List';
+      case 4:
+        return 'Finish';
+      default:
+        return 'Next';
+    }
   }
 
   void _startEditMode(int step) {
@@ -196,9 +202,7 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
               const SizedBox(height: 16),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Container(
-                    child: _buildStepContent(_currentStep),
-                  ),
+                  child: _buildStepContent(_currentStep),
                 ),
               ),
               if (_isEditingStep)

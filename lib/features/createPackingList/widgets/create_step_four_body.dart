@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:kaboodle/shared/widgets/trip_details_overview.dart';
-import 'package:kaboodle/shared/widgets/trip_requirements_overview.dart';
-import 'package:kaboodle/shared/widgets/trip_items_overview.dart';
+import 'package:kaboodle/core/utils/date_formatter.dart';
 import 'package:kaboodle/features/createPackingList/provider/create_packing_list_provider.dart';
 import 'package:kaboodle/features/createPackingList/provider/custom_items_provider.dart';
-import 'package:kaboodle/core/utils/date_formatter.dart';
+import 'package:kaboodle/shared/widgets/trip_details_overview.dart';
+import 'package:kaboodle/shared/widgets/trip_items_overview.dart';
+import 'package:kaboodle/shared/widgets/trip_requirements_overview.dart';
+import 'package:provider/provider.dart';
 
 class MainStepFourBody extends StatelessWidget {
   final VoidCallback? onEditTripDetails;

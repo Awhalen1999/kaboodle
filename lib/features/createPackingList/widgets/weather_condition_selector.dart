@@ -4,7 +4,7 @@ import 'package:kaboodle/features/createPackingList/widgets/svg_button_row.dart'
 
 class WeatherConditionSelector extends StatelessWidget {
   final String? selectedWeather;
-  final Function(String?) onWeatherSelected;
+  final ValueChanged<String?> onWeatherSelected;
 
   const WeatherConditionSelector({
     super.key,

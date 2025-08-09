@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class DescriptionField extends StatefulWidget {
   final String initialValue;
-  final Function(String) onChanged;
+  final ValueChanged<String> onChanged;
 
   const DescriptionField({
     super.key,

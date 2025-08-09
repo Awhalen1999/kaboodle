@@ -4,7 +4,7 @@ import 'package:kaboodle/features/createPackingList/widgets/svg_button_row.dart'
 
 class GenderSelector extends StatelessWidget {
   final String? selectedGender;
-  final Function(String?) onGenderSelected;
+  final ValueChanged<String?> onGenderSelected;
 
   const GenderSelector({
     super.key,

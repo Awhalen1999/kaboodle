@@ -4,7 +4,7 @@ import 'package:kaboodle/features/createPackingList/widgets/svg_button_row.dart'
 
 class PurposeOfTripSelector extends StatelessWidget {
   final String? selectedPurpose;
-  final Function(String?) onPurposeSelected;
+  final ValueChanged<String?> onPurposeSelected;
 
   const PurposeOfTripSelector({
     super.key,

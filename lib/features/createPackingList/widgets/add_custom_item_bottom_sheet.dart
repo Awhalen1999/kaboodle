@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AddCustomItemModal extends StatefulWidget {
   final String sectionTitle;
-  final Function(String itemName, int quantity) onAdd;
+  final void Function(String itemName, int quantity) onAdd;
 
   const AddCustomItemModal({
     super.key,

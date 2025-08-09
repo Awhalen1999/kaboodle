@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ColorPicker extends StatefulWidget {
   final Color selectedColor;
-  final Function(Color) onColorSelected;
+  final ValueChanged<Color> onColorSelected;
 
   const ColorPicker({
     super.key,

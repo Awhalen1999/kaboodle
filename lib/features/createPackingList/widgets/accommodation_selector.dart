@@ -4,7 +4,7 @@ import 'package:kaboodle/core/constants/app_constants.dart';
 
 class AccommodationSelector extends StatelessWidget {
   final String? selectedAccommodation;
-  final Function(String?) onAccommodationSelected;
+  final ValueChanged<String?> onAccommodationSelected;
 
   const AccommodationSelector({
     super.key,

@@ -9,10 +9,10 @@ class StepOneContent extends StatelessWidget {
   final String description;
   final Color listColor;
   final DateTime? travelDate;
-  final Function(String) onTitleChanged;
-  final Function(String) onDescriptionChanged;
-  final Function(Color) onColorChanged;
-  final Function(DateTime?) onDateChanged;
+  final ValueChanged<String> onTitleChanged;
+  final ValueChanged<String> onDescriptionChanged;
+  final ValueChanged<Color> onColorChanged;
+  final ValueChanged<DateTime?> onDateChanged;
 
   const StepOneContent({
     super.key,

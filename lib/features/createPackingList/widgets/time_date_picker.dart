@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class TravelDatePicker extends StatefulWidget {
   final DateTime? selectedDate;
-  final Function(DateTime?) onDateSelected;
+  final ValueChanged<DateTime?> onDateSelected;
 
   const TravelDatePicker({
     super.key,

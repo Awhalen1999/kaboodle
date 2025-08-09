@@ -16,12 +16,13 @@ class PackingListBuilder extends StatelessWidget {
   final List<String> selectedSections;
   final double tripLength;
   final Map<String, PackingListItem>? existingItems;
-  final Function(PackingListItem) onItemAdded;
-  final Function(String) onItemRemoved;
-  final Function(PackingListItem) onItemUpdated;
-  final Function(String, String, int) onCustomItemAdded;
-  final Function(String, bool?) onCustomItemToggled;
-  final Function(CustomPackingItem) onCustomItemUpdated;
+  final ValueChanged<PackingListItem> onItemAdded;
+  final ValueChanged<String> onItemRemoved;
+  final ValueChanged<PackingListItem> onItemUpdated;
+  final void Function(String section, String itemName, int quantity)
+      onCustomItemAdded;
+  final void Function(String itemId, bool? value) onCustomItemToggled;
+  final ValueChanged<CustomPackingItem> onCustomItemUpdated;
 
   const PackingListBuilder({
     super.key,

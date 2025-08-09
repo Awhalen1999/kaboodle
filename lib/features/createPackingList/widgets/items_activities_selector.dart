@@ -4,7 +4,7 @@ import 'package:kaboodle/shared/widgets/custom_svg_checkbox_list_tile.dart';
 
 class ItemsActivitiesSelector extends StatelessWidget {
   final List<String> selectedItems;
-  final Function(String) onItemToggled;
+  final ValueChanged<String> onItemToggled;
 
   const ItemsActivitiesSelector({
     super.key,
