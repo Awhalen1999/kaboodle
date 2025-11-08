@@ -186,21 +186,21 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onSurface,
-                            width: 1,
+                            width: 0.5,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onSurface,
-                            width: 1,
+                            width: 0.5,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onSurface,
-                            width: 1,
+                            width: 0.5,
                           ),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
@@ -236,21 +236,21 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onSurface,
-                            width: 1,
+                            width: 0.5,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onSurface,
-                            width: 1,
+                            width: 0.5,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.onSurface,
-                            width: 1,
+                            width: 0.5,
                           ),
                         ),
                         suffixIcon: IconButton(
@@ -258,6 +258,7 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                             _obscurePassword
                                 ? Icons.visibility_off_outlined
                                 : Icons.visibility_outlined,
+                            size: 20,
                           ),
                           onPressed: () {
                             setState(() {
@@ -324,6 +325,7 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                               _obscureConfirmPassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
+                              size: 20,
                             ),
                             onPressed: () {
                               setState(() {
@@ -496,6 +498,39 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                             ),
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Toggle between login and signup
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: const Size(double.infinity, 48),
+                  ),
+                  child: Text.rich(
+                    TextSpan(
+                      text: widget.isSignUp
+                          ? 'Already have an account? '
+                          : "Don't have an account? ",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                      children: [
+                        TextSpan(
+                          text: widget.isSignUp ? 'Login' : 'Sign up',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                decoration: TextDecoration.underline,
+                                decorationColor:
+                                    Theme.of(context).colorScheme.onSurface,
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 // Add bottom padding for safe area
