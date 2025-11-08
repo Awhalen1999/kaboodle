@@ -39,21 +39,21 @@ ThemeData lightMode = ThemeData(
         ),
         bodyLarge: TextStyle(
           fontFamily: 'Poppins',
-          fontWeight: FontWeight.w500,
-          color: Colors.grey[900],
+          fontWeight: FontWeight.w400,
+          color: Colors.black,
           fontSize: 16,
         ),
         bodyMedium: TextStyle(
           fontFamily: 'Poppins',
           fontWeight: FontWeight.w400,
-          color: Colors.grey[800],
+          color: Colors.black,
           fontSize: 14,
         ),
         bodySmall: TextStyle(
           fontFamily: 'Poppins',
           fontWeight: FontWeight.w400,
-          color: Colors.grey[800],
-          fontSize: 13,
+          color: Colors.black,
+          fontSize: 12,
         ),
       ),
 );

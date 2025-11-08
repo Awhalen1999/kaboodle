@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:kaboodle_app/services/auth/auth_service.dart';
+import 'package:toastification/toastification.dart';
 
-class AuthBottomSheet extends StatelessWidget {
+class AuthBottomSheet extends StatefulWidget {
   final bool isSignUp;
 
   const AuthBottomSheet({
@@ -9,184 +11,499 @@ class AuthBottomSheet extends StatelessWidget {
     required this.isSignUp,
   });
 
+  @override
+  State<AuthBottomSheet> createState() => _AuthBottomSheetState();
+}
+
+class _AuthBottomSheetState extends State<AuthBottomSheet> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
   void _handleGoogleAuth() {
-    debugPrint('Google ${isSignUp ? "Sign up" : "Login"} clicked');
+    debugPrint('Google ${widget.isSignUp ? "Sign up" : "Login"} clicked');
   }
 
   void _handleAppleAuth() {
-    debugPrint('Apple ${isSignUp ? "Sign up" : "Login"} clicked');
+    debugPrint('Apple ${widget.isSignUp ? "Sign up" : "Login"} clicked');
   }
 
-  void _handleEmailAuth() {
-    // TODO: Implement email authentication
-    debugPrint('Email ${isSignUp ? "Sign up" : "Login"} clicked');
+  Future<void> _handleEmailAuth() async {
+    // Validate input fields
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      if (!mounted) return;
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        autoCloseDuration: const Duration(seconds: 3),
+        title: const Text('Please fill in all fields'),
+      );
+      return;
+    }
+
+    if (widget.isSignUp) {
+      // Sign up logic - validate confirm password
+      final confirmPassword = _confirmPasswordController.text;
+
+      if (confirmPassword.isEmpty) {
+        if (!mounted) return;
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: const Text('Please confirm your password'),
+        );
+        return;
+      }
+
+      if (password != confirmPassword) {
+        if (!mounted) return;
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: const Text('Passwords do not match'),
+        );
+        return;
+      }
+
+      // AuthService handles errors and shows toasts internally
+      await AuthService().signup(
+        email: email,
+        password: password,
+        context: context,
+      );
+
+      // Close sheet on success (AuthService navigates away)
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } else {
+      // Login logic
+      // AuthService handles errors and shows toasts internally
+      await AuthService().signin(
+        email: email,
+        password: password,
+        context: context,
+      );
+
+      // Close sheet on success (AuthService navigates away)
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24.0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: const BorderRadius.vertical(
+        top: Radius.circular(20),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Handle bar
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.915,
+        child: Padding(
+          padding: const EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            bottom: 24.0,
+            top: 16,
           ),
-          // Title
-          Text(
-            isSignUp ? 'Sign up' : 'Login',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 24),
-          // Google OAuth Button
-          ElevatedButton(
-            onPressed: _handleGoogleAuth,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              elevation: 0,
-              side: BorderSide(
-                color: Colors.grey[300]!,
-                width: 1,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              minimumSize: const Size(double.infinity, 48),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Google logo
-                SvgPicture.asset(
-                  'assets/svg/google-logo.svg',
-                  width: 20,
-                  height: 20,
-                  placeholderBuilder: (context) => const SizedBox(
-                    width: 20,
-                    height: 20,
+                // Title with close button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(width: 40), // Spacer for centering
+                    Expanded(
+                      child: Text(
+                        'Kaboodle',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.close,
+                        size: 24,
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  widget.isSignUp
+                      ? 'Create an account'
+                      : 'Login to your account',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 16),
+                // Email field
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Email',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        hintText: 'Email Address',
+                        hintStyle: Theme.of(context).textTheme.bodyLarge,
+                        filled: false,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+                // Password field
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Password',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        hintText: 'Password',
+                        hintStyle: Theme.of(context).textTheme.bodyLarge,
+                        filled: false,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            width: 1,
+                          ),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                      ),
+                      obscureText: _obscurePassword,
+                      textInputAction: widget.isSignUp
+                          ? TextInputAction.next
+                          : TextInputAction.done,
+                      onEditingComplete:
+                          widget.isSignUp ? null : _handleEmailAuth,
+                    ),
+                  ],
+                ),
+                // Confirm password field (only for signup)
+                if (widget.isSignUp) ...[
+                  const SizedBox(height: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Confirm Password',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _confirmPasswordController,
+                        decoration: InputDecoration(
+                          hintText: 'Confirm Password',
+                          hintStyle: Theme.of(context).textTheme.bodyLarge,
+                          filled: false,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              width: 1,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              width: 1,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              width: 1,
+                            ),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                        ),
+                        obscureText: _obscureConfirmPassword,
+                        textInputAction: TextInputAction.done,
+                        onEditingComplete: _handleEmailAuth,
+                      ),
+                    ],
+                  ),
+                ],
+                // Forgot password link (only for login)
+                if (!widget.isSignUp) ...[
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        // TODO: Implement forgot password
+                        debugPrint('Forgot password clicked');
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'Forgot password?',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                // Submit button
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    minimumSize: const Size(double.infinity, 48),
+                    elevation: 0,
+                  ),
+                  onPressed: _handleEmailAuth,
+                  child: Text(
+                    widget.isSignUp ? 'Sign up' : 'Login',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  'Continue with Google',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.black,
+                const SizedBox(height: 24),
+                // Divider with "or" text
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        thickness: 1,
+                        color: Colors.grey[300],
                       ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'or',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        thickness: 1,
+                        color: Colors.grey[300],
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 24),
+                // Google OAuth Button
+                ElevatedButton(
+                  onPressed: _handleGoogleAuth,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 0,
+                    side: BorderSide(
+                      color: Colors.grey[300]!,
+                      width: 1,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    minimumSize: const Size(double.infinity, 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Google logo
+                      SvgPicture.asset(
+                        'assets/svg/google-logo.svg',
+                        width: 20,
+                        height: 20,
+                        placeholderBuilder: (context) => const SizedBox(
+                          width: 20,
+                          height: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Continue with Google',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Colors.black,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Apple OAuth Button
+                ElevatedButton(
+                  onPressed: _handleAppleAuth,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    minimumSize: const Size(double.infinity, 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Apple logo
+                      SvgPicture.asset(
+                        'assets/svg/apple-logo.svg',
+                        width: 20,
+                        height: 20,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                        placeholderBuilder: (context) => const SizedBox(
+                          width: 20,
+                          height: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Continue with Apple',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Colors.white,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Add bottom padding for safe area
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          // Apple OAuth Button
-          ElevatedButton(
-            onPressed: _handleAppleAuth,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              minimumSize: const Size(double.infinity, 48),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Apple logo
-                SvgPicture.asset(
-                  'assets/svg/apple-logo.svg',
-                  width: 20,
-                  height: 20,
-                  colorFilter: const ColorFilter.mode(
-                    Colors.white,
-                    BlendMode.srcIn,
-                  ),
-                  placeholderBuilder: (context) => const SizedBox(
-                    width: 20,
-                    height: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Continue with Apple',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.white,
-                      ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Divider with "or" text
-          Row(
-            children: [
-              Expanded(
-                child: Divider(
-                  thickness: 1,
-                  color: Colors.grey[300],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'or',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
-                ),
-              ),
-              Expanded(
-                child: Divider(
-                  thickness: 1,
-                  color: Colors.grey[300],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          // Email sign up/login button
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              backgroundColor: Colors.grey[200],
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              minimumSize: const Size(double.infinity, 48),
-              elevation: 0,
-            ),
-            onPressed: _handleEmailAuth,
-            child: Text(
-              isSignUp ? 'Sign up with Email' : 'Login with Email',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ),
-          // Add bottom padding for safe area
-          SizedBox(height: MediaQuery.of(context).padding.bottom),
-        ],
+        ),
       ),
     );
   }

@@ -28,10 +28,21 @@ class AuthService {
       context.go('/my-packing-lists');
     } on FirebaseAuthException catch (e) {
       String message = '';
-      if (e.code == 'weak-password') {
-        message = 'The password provided is too weak.';
-      } else if (e.code == 'email-already-in-use') {
-        message = 'An account already exists with that email.';
+      switch (e.code) {
+        case 'weak-password':
+          message = 'The password provided is too weak.';
+          break;
+        case 'email-already-in-use':
+          message = 'An account already exists with that email.';
+          break;
+        case 'invalid-email':
+          message = 'The email address is invalid.';
+          break;
+        case 'operation-not-allowed':
+          message = 'Email/password accounts are not enabled.';
+          break;
+        default:
+          message = e.message ?? 'An error occurred during sign up.';
       }
 
       // Ensure context is valid before showing toast
@@ -44,8 +55,17 @@ class AuthService {
           title: Text(message),
         );
       }
-    } catch (_) {
-      // Optional: Handle other exceptions
+    } catch (e) {
+      // Handle other exceptions
+      if (context.mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: Text('An unexpected error occurred: ${e.toString()}'),
+        );
+      }
     }
   }
 
@@ -66,10 +86,25 @@ class AuthService {
       context.go('/my-packing-lists');
     } on FirebaseAuthException catch (e) {
       String message = '';
-      if (e.code == 'invalid-email') {
-        message = 'No user found for that email.';
-      } else if (e.code == 'invalid-credential') {
-        message = 'Wrong password provided for that user.';
+      switch (e.code) {
+        case 'invalid-email':
+          message = 'The email address is invalid.';
+          break;
+        case 'user-disabled':
+          message = 'This account has been disabled.';
+          break;
+        case 'user-not-found':
+          message = 'No user found for that email.';
+          break;
+        case 'wrong-password':
+        case 'invalid-credential':
+          message = 'Wrong password provided for that user.';
+          break;
+        case 'too-many-requests':
+          message = 'Too many failed attempts. Please try again later.';
+          break;
+        default:
+          message = e.message ?? 'An error occurred during sign in.';
       }
 
       // Ensure context is valid before showing toast
@@ -82,8 +117,17 @@ class AuthService {
           title: Text(message),
         );
       }
-    } catch (_) {
-      // Optional: Handle other exceptions
+    } catch (e) {
+      // Handle other exceptions
+      if (context.mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: Text('An unexpected error occurred: ${e.toString()}'),
+        );
+      }
     }
   }
 

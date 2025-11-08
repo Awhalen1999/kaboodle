@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:kaboodle_app/features/auth/widgets/auth_bottom_sheet.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class WelcomeBody extends StatelessWidget {
   const WelcomeBody({super.key});
@@ -35,8 +36,10 @@ class WelcomeBody extends StatelessWidget {
           const SizedBox(height: 32),
           Text('Kaboodle', style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 16),
-          Text('Packing doesn\'t need to be stressful',
-              style: Theme.of(context).textTheme.bodyLarge),
+          Text(
+            'Packing doesn\'t need to be stressful',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
           const SizedBox(height: 32),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -48,17 +51,18 @@ class WelcomeBody extends StatelessWidget {
               elevation: 0,
             ),
             onPressed: () {
-              showModalBottomSheet(
+              CupertinoScaffold.showCupertinoModalBottomSheet(
                 context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
+                expand: false,
                 builder: (context) => const AuthBottomSheet(isSignUp: true),
               );
             },
-            child: Text("Get Started",
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    )),
+            child: Text(
+              "Get Started",
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -71,18 +75,18 @@ class WelcomeBody extends StatelessWidget {
               elevation: 0,
             ),
             onPressed: () {
-              showModalBottomSheet(
+              CupertinoScaffold.showCupertinoModalBottomSheet(
                 context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
+                expand: false,
                 builder: (context) => const AuthBottomSheet(isSignUp: false),
               );
             },
-            child: Text("I already have an account",
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color:
-                          Theme.of(context).colorScheme.onPrimaryFixedVariant,
-                    )),
+            child: Text(
+              "I already have an account",
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimaryFixedVariant,
+                  ),
+            ),
           ),
           const SizedBox(height: 24),
           Padding(
@@ -95,7 +99,8 @@ class WelcomeBody extends StatelessWidget {
                     ),
                 children: [
                   const TextSpan(
-                      text: "By continuing, you agree to Kaboodle's "),
+                    text: "By continuing, you agree to Kaboodle's ",
+                  ),
                   TextSpan(
                     text: 'Terms of Service',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
