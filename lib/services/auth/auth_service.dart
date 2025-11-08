@@ -155,7 +155,7 @@ class AuthService {
     // Delay if needed, then check if context is still valid before redirecting
     await Future.delayed(const Duration(seconds: 1));
     if (!context.mounted) return;
-    context.go('/login');
+    context.go('/welcome');
   }
 
   Future<void> signInWithGoogle({

@@ -35,7 +35,8 @@ class ProfileBody extends StatelessWidget {
     final isHealthy = await tripService.healthCheck();
 
     if (isHealthy) {
-      debugPrint('✅ Health Check PASSED - Backend is running on http://localhost:9000');
+      debugPrint(
+          '✅ Health Check PASSED - Backend is running on http://localhost:9000');
     } else {
       debugPrint('❌ Health Check FAILED - Backend is not reachable');
       debugPrint('Make sure backend is running on http://localhost:9000');
@@ -54,24 +55,31 @@ class ProfileBody extends StatelessWidget {
         children: [
           const Text('P R O F I L E'),
           const SizedBox(height: 24),
-          TextButton(
+          ElevatedButton(
             onPressed: _getUserInfo,
-            child: const Text("Get User Info (Test)"),
-          ),
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
-            onPressed: () => _testBackendConnection(context),
-            icon: const Icon(Icons.cloud),
-            label: const Text("Test Backend API"),
+            child: const Text("Get User Info"),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
             ),
           ),
           const SizedBox(height: 24),
-          TextButton(
+          ElevatedButton(
+            onPressed: () => _testBackendConnection(context),
+            child: const Text("Test Backend API health check"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
             onPressed: () => _logout(context),
             child: const Text("Logout"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
           )
         ],
       ),
