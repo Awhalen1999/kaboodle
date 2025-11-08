@@ -23,8 +23,15 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  void _handleGoogleAuth() {
-    debugPrint('Google ${widget.isSignUp ? "Sign up" : "Login"} clicked');
+  Future<void> _handleGoogleAuth() async {
+    // Google Sign-In works for both signup and login
+    // If user doesn't exist, Firebase creates account automatically
+    await AuthService().signInWithGoogle(context: context);
+
+    // Close sheet on success (AuthService navigates away)
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   void _handleAppleAuth() {

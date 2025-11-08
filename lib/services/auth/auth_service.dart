@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Get current user
   User? getCurrentUser() {
@@ -25,7 +27,7 @@ class AuthService {
 
       // After successful signup, check if the context is still valid before redirecting
       if (!context.mounted) return;
-      context.go('/my-packing-lists');
+      context.go('/profile');
     } on FirebaseAuthException catch (e) {
       String message = '';
       switch (e.code) {
@@ -83,7 +85,7 @@ class AuthService {
 
       // Check if context is valid before redirecting
       if (!context.mounted) return;
-      context.go('/my-packing-lists');
+      context.go('/profile');
     } on FirebaseAuthException catch (e) {
       String message = '';
       switch (e.code) {
@@ -136,10 +138,80 @@ class AuthService {
   }) async {
     // Perform async signout
     await _auth.signOut();
+    await _googleSignIn.signOut();
 
     // Delay if needed, then check if context is still valid before redirecting
     await Future.delayed(const Duration(seconds: 1));
     if (!context.mounted) return;
     context.go('/login');
+  }
+
+  Future<void> signInWithGoogle({
+    required BuildContext context,
+  }) async {
+    try {
+      // Trigger the Google Sign In flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User canceled the sign-in
+        return;
+      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credential
+      await _auth.signInWithCredential(credential);
+
+      // Check if context is valid before redirecting
+      if (!context.mounted) return;
+      context.go('/profile');
+    } on FirebaseAuthException catch (e) {
+      String message = '';
+      switch (e.code) {
+        case 'account-exists-with-different-credential':
+          message =
+              'An account already exists with a different sign-in method.';
+          break;
+        case 'invalid-credential':
+          message = 'The credential is invalid.';
+          break;
+        case 'operation-not-allowed':
+          message = 'Google sign-in is not enabled.';
+          break;
+        default:
+          message = e.message ?? 'An error occurred during Google sign in.';
+      }
+
+      // Ensure context is valid before showing toast
+      if (context.mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: Text(message),
+        );
+      }
+    } catch (e) {
+      // Handle other exceptions
+      if (context.mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: Text('An unexpected error occurred: ${e.toString()}'),
+        );
+      }
+    }
   }
 }

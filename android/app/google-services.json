@@ -12,7 +12,20 @@
           "package_name": "com.example.kaboodle_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "896080834328-6tnjlkfu81s33e9ttop23osp8c8hnnab.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kaboodle_app",
+            "certificate_hash": "f7b8d3c1fe73f670b129cc54deec16cf49f31a9c"
+          }
+        },
+        {
+          "client_id": "896080834328-gug9hj3eceo9vunudn7v59fgffeernam.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAC8AiLHll309iP4TIYRgj6G-XE0FuYJ-w"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "896080834328-gug9hj3eceo9vunudn7v59fgffeernam.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "896080834328-2gc94svdnmtpds7bma4aikfsqa1pr92c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.kaboodleApp"
+              }
+            }
+          ]
         }
       }
     }

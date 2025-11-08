@@ -1,7 +1,6 @@
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class ProfileBody extends StatelessWidget {
   const ProfileBody({super.key});
@@ -35,10 +34,6 @@ class ProfileBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text('P R O F I L E'),
-          TextButton(
-            onPressed: () => context.push('/my-packing-lists'),
-            child: Text("My packing lists"),
-          ),
           const SizedBox(height: 24),
           TextButton(
             onPressed: _getUserInfo,
