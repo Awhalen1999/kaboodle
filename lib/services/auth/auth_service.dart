@@ -13,6 +13,18 @@ class AuthService {
     return _auth.currentUser;
   }
 
+  // Check if user is authenticated
+  bool isAuthenticated() {
+    return _auth.currentUser != null;
+  }
+
+  // Get Firebase ID token for API requests
+  Future<String?> getIdToken({bool forceRefresh = false}) async {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+    return await user.getIdToken(forceRefresh);
+  }
+
   Future<void> signup({
     required String email,
     required String password,

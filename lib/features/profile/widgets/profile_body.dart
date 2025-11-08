@@ -1,6 +1,7 @@
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:kaboodle_app/services/trip/trip_service.dart';
 
 class ProfileBody extends StatelessWidget {
   const ProfileBody({super.key});
@@ -25,6 +26,24 @@ class ProfileBody extends StatelessWidget {
     }
   }
 
+  Future<void> _testBackendConnection(BuildContext context) async {
+    final tripService = TripService();
+
+    debugPrint('--- TESTING BACKEND CONNECTION ---');
+    debugPrint('Testing health check...');
+
+    final isHealthy = await tripService.healthCheck();
+
+    if (isHealthy) {
+      debugPrint('✅ Health Check PASSED - Backend is running on http://localhost:9000');
+    } else {
+      debugPrint('❌ Health Check FAILED - Backend is not reachable');
+      debugPrint('Make sure backend is running on http://localhost:9000');
+    }
+
+    debugPrint('--- END ---');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -37,12 +56,22 @@ class ProfileBody extends StatelessWidget {
           const SizedBox(height: 24),
           TextButton(
             onPressed: _getUserInfo,
-            child: Text("Get User Info (Test)"),
+            child: const Text("Get User Info (Test)"),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            onPressed: () => _testBackendConnection(context),
+            icon: const Icon(Icons.cloud),
+            label: const Text("Test Backend API"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+            ),
           ),
           const SizedBox(height: 24),
           TextButton(
             onPressed: () => _logout(context),
-            child: Text("Logout"),
+            child: const Text("Logout"),
           )
         ],
       ),
