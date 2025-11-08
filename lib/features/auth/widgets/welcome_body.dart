@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:go_router/go_router.dart';
+import 'package:kaboodle_app/features/auth/widgets/auth_bottom_sheet.dart';
 
 class WelcomeBody extends StatelessWidget {
   const WelcomeBody({super.key});
@@ -47,7 +47,14 @@ class WelcomeBody extends StatelessWidget {
               minimumSize: const Size(double.infinity, 48),
               elevation: 0,
             ),
-            onPressed: () => context.push('/signup'),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const AuthBottomSheet(isSignUp: true),
+              );
+            },
             child: Text("Get Started",
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary,
@@ -56,17 +63,25 @@ class WelcomeBody extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.secondary,
+              backgroundColor: Theme.of(context).colorScheme.primaryFixedDim,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
               minimumSize: const Size(double.infinity, 48),
               elevation: 0,
             ),
-            onPressed: () => context.push('/login'),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const AuthBottomSheet(isSignUp: false),
+              );
+            },
             child: Text("I already have an account",
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color:
+                          Theme.of(context).colorScheme.onPrimaryFixedVariant,
                     )),
           ),
           const SizedBox(height: 24),
