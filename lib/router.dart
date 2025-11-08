@@ -1,5 +1,3 @@
-import 'package:kaboodle_app/features/auth/pages/login_view.dart';
-import 'package:kaboodle_app/features/auth/pages/signup_view.dart';
 import 'package:kaboodle_app/features/auth/pages/welcome_view.dart';
 import 'package:kaboodle_app/features/profile/pages/profile_view.dart';
 import 'package:go_router/go_router.dart';
@@ -16,14 +14,6 @@ final router = GoRouter(
     GoRoute(
       path: '/welcome',
       builder: (context, state) => WelcomeView(),
-    ),
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => LoginView(),
-    ),
-    GoRoute(
-      path: '/signup',
-      builder: (context, state) => SignupView(),
     ),
     GoRoute(
       path: '/profile',
