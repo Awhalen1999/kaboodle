@@ -62,7 +62,7 @@ class _SignupBodyState extends State<SignupBody> {
           const SizedBox(height: 24),
           Text(
             'Kaboodle',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme.of(context).textTheme.headlineLarge,
           ),
           const SizedBox(height: 24),
           Text(

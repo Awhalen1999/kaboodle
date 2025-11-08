@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:kaboodle_app/router.dart';
+import 'package:kaboodle_app/theme/light_mode.dart';
+import 'package:kaboodle_app/theme/dark_mode.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +20,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
+      theme: lightMode,
+      darkTheme: darkMode,
       routerConfig: router,
     );
   }
