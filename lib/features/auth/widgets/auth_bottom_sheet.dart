@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AuthBottomSheet extends StatelessWidget {
   final bool isSignUp;
@@ -14,6 +15,11 @@ class AuthBottomSheet extends StatelessWidget {
 
   void _handleAppleAuth() {
     debugPrint('Apple ${isSignUp ? "Sign up" : "Login"} clicked');
+  }
+
+  void _handleEmailAuth() {
+    // TODO: Implement email authentication
+    debugPrint('Email ${isSignUp ? "Sign up" : "Login"} clicked');
   }
 
   @override
@@ -46,11 +52,11 @@ class AuthBottomSheet extends StatelessWidget {
           Text(
             isSignUp ? 'Sign up' : 'Login',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           // Google OAuth Button
           ElevatedButton(
             onPressed: _handleGoogleAuth,
@@ -71,31 +77,14 @@ class AuthBottomSheet extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Google logo placeholder
-                Container(
+                // Google logo
+                SvgPicture.asset(
+                  'assets/svg/google-logo.svg',
                   width: 20,
                   height: 20,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.blue,
-                        Colors.red,
-                        Colors.yellow,
-                        Colors.green,
-                      ],
-                      stops: const [0.0, 0.33, 0.66, 1.0],
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'G',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
+                  placeholderBuilder: (context) => const SizedBox(
+                    width: 20,
+                    height: 20,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -108,7 +97,7 @@ class AuthBottomSheet extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           // Apple OAuth Button
           ElevatedButton(
             onPressed: _handleAppleAuth,
@@ -125,11 +114,19 @@ class AuthBottomSheet extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Apple logo placeholder
-                Icon(
-                  Icons.apple,
-                  color: Colors.white,
-                  size: 20,
+                // Apple logo
+                SvgPicture.asset(
+                  'assets/svg/apple-logo.svg',
+                  width: 20,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
+                  placeholderBuilder: (context) => const SizedBox(
+                    width: 20,
+                    height: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -142,13 +139,13 @@ class AuthBottomSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          // Email sign up text
-          Text(
-            isSignUp ? 'Sign up with Email' : 'Login with Email',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+          // Email sign up/login button
+          TextButton(
+            onPressed: _handleEmailAuth,
+            child: Text(
+              isSignUp ? 'Sign up with Email' : 'Login with Email',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
           ),
           // Add bottom padding for safe area
           SizedBox(height: MediaQuery.of(context).padding.bottom),
