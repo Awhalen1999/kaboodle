@@ -139,8 +139,45 @@ class AuthBottomSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
+          // Divider with "or" text
+          Row(
+            children: [
+              Expanded(
+                child: Divider(
+                  thickness: 1,
+                  color: Colors.grey[300],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'or',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+              ),
+              Expanded(
+                child: Divider(
+                  thickness: 1,
+                  color: Colors.grey[300],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
           // Email sign up/login button
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              backgroundColor: Colors.grey[200],
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              minimumSize: const Size(double.infinity, 48),
+              elevation: 0,
+            ),
             onPressed: _handleEmailAuth,
             child: Text(
               isSignUp ? 'Sign up with Email' : 'Login with Email',
