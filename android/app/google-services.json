@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "896080834328",
+    "project_id": "kaboodle-348de",
+    "storage_bucket": "kaboodle-348de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:896080834328:android:e310f169edf40a34e3b86d",
+        "android_client_info": {
+          "package_name": "com.example.kaboodle_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAC8AiLHll309iP4TIYRgj6G-XE0FuYJ-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
