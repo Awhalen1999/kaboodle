@@ -9,6 +9,9 @@ ThemeData lightMode = ThemeData(
     onSurface: Colors.black,
     primaryFixedDim: Color.fromARGB(255, 210, 227, 255),
     onPrimaryFixedVariant: Colors.black,
+    inverseSurface: Color(0xFF000000),
+    onInverseSurface: Colors.white,
+    surfaceContainer: Colors.white,
   ),
   textTheme: ThemeData.light().textTheme.copyWith(
         headlineLarge: TextStyle(

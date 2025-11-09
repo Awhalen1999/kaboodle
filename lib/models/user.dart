@@ -2,8 +2,7 @@ class User {
   final String id;
   final String email;
   final String? displayName;
-  final String? photoUrl;
-  final String tier;
+  final String? photoUrl; 
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -12,7 +11,6 @@ class User {
     required this.email,
     this.displayName,
     this.photoUrl,
-    required this.tier,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -24,7 +22,6 @@ class User {
       email: json['email'] as String,
       displayName: json['displayName'] as String?,
       photoUrl: json['photoUrl'] as String?,
-      tier: json['tier'] as String? ?? 'free',
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -37,7 +34,6 @@ class User {
       'email': email,
       'displayName': displayName,
       'photoUrl': photoUrl,
-      'tier': tier,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -49,7 +45,6 @@ class User {
     String? email,
     String? displayName,
     String? photoUrl,
-    String? tier,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -58,7 +53,6 @@ class User {
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
       photoUrl: photoUrl ?? this.photoUrl,
-      tier: tier ?? this.tier,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
+import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
 
 class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
@@ -10,6 +11,20 @@ class ProfileBody extends ConsumerWidget {
   String _formatMemberSince(DateTime? creationTime) {
     if (creationTime == null) return 'Unknown';
     return DateFormat('MMMM yyyy').format(creationTime);
+  }
+
+  String _formatDisplayName(String? displayName, String email) {
+    // If display name exists, use first name only
+    if (displayName != null && displayName.isNotEmpty) {
+      return displayName.split(' ').first;
+    }
+
+    // Otherwise, use email username with ellipsis if too long
+    final username = email.split('@').first;
+    if (username.length > 12) {
+      return '${username.substring(0, 12)}...';
+    }
+    return username;
   }
 
   @override
@@ -75,11 +90,10 @@ class ProfileBody extends ConsumerWidget {
 
     final user = userState.user!;
 
-    return Center(
+    return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Rounded square profile picture
             Container(
@@ -112,45 +126,40 @@ class ProfileBody extends ConsumerWidget {
 
             // Greeting with name
             Text(
-              'Hey, ${user.displayName ?? user.email}',
+              'Hey, ${_formatDisplayName(user.displayName, user.email)} ✌️',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
 
-            // Peace emoji
-            const Text(
-              '✌️',
-              style: TextStyle(fontSize: 32),
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             // Tier badge
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 6,
+                horizontal: 8,
+                vertical: 2,
               ),
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Theme.of(context).colorScheme.inverseSurface,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.grey[400]!,
+                  color: Theme.of(context).colorScheme.onInverseSurface,
                   width: 1,
                 ),
               ),
               child: Text(
-                user.tier.toUpperCase(),
+                "FREE TIER",
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[800],
+                  fontWeight: FontWeight.w700,
+                  fontStyle: FontStyle.italic,
+                  color: Theme.of(context).colorScheme.onInverseSurface,
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             // Member since
             Text(
@@ -161,12 +170,131 @@ class ProfileBody extends ConsumerWidget {
             ),
             const SizedBox(height: 32),
 
-            // Temporary logout button
-            TextButton(
-              onPressed: () {
-                AuthService().signout(context: context, ref: ref);
-              },
-              child: const Text('Sign Out'),
+            // Settings tiles
+            Column(
+              children: [
+                SettingsTile(
+                  icon: Icons.person,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  text: 'Profile',
+                  onTap: () {
+                    // Profile settings action
+                  },
+                  showDivider: false,
+                ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Text(
+                      'App Styles',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SettingsTileGroup(
+                  tiles: [
+                    SettingsTile(
+                      icon: Icons.dark_mode,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      text: 'App Theme',
+                      onTap: () {
+                        // Dark mode action
+                      },
+                      isGrouped: true,
+                    ),
+                    SettingsTile(
+                      icon: Icons.light_mode,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      text: 'Icon Style',
+                      onTap: () {
+                        // Light mode action
+                      },
+                      isGrouped: true,
+                      showDivider: false,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Text(
+                      'Device Settings',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SettingsTileGroup(
+                  tiles: [
+                    SettingsTile(
+                      icon: Icons.language,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      text: 'Automatic Time Zone',
+                      onTap: () {
+                        // Automatic time zone action
+                      },
+                      isGrouped: true,
+                    ),
+                    SettingsTile(
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      text: 'Time Zone',
+                      onTap: () {
+                        // Time zone action
+                      },
+                      isGrouped: true,
+                      showDivider: false,
+                      showChevron: false,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SettingsTile(
+                  icon: Icons.credit_card,
+                  iconColor: Colors.amber,
+                  text: 'Manage Subscription',
+                  onTap: () {
+                    // Manage subscription action
+                  },
+                  showDivider: false,
+                ),
+                const SizedBox(height: 16),
+                SettingsTile(
+                  icon: Icons.star_outline,
+                  iconColor: Colors.purple,
+                  text: 'Give Feedback',
+                  onTap: () {
+                    // Give feedback action
+                  },
+                  showDivider: false,
+                ),
+                const SizedBox(height: 16),
+                SettingsTile(
+                  icon: Icons.logout,
+                  iconColor: Colors.red,
+                  text: 'Logout',
+                  onTap: () {
+                    AuthService().signout(context: context, ref: ref);
+                  },
+                  showDivider: false,
+                  showChevron: false,
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            // Version text
+            // todo: make this dynamic
+            Center(
+              child: Text(
+                'v 1.0.0',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+              ),
             ),
           ],
         ),
