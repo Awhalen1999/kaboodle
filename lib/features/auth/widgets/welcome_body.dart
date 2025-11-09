@@ -17,13 +17,6 @@ class WelcomeBody extends StatelessWidget {
           // Expanded fills remaining space and pushes content down
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.grey.withOpacity(0.3),
-                  width: 1,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
               child: Center(
                 child: Icon(
                   Icons.rocket_launch,

@@ -39,7 +39,7 @@ class AuthService {
 
       // After successful signup, check if the context is still valid before redirecting
       if (!context.mounted) return;
-      context.go('/profile');
+      context.go('/my-packing-lists');
     } on FirebaseAuthException catch (e) {
       String message = '';
       switch (e.code) {
@@ -97,7 +97,7 @@ class AuthService {
 
       // Check if context is valid before redirecting
       if (!context.mounted) return;
-      context.go('/profile');
+      context.go('/my-packing-lists');
     } on FirebaseAuthException catch (e) {
       String message = '';
       switch (e.code) {
@@ -185,7 +185,7 @@ class AuthService {
 
       // Check if context is valid before redirecting
       if (!context.mounted) return;
-      context.go('/profile');
+      context.go('/my-packing-lists');
     } on FirebaseAuthException catch (e) {
       String message = '';
       switch (e.code) {

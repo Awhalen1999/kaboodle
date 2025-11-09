@@ -1,7 +1,8 @@
+import 'package:go_router/go_router.dart';
+import 'package:kaboodle_app/features/my_packing_lists/pages/my_packing_lists_view.dart';
+import 'package:kaboodle_app/services/auth/auth_gate.dart';
 import 'package:kaboodle_app/features/auth/pages/welcome_view.dart';
 import 'package:kaboodle_app/features/profile/pages/profile_view.dart';
-import 'package:go_router/go_router.dart';
-import 'package:kaboodle_app/services/auth/auth_gate.dart';
 
 // GoRouter configuration
 final router = GoRouter(
@@ -18,6 +19,10 @@ final router = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => ProfileView(),
+    ),
+    GoRoute(
+      path: '/my-packing-lists',
+      builder: (context, state) => MyPackingListsView(),
     ),
   ],
 );
