@@ -122,7 +122,7 @@ class ProfileBody extends ConsumerWidget {
                       color: Colors.grey[600],
                     ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // Greeting with name
             Text(
@@ -133,32 +133,6 @@ class ProfileBody extends ConsumerWidget {
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 8),
-
-            // Tier badge
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 2,
-              ),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.inverseSurface,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                "FREE TIER",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  fontStyle: FontStyle.italic,
-                  color: Theme.of(context).colorScheme.onInverseSurface,
-                ),
-              ),
-            ),
             const SizedBox(height: 8),
 
             // Member since
@@ -219,41 +193,15 @@ class ProfileBody extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
-                    child: Text(
-                      'Device Settings',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                SettingsTileGroup(
-                  tiles: [
-                    SettingsTile(
-                      icon: Icons.language,
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      text: 'Automatic Time Zone',
-                      onTap: () {
-                        // Automatic time zone action
-                      },
-                      isGrouped: true,
-                      showChevron: false,
-                    ),
-                    SettingsTile(
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      text: 'Time Zone',
-                      onTap: () {
-                        // Time zone action
-                      },
-                      isGrouped: true,
-                      showDivider: false,
-                      showChevron: false,
-                    ),
-                    // todo: add notification settings
-                  ],
+                SettingsTile(
+                  icon: Icons.language,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  text: 'Automatic Time Zone',
+                  onTap: () {
+                    // Automatic time zone action
+                  },
+                  showDivider: false,
+                  showChevron: false,
                 ),
                 const SizedBox(height: 16),
                 SettingsTile(
@@ -266,25 +214,78 @@ class ProfileBody extends ConsumerWidget {
                   showDivider: false,
                 ),
                 const SizedBox(height: 16),
-                SettingsTile(
-                  icon: Icons.star_outline,
-                  iconColor: Colors.purple,
-                  text: 'Give Feedback',
-                  onTap: () {
-                    // Give feedback action
-                  },
-                  showDivider: false,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Text(
+                      'Support & Feedback',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SettingsTileGroup(
+                  tiles: [
+                    SettingsTile(
+                      icon: Icons.star_outline,
+                      iconColor: Colors.purple,
+                      text: 'Give Feedback',
+                      onTap: () {
+                        // Give feedback action
+                      },
+                      isGrouped: true,
+                    ),
+                    SettingsTile(
+                      icon: Icons.info,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      text: 'Help & Support',
+                      onTap: () {
+                        // Light mode action
+                      },
+                      isGrouped: true,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
-                SettingsTile(
-                  icon: Icons.info,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  text: 'Help & Support',
-                  onTap: () {
-                    // Help & support action
-                  },
-                  showDivider: false,
-                  showChevron: false,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Text(
+                      'Legal',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SettingsTileGroup(
+                  tiles: [
+                    SettingsTile(
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      text: 'Terms of Service',
+                      onTap: () {
+                        // Terms of service action
+                      },
+                      isGrouped: true,
+                    ),
+                    SettingsTile(
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      text: 'Privacy Policy',
+                      onTap: () {
+                        // Privacy policy action
+                      },
+                      isGrouped: true,
+                    ),
+                    SettingsTile(
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      text: 'Data Deletion',
+                      onTap: () {
+                        // Data deletion action
+                      },
+                      isGrouped: true,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 SettingsTile(
