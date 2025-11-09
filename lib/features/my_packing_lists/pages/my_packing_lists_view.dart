@@ -22,6 +22,12 @@ class MyPackingListsView extends StatelessWidget {
       ),
       drawer: const MenuDrawer(),
       body: const MyPackingListsBody(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          print('🎒 Start new packing list clicked');
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
