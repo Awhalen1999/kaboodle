@@ -17,12 +17,12 @@ final router = GoRouter(
       builder: (context, state) => WelcomeView(),
     ),
     GoRoute(
-      path: '/profile',
-      builder: (context, state) => ProfileView(),
-    ),
-    GoRoute(
       path: '/my-packing-lists',
       builder: (context, state) => MyPackingListsView(),
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => ProfileView(),
     ),
   ],
 );

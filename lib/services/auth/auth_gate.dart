@@ -1,5 +1,5 @@
 import 'package:kaboodle_app/features/auth/pages/welcome_view.dart';
-import 'package:kaboodle_app/features/profile/pages/profile_view.dart';
+import 'package:kaboodle_app/features/my_packing_lists/pages/my_packing_lists_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +13,7 @@ class AuthGate extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return const ProfileView();
+            return const MyPackingListsView();
           } else {
             return const WelcomeView();
           }
