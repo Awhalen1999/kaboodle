@@ -199,11 +199,12 @@ class ProfileBody extends ConsumerWidget {
                     SettingsTile(
                       icon: Icons.dark_mode,
                       iconColor: Theme.of(context).colorScheme.primary,
-                      text: 'App Theme',
+                      text: 'Dark Mode',
                       onTap: () {
                         // Dark mode action
                       },
                       isGrouped: true,
+                      showChevron: false,
                     ),
                     SettingsTile(
                       icon: Icons.light_mode,
@@ -239,6 +240,7 @@ class ProfileBody extends ConsumerWidget {
                         // Automatic time zone action
                       },
                       isGrouped: true,
+                      showChevron: false,
                     ),
                     SettingsTile(
                       iconColor: Theme.of(context).colorScheme.primary,
@@ -250,6 +252,7 @@ class ProfileBody extends ConsumerWidget {
                       showDivider: false,
                       showChevron: false,
                     ),
+                    // todo: add notification settings
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -271,6 +274,17 @@ class ProfileBody extends ConsumerWidget {
                     // Give feedback action
                   },
                   showDivider: false,
+                ),
+                const SizedBox(height: 16),
+                SettingsTile(
+                  icon: Icons.info,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  text: 'Help & Support',
+                  onTap: () {
+                    // Help & support action
+                  },
+                  showDivider: false,
+                  showChevron: false,
                 ),
                 const SizedBox(height: 16),
                 SettingsTile(
