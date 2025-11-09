@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kaboodle_app/providers/trips_provider.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -147,10 +149,15 @@ class AuthService {
 
   Future<void> signout({
     required BuildContext context,
+    required WidgetRef ref,
   }) async {
-    // Perform async signout
+    // Perform async signout first
     await _auth.signOut();
     await _googleSignIn.signOut();
+
+    // Invalidate trips provider after signout to clear state and prevent data sharing across accounts
+    // This order prevents the provider from trying to load trips while user is still authenticated
+    ref.invalidate(tripsProvider);
 
     // Delay if needed, then check if context is still valid before redirecting
     await Future.delayed(const Duration(seconds: 1));

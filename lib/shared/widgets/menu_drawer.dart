@@ -53,64 +53,43 @@ class MenuDrawer extends ConsumerWidget {
                 leading: const Icon(Icons.double_arrow_rounded),
                 onTap: () {
                   Navigator.pop(context);
-                  context.push('/upcoming-trips');
+                  context.push('/my-packing-lists?tab=upcoming');
                 },
               ),
               const Divider(
                 color: Colors.grey,
               ),
 
-              // Trips list section - fills remaining space and scrolls if needed
+              // Trips count section - simple text display
               Expanded(
-                child: tripsState.isLoading
-                    ? const Center(
-                        child: Padding(
+                child: Center(
+                  child: tripsState.isLoading
+                      ? const Padding(
                           padding: EdgeInsets.all(16.0),
                           child: CircularProgressIndicator(),
-                        ),
-                      )
-                    : tripsState.isEmpty
-                        ? Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text(
-                              'Nothing here yet',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
+                        )
+                      : tripsState.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                'Nothing here yet',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                '${tripsState.trips.length} trip${tripsState.trips.length == 1 ? '' : 's'}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
-                          )
-                        : ListView.builder(
-                            itemCount: tripsState.trips.length,
-                            itemBuilder: (context, index) {
-                              final trip = tripsState.trips[index];
-                              return ListTile(
-                                dense: true,
-                                leading: Icon(
-                                  Icons.card_travel_outlined,
-                                  size: 20,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                title: Text(
-                                  trip.name,
-                                  style: const TextStyle(fontSize: 14),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                subtitle: Text(
-                                  '${trip.startDate.toString().split(' ')[0]} - ${trip.endDate.toString().split(' ')[0]}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  context.push('/trips/${trip.id}');
-                                },
-                              );
-                            },
-                          ),
+                ),
               ),
 
               // Profile section - always pinned at bottom

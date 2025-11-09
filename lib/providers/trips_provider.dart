@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kaboodle_app/models/trip.dart';
 import 'package:kaboodle_app/providers/trips_state.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
@@ -16,6 +17,14 @@ class TripsNotifier extends StateNotifier<TripsState> {
   Future<void> loadTrips({String status = 'all'}) async {
     // Don't reload if already loading
     if (state.isLoading) return;
+
+    // Check if user is authenticated before making API call
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('⚠️ [TripsProvider] User not authenticated, skipping load');
+      state = state.copyWith(isLoading: false, error: 'User not authenticated');
+      return;
+    }
 
     print('📦 [TripsProvider] Loading trips (status: $status)...');
     state = state.copyWith(isLoading: true, error: null);
@@ -47,8 +56,12 @@ class TripsNotifier extends StateNotifier<TripsState> {
     }
   }
 
-  /// Refresh trips (force reload)
+  /// Refresh trips (force reload, bypasses loading guard)
   Future<void> refreshTrips() async {
+    // Force refresh by resetting loading state first
+    if (state.isLoading) {
+      state = state.copyWith(isLoading: false);
+    }
     await loadTrips();
   }
 

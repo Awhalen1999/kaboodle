@@ -18,7 +18,10 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/my-packing-lists',
-      builder: (context, state) => MyPackingListsView(),
+      builder: (context, state) {
+        final initialTab = state.uri.queryParameters['tab'];
+        return MyPackingListsView(initialTab: initialTab);
+      },
     ),
     GoRoute(
       path: '/profile',

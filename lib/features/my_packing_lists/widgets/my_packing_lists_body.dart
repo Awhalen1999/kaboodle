@@ -4,14 +4,23 @@ import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/shared/widgets/filter_chip_button.dart';
 
 class MyPackingListsBody extends ConsumerStatefulWidget {
-  const MyPackingListsBody({super.key});
+  final String? initialTab;
+
+  const MyPackingListsBody({super.key, this.initialTab});
 
   @override
   ConsumerState<MyPackingListsBody> createState() => _MyPackingListsBodyState();
 }
 
 class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
-  String selectedFilter = 'all';
+  late String selectedFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set initial filter based on the parameter, default to 'all'
+    selectedFilter = widget.initialTab ?? 'all';
+  }
 
   @override
   Widget build(BuildContext context) {

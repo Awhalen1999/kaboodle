@@ -4,7 +4,9 @@ import 'package:kaboodle_app/shared/widgets/custom_app_bar.dart';
 import 'package:kaboodle_app/shared/widgets/menu_drawer.dart';
 
 class MyPackingListsView extends StatelessWidget {
-  const MyPackingListsView({super.key});
+  final String? initialTab;
+
+  const MyPackingListsView({super.key, this.initialTab});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class MyPackingListsView extends StatelessWidget {
         ),
       ),
       drawer: const MenuDrawer(),
-      body: const MyPackingListsBody(),
+      body: MyPackingListsBody(initialTab: initialTab),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           print('🎒 Start new packing list clicked');

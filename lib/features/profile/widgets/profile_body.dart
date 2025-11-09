@@ -1,14 +1,15 @@
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 
-class ProfileBody extends StatelessWidget {
+class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
 
-  // Use the new signout method, passing context
-  Future<void> _logout(BuildContext context) async {
-    await AuthService().signout(context: context);
+  // Use the new signout method, passing context and ref
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    await AuthService().signout(context: context, ref: ref);
   }
 
   void _getUserInfo() {
@@ -46,7 +47,7 @@ class ProfileBody extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -74,7 +75,7 @@ class ProfileBody extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () => _logout(context),
+            onPressed: () => _logout(context, ref),
             child: const Text("Logout"),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
