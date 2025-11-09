@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/services/auth/auth_service.dart';
 
 class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
@@ -14,6 +15,15 @@ class ProfileBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userState = ref.watch(userProvider);
+
+    // TanStack Query pattern: Load data on demand if not already loaded
+    if (!userState.hasLoaded && !userState.isLoading) {
+      print('🎯 [ProfileBody] Triggering user profile load');
+      // Trigger load after build completes
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(userProvider.notifier).loadUserProfile();
+      });
+    }
 
     // Loading state
     if (userState.isLoading) {
@@ -148,6 +158,15 @@ class ProfileBody extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
+            ),
+            const SizedBox(height: 32),
+
+            // Temporary logout button
+            TextButton(
+              onPressed: () {
+                AuthService().signout(context: context, ref: ref);
+              },
+              child: const Text('Sign Out'),
             ),
           ],
         ),

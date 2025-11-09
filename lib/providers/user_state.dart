@@ -5,11 +5,13 @@ class UserState {
   final User? user;
   final bool isLoading;
   final String? error;
+  final bool hasLoaded; // Track if we've attempted to load data
 
   const UserState({
     this.user,
     this.isLoading = false,
     this.error,
+    this.hasLoaded = false,
   });
 
   /// Create a copy of this state with some fields replaced
@@ -17,11 +19,14 @@ class UserState {
     User? user,
     bool? isLoading,
     String? error,
+    bool clearError = false,
+    bool? hasLoaded,
   }) {
     return UserState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
-      error: error,
+      error: clearError ? null : (error ?? this.error),
+      hasLoaded: hasLoaded ?? this.hasLoaded,
     );
   }
 

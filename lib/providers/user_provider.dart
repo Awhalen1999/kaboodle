@@ -7,42 +7,66 @@ import 'package:kaboodle_app/services/user/user_service.dart';
 /// Notifier for managing user state
 class UserNotifier extends StateNotifier<UserState> {
   final UserService _userService = UserService();
+  int _authCheckAttempts = 0;
+  static const int _maxAuthCheckAttempts = 3;
 
   UserNotifier() : super(const UserState()) {
-    // Auto-fetch user profile when provider is created
-    loadUserProfile();
+    print('🏗️ [UserProvider] Provider initialized');
+    // Don't auto-fetch - let widgets trigger load on demand (TanStack Query pattern)
   }
 
   /// Load user profile from the API
   Future<void> loadUserProfile() async {
+    print('🔄 [UserProvider] loadUserProfile() called');
+
     // Don't reload if already loading
-    if (state.isLoading) return;
+    if (state.isLoading) {
+      print('⏭️ [UserProvider] Already loading, skipping');
+      return;
+    }
+
+    // Check if already loaded
+    if (state.hasLoaded) {
+      print('✨ [UserProvider] Already loaded, using cached data');
+      return;
+    }
 
     // Check if user is authenticated before making API call
     final authUser = auth.FirebaseAuth.instance.currentUser;
     if (authUser == null) {
-      print('⚠️ [UserProvider] User not authenticated, skipping load');
-      state = state.copyWith(
-        isLoading: false,
-        error: 'User not authenticated',
-      );
+      _authCheckAttempts++;
+      print('⚠️ [UserProvider] User not authenticated (attempt $_authCheckAttempts/$_maxAuthCheckAttempts)');
+
+      // After max attempts, mark as loaded to prevent infinite loops
+      if (_authCheckAttempts >= _maxAuthCheckAttempts) {
+        print('🛑 [UserProvider] Max auth check attempts reached, stopping retries');
+        state = state.copyWith(
+          isLoading: false,
+          error: 'User not authenticated',
+          hasLoaded: true,
+        );
+      }
       return;
     }
 
-    print('👤 [UserProvider] Loading user profile...');
-    state = state.copyWith(isLoading: true, error: null);
+    // Reset counter on successful auth
+    _authCheckAttempts = 0;
+
+    print('👤 [UserProvider] Starting API call...');
+    state = state.copyWith(isLoading: true, clearError: true);
 
     try {
       final user = await _userService.getUserProfile();
 
       if (user != null) {
         print('✅ [UserProvider] User profile loaded: ${user.displayName ?? user.email}');
-        state = UserState(user: user, isLoading: false);
+        state = UserState(user: user, isLoading: false, hasLoaded: true);
       } else {
         print('❌ [UserProvider] Failed to load user profile');
         state = state.copyWith(
           isLoading: false,
           error: 'Failed to load user profile',
+          hasLoaded: true,
         );
       }
     } catch (e) {
@@ -50,16 +74,16 @@ class UserNotifier extends StateNotifier<UserState> {
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
+        hasLoaded: true,
       );
     }
   }
 
   /// Refresh user profile (force reload)
   Future<void> refreshUserProfile() async {
-    // Force refresh by resetting loading state first
-    if (state.isLoading) {
-      state = state.copyWith(isLoading: false);
-    }
+    print('🔄 [UserProvider] refreshUserProfile() called - forcing reload');
+    // Force refresh by resetting hasLoaded to trigger fresh load
+    state = state.copyWith(hasLoaded: false);
     await loadUserProfile();
   }
 
@@ -93,12 +117,14 @@ class UserNotifier extends StateNotifier<UserState> {
 
   /// Clear user state (for logout)
   void clearUser() {
+    print('🧹 [UserProvider] Clearing user state');
     state = const UserState();
   }
 
   /// Clear error state
   void clearError() {
-    state = state.copyWith(error: null);
+    print('🧹 [UserProvider] Clearing error state');
+    state = state.copyWith(clearError: true);
   }
 }
 

@@ -5,11 +5,13 @@ class TripsState {
   final List<Trip> trips;
   final bool isLoading;
   final String? error;
+  final bool hasLoaded; // Track if we've attempted to load data
 
   const TripsState({
     this.trips = const [],
     this.isLoading = false,
     this.error,
+    this.hasLoaded = false,
   });
 
   /// Create a copy of this state with some fields replaced
@@ -17,11 +19,14 @@ class TripsState {
     List<Trip>? trips,
     bool? isLoading,
     String? error,
+    bool clearError = false,
+    bool? hasLoaded,
   }) {
     return TripsState(
       trips: trips ?? this.trips,
       isLoading: isLoading ?? this.isLoading,
-      error: error,
+      error: clearError ? null : (error ?? this.error),
+      hasLoaded: hasLoaded ?? this.hasLoaded,
     );
   }
 

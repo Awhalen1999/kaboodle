@@ -26,6 +26,14 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
   Widget build(BuildContext context) {
     final tripsState = ref.watch(tripsProvider);
 
+    // TanStack Query pattern: Load data on demand if not already loaded
+    if (!tripsState.hasLoaded && !tripsState.isLoading) {
+      print('🎯 [MyPackingListsBody] Triggering trips load');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(tripsProvider.notifier).loadTrips();
+      });
+    }
+
     if (tripsState.isLoading) {
       return const Center(
         child: CircularProgressIndicator(),

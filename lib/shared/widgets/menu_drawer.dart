@@ -14,6 +14,22 @@ class MenuDrawer extends ConsumerWidget {
     final tripsState = ref.watch(tripsProvider);
     final userState = ref.watch(userProvider);
 
+    // TanStack Query pattern: Load user data on demand if not already loaded
+    if (!userState.hasLoaded && !userState.isLoading) {
+      print('🎯 [MenuDrawer] Triggering user profile load');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(userProvider.notifier).loadUserProfile();
+      });
+    }
+
+    // TanStack Query pattern: Load trips data on demand if not already loaded
+    if (!tripsState.hasLoaded && !tripsState.isLoading) {
+      print('🎯 [MenuDrawer] Triggering trips load');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(tripsProvider.notifier).loadTrips();
+      });
+    }
+
     return Drawer(
       child: SafeArea(
         child: Padding(
@@ -109,7 +125,9 @@ class MenuDrawer extends ConsumerWidget {
                     vertical: -4,
                   ),
                   title: Text(
-                    userState.user?.displayName ?? userState.user?.email ?? 'Profile',
+                    userState.user?.displayName ??
+                        userState.user?.email ??
+                        'Profile',
                     style: const TextStyle(
                       fontSize: 14,
                     ),
