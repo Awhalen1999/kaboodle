@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
+import 'package:kaboodle_app/providers/user_provider.dart';
 
 class MenuDrawer extends ConsumerWidget {
   const MenuDrawer({
@@ -11,8 +11,8 @@ class MenuDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = FirebaseAuth.instance.currentUser;
     final tripsState = ref.watch(tripsProvider);
+    final userState = ref.watch(userProvider);
 
     return Drawer(
       child: SafeArea(
@@ -109,7 +109,7 @@ class MenuDrawer extends ConsumerWidget {
                     vertical: -4,
                   ),
                   title: Text(
-                    user?.email ?? 'Profile',
+                    userState.user?.displayName ?? userState.user?.email ?? 'Profile',
                     style: const TextStyle(
                       fontSize: 14,
                     ),
@@ -118,8 +118,31 @@ class MenuDrawer extends ConsumerWidget {
                     softWrap: false,
                   ),
                   subtitle: const Text('View and edit'),
-                  leading: CircleAvatar(
-                    child: const Icon(Icons.person),
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey[300],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: userState.user?.photoUrl != null
+                        ? Image.network(
+                            userState.user!.photoUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.person,
+                                size: 24,
+                                color: Colors.grey[600],
+                              );
+                            },
+                          )
+                        : Icon(
+                            Icons.person,
+                            size: 24,
+                            color: Colors.grey[600],
+                          ),
                   ),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () {

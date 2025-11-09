@@ -24,6 +24,9 @@ class ApiEndpoints {
   // Items
   static String item(String id) => '/api/items/$id';
 
+  // User Profile
+  static const String userProfile = '/api/user-profile';
+
   // Utility
   static const String categories = '/api/categories';
   static const String tags = '/api/tags';
