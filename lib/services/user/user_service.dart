@@ -27,11 +27,13 @@ class UserService {
   Future<User?> updateUserProfile({
     String? displayName,
     String? photoUrl,
+    String? country,
     BuildContext? context,
   }) async {
     final body = <String, dynamic>{};
     if (displayName != null) body['displayName'] = displayName;
     if (photoUrl != null) body['photoUrl'] = photoUrl;
+    if (country != null) body['country'] = country;
 
     final result = await _apiService.safeApiCall(
       apiCall: () => _apiService.client.patch(

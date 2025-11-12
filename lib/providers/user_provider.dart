@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/providers/user_state.dart';
 import 'package:kaboodle_app/services/user/user_service.dart';
 
@@ -35,11 +34,13 @@ class UserNotifier extends StateNotifier<UserState> {
     final authUser = auth.FirebaseAuth.instance.currentUser;
     if (authUser == null) {
       _authCheckAttempts++;
-      print('⚠️ [UserProvider] User not authenticated (attempt $_authCheckAttempts/$_maxAuthCheckAttempts)');
+      print(
+          '⚠️ [UserProvider] User not authenticated (attempt $_authCheckAttempts/$_maxAuthCheckAttempts)');
 
       // After max attempts, mark as loaded to prevent infinite loops
       if (_authCheckAttempts >= _maxAuthCheckAttempts) {
-        print('🛑 [UserProvider] Max auth check attempts reached, stopping retries');
+        print(
+            '🛑 [UserProvider] Max auth check attempts reached, stopping retries');
         state = state.copyWith(
           isLoading: false,
           error: 'User not authenticated',
@@ -59,7 +60,8 @@ class UserNotifier extends StateNotifier<UserState> {
       final user = await _userService.getUserProfile();
 
       if (user != null) {
-        print('✅ [UserProvider] User profile loaded: ${user.displayName ?? user.email}');
+        print(
+            '✅ [UserProvider] User profile loaded: ${user.displayName ?? user.email}');
         state = UserState(user: user, isLoading: false, hasLoaded: true);
       } else {
         print('❌ [UserProvider] Failed to load user profile');
@@ -91,6 +93,7 @@ class UserNotifier extends StateNotifier<UserState> {
   Future<bool> updateUserProfile({
     String? displayName,
     String? photoUrl,
+    String? country,
   }) async {
     print('📝 [UserProvider] Updating user profile...');
 
@@ -98,6 +101,7 @@ class UserNotifier extends StateNotifier<UserState> {
       final updatedUser = await _userService.updateUserProfile(
         displayName: displayName,
         photoUrl: photoUrl,
+        country: country,
       );
 
       if (updatedUser != null) {

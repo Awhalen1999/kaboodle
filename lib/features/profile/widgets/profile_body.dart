@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
@@ -152,7 +153,19 @@ class ProfileBody extends ConsumerWidget {
                   iconColor: Theme.of(context).colorScheme.primary,
                   text: 'Profile',
                   onTap: () {
-                    // Profile settings action
+                    CupertinoScaffold.showCupertinoModalBottomSheet(
+                      context: context,
+                      expand: false,
+                      builder: (context) => const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: Text(
+                            'profile body',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ),
+                    );
                   },
                   showDivider: false,
                 ),
@@ -173,12 +186,11 @@ class ProfileBody extends ConsumerWidget {
                     SettingsTile(
                       icon: Icons.dark_mode,
                       iconColor: Theme.of(context).colorScheme.primary,
-                      text: 'Dark Mode',
+                      text: 'App Theme',
                       onTap: () {
                         // Dark mode action
                       },
                       isGrouped: true,
-                      showChevron: false,
                     ),
                     SettingsTile(
                       icon: Icons.light_mode,
