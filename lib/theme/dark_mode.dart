@@ -3,10 +3,19 @@ import 'package:flutter/material.dart';
 ThemeData darkMode = ThemeData(
   brightness: Brightness.dark,
   colorScheme: const ColorScheme.dark(
-    primary: Color(0xFF3B82F6),
+    primary: Color(0xFF48224b),
     onPrimary: Colors.white,
-    surface: Color(0xFF000000),
+    surface: Color.fromARGB(255, 28, 28, 28),
     onSurface: Colors.white,
+    secondary: Color(0xFF59365e),
+    onSecondary: Colors.white,
+    tertiary: Color(0xFFa95db2),
+    onTertiary: Colors.white,
+    primaryFixedDim: Color(0xFFf8efff),
+    onPrimaryFixedVariant: Colors.black,
+    inverseSurface: Color(0xFFf8efff),
+    onInverseSurface: Colors.black,
+    surfaceContainer: Color.fromARGB(255, 28, 28, 28),
   ),
   textTheme: ThemeData.dark().textTheme.copyWith(
         headlineLarge: TextStyle(
