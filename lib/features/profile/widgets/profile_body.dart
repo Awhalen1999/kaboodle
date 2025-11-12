@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:country_picker/country_picker.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
+import 'package:kaboodle_app/features/profile/widgets/profile_edit_sheet.dart';
+import 'package:kaboodle_app/features/profile/widgets/edit_profile_details.dart';
+import 'package:kaboodle_app/features/profile/widgets/edit_app_theme.dart';
+import 'package:kaboodle_app/features/profile/widgets/edit_icon_style.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProfileBody extends ConsumerWidget {
@@ -26,6 +31,84 @@ class ProfileBody extends ConsumerWidget {
       return '${username.substring(0, 12)}...';
     }
     return username;
+  }
+
+  Widget _getCountryFlag(String countryValue) {
+    try {
+      Country? country;
+      // If it's a country code (2 letters), parse it directly
+      if (countryValue.length == 2) {
+        country = Country.parse(countryValue.toUpperCase());
+      } else {
+        // Try to find by name (for backwards compatibility)
+        final commonCodes = [
+          'US',
+          'GB',
+          'CA',
+          'AU',
+          'DE',
+          'FR',
+          'IT',
+          'ES',
+          'NL',
+          'BE',
+          'CH',
+          'AT',
+          'SE',
+          'NO',
+          'DK',
+          'FI',
+          'PL',
+          'CZ',
+          'IE',
+          'PT',
+          'GR',
+          'NZ',
+          'JP',
+          'KR',
+          'CN',
+          'IN',
+          'BR',
+          'MX',
+          'AR',
+          'CL',
+          'CO',
+          'PE',
+          'ZA',
+          'EG',
+          'NG',
+          'KE',
+          'MA',
+          'AE',
+          'SA',
+          'IL',
+          'TR',
+          'RU'
+        ];
+
+        for (final code in commonCodes) {
+          try {
+            final c = Country.parse(code);
+            if (c.name.toLowerCase() == countryValue.toLowerCase()) {
+              country = c;
+              break;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+      }
+
+      if (country != null) {
+        return Text(
+          country.flagEmoji,
+          style: const TextStyle(fontSize: 16),
+        );
+      }
+    } catch (e) {
+      // If parsing fails, return empty widget
+    }
+    return const SizedBox.shrink();
   }
 
   @override
@@ -136,12 +219,21 @@ class ProfileBody extends ConsumerWidget {
 
             const SizedBox(height: 8),
 
-            // Member since
-            Text(
-              'Member since ${_formatMemberSince(user.createdAt)}',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+            // Member since with country flag
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (user.country != null && user.country!.isNotEmpty) ...[
+                  _getCountryFlag(user.country!),
+                  const SizedBox(width: 8),
+                ],
+                Text(
+                  'Member since ${_formatMemberSince(user.createdAt)}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+              ],
             ),
             const SizedBox(height: 32),
 
@@ -156,14 +248,9 @@ class ProfileBody extends ConsumerWidget {
                     CupertinoScaffold.showCupertinoModalBottomSheet(
                       context: context,
                       expand: false,
-                      builder: (context) => const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24.0),
-                          child: Text(
-                            'profile body',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
+                      builder: (context) => const ProfileEditSheet(
+                        title: 'Edit Profile',
+                        child: EditProfileDetails(),
                       ),
                     );
                   },
@@ -188,7 +275,14 @@ class ProfileBody extends ConsumerWidget {
                       iconColor: Theme.of(context).colorScheme.primary,
                       text: 'App Theme',
                       onTap: () {
-                        // Dark mode action
+                        CupertinoScaffold.showCupertinoModalBottomSheet(
+                          context: context,
+                          expand: false,
+                          builder: (context) => const ProfileEditSheet(
+                            title: 'Edit App Theme',
+                            child: EditAppTheme(),
+                          ),
+                        );
                       },
                       isGrouped: true,
                     ),
@@ -197,23 +291,19 @@ class ProfileBody extends ConsumerWidget {
                       iconColor: Theme.of(context).colorScheme.primary,
                       text: 'Icon Style',
                       onTap: () {
-                        // Light mode action
+                        CupertinoScaffold.showCupertinoModalBottomSheet(
+                          context: context,
+                          expand: false,
+                          builder: (context) => const ProfileEditSheet(
+                            title: 'Edit Icon Style',
+                            child: EditIconStyle(),
+                          ),
+                        );
                       },
                       isGrouped: true,
                       showDivider: false,
                     ),
                   ],
-                ),
-                const SizedBox(height: 16),
-                SettingsTile(
-                  icon: Icons.language,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  text: 'Automatic Time Zone',
-                  onTap: () {
-                    // Automatic time zone action
-                  },
-                  showDivider: false,
-                  showChevron: false,
                 ),
                 const SizedBox(height: 16),
                 SettingsTile(
