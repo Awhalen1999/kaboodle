@@ -7,7 +7,7 @@ import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
 import 'package:kaboodle_app/features/profile/widgets/profile_edit_sheet.dart';
 import 'package:kaboodle_app/features/profile/widgets/edit_profile_details.dart';
-import 'package:kaboodle_app/features/profile/widgets/edit_app_theme.dart';
+import 'package:kaboodle_app/features/profile/widgets/edit_app_appearance.dart';
 import 'package:kaboodle_app/features/profile/widgets/edit_icon_style.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -273,13 +273,13 @@ class ProfileBody extends ConsumerWidget {
                     SettingsTile(
                       icon: Icons.dark_mode,
                       iconColor: Theme.of(context).colorScheme.primary,
-                      text: 'App Theme',
+                      text: 'App Appearance',
                       onTap: () {
                         CupertinoScaffold.showCupertinoModalBottomSheet(
                           context: context,
                           expand: false,
                           builder: (context) => const ProfileEditSheet(
-                            title: 'Edit App Theme',
+                            title: 'Edit Appearance',
                             child: EditAppTheme(),
                           ),
                         );
