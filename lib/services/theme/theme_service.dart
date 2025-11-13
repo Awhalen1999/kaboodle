@@ -1,6 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:kaboodle_app/features/profile/widgets/color_mode_selector.dart';
+import 'package:kaboodle_app/shared/constants/theme_constants.dart';
 
 // Hive box name for theme preferences
 const String _themeBoxName = 'theme_preferences';

@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kaboodle_app/features/profile/widgets/color_mode_selector.dart';
+import 'package:kaboodle_app/shared/constants/theme_constants.dart';
 import 'package:kaboodle_app/providers/theme_provider.dart';
 
 /// Shows an iOS-style action sheet for selecting theme mode
 class ThemeSwitch {
   /// Displays a CupertinoActionSheet with theme mode options
   static void show(BuildContext context, WidgetRef ref) {
+    final textColor = Theme.of(context).colorScheme.onSurface;
+
     showCupertinoModalPopup(
       context: context,
       builder: (context) => CupertinoActionSheet(
@@ -16,21 +19,30 @@ class ThemeSwitch {
               Navigator.pop(context);
               ref.read(themeProvider.notifier).setThemeMode(ColorMode.light);
             },
-            child: const Text('Light'),
+            child: Text(
+              'Light',
+              style: TextStyle(color: textColor),
+            ),
           ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(context);
               ref.read(themeProvider.notifier).setThemeMode(ColorMode.dark);
             },
-            child: const Text('Dark'),
+            child: Text(
+              'Dark',
+              style: TextStyle(color: textColor),
+            ),
           ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(context);
               ref.read(themeProvider.notifier).setThemeMode(ColorMode.system);
             },
-            child: const Text('System default'),
+            child: Text(
+              'System default',
+              style: TextStyle(color: textColor),
+            ),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
@@ -38,7 +50,10 @@ class ThemeSwitch {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: const Text('Cancel'),
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: textColor),
+          ),
         ),
       ),
     );

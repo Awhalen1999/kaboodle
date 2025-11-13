@@ -108,4 +108,20 @@ class CountryUtils {
       return null;
     }
   }
+
+  // Get Country object from country value (code or name)
+  // Returns Country if found, null otherwise
+  static Country? getCountry(String countryValue) {
+    try {
+      // If it's a country code (2 letters), parse it directly
+      if (countryValue.length == 2) {
+        return Country.parse(countryValue.toUpperCase());
+      } else {
+        // Try to find by name (for backwards compatibility)
+        return _findCountryByName(countryValue);
+      }
+    } catch (e) {
+      return null;
+    }
+  }
 }

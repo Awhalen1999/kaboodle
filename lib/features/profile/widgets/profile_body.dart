@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/providers/theme_provider.dart';
-import 'package:kaboodle_app/features/profile/widgets/color_mode_selector.dart';
+import 'package:kaboodle_app/shared/constants/theme_constants.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
 import 'package:kaboodle_app/shared/utils/format_utils.dart';
 import 'package:kaboodle_app/shared/widgets/profile_avatar.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
-import 'package:kaboodle_app/features/profile/widgets/profile_edit_sheet.dart';
-import 'package:kaboodle_app/features/profile/widgets/edit_profile_details.dart';
-import 'package:kaboodle_app/features/profile/widgets/edit_icon_style.dart';
 import 'package:kaboodle_app/features/profile/widgets/theme_switch.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
@@ -137,78 +133,32 @@ class ProfileBody extends ConsumerWidget {
             Column(
               children: [
                 SettingsTile(
-                  icon: Icons.person,
+                  icon: Icons.person_rounded,
                   iconColor: Theme.of(context).colorScheme.primary,
                   text: 'Profile',
                   onTap: () {
-                    CupertinoScaffold.showCupertinoModalBottomSheet(
-                      context: context,
-                      expand: false,
-                      builder: (context) => const ProfileEditSheet(
-                        title: 'Edit Profile',
-                        child: EditProfileDetails(),
-                      ),
-                    );
+                    context.push('/profile-edit');
                   },
                   showDivider: false,
                 ),
                 const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
-                    child: Text(
-                      'App Styles',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
                 Builder(
                   builder: (context) {
-                    final themeState = ref.watch(themeProvider);
-                    return SettingsTileGroup(
-                      tiles: [
-                        SettingsTile(
-                          icon: Icons.dark_mode,
-                          iconColor: Theme.of(context).colorScheme.primary,
-                          text: 'Appearance',
-                          mode: _formatColorMode(themeState.colorMode),
-                          onTap: () {
-                            ThemeSwitch.show(context, ref);
-                          },
-                          isGrouped: true,
-                        ),
-                        SettingsTile(
-                          icon: Icons.light_mode,
-                          iconColor: Theme.of(context).colorScheme.primary,
-                          text: 'Icon Style',
-                          onTap: () {
-                            CupertinoScaffold.showCupertinoModalBottomSheet(
-                              context: context,
-                              expand: false,
-                              builder: (context) => const ProfileEditSheet(
-                                title: 'Edit Icon Style',
-                                child: EditIconStyle(),
-                              ),
-                            );
-                          },
-                          isGrouped: true,
-                          showDivider: false,
-                        ),
-                      ],
+                    // Use select() to only rebuild when colorMode changes, not themeMode
+                    final colorMode = ref.watch(
+                      themeProvider.select((state) => state.colorMode),
+                    );
+                    return SettingsTile(
+                      icon: Icons.brush_rounded,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      text: 'Appearance',
+                      mode: _formatColorMode(colorMode),
+                      onTap: () {
+                        ThemeSwitch.show(context, ref);
+                      },
+                      showDivider: false,
                     );
                   },
-                ),
-                const SizedBox(height: 16),
-                SettingsTile(
-                  icon: Icons.credit_card,
-                  iconColor: Colors.amber,
-                  text: 'Manage Subscription',
-                  onTap: () {
-                    // Manage subscription action
-                  },
-                  showDivider: false,
                 ),
                 const SizedBox(height: 16),
                 Align(
@@ -244,6 +194,16 @@ class ProfileBody extends ConsumerWidget {
                       showDivider: false,
                     ),
                   ],
+                ),
+                const SizedBox(height: 16),
+                SettingsTile(
+                  icon: Icons.credit_card,
+                  iconColor: Colors.amber,
+                  text: 'Manage Subscription',
+                  onTap: () {
+                    // Manage subscription action
+                  },
+                  showDivider: false,
                 ),
                 const SizedBox(height: 16),
                 Align(

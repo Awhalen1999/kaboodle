@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kaboodle_app/features/profile/widgets/color_mode_selector.dart';
+import 'package:kaboodle_app/shared/constants/theme_constants.dart';
 import 'package:kaboodle_app/services/theme/theme_service.dart';
 
 // Theme provider state
