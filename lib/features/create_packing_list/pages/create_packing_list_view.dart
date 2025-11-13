@@ -20,6 +20,9 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
   // Form data that will be collected across steps
   final Map<String, dynamic> _formData = {};
 
+  // Validation state for each step
+  bool _isStep1Valid = false;
+
   void _nextStep() {
     if (_currentStep < _totalSteps - 1) {
       setState(() {
@@ -40,6 +43,18 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
     context.pop();
   }
 
+  bool _canProceedToNextStep() {
+    if (_currentStep >= _totalSteps - 1) return false;
+
+    // Step 1 validation
+    if (_currentStep == 0) {
+      return _isStep1Valid;
+    }
+
+    // For other steps, allow progression (validation will be added later)
+    return true;
+  }
+
   Widget _getStepBody() {
     switch (_currentStep) {
       case 0:
@@ -48,6 +63,11 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
           onDataChanged: (data) {
             setState(() {
               _formData.addAll(data);
+            });
+          },
+          onValidationChanged: (isValid) {
+            setState(() {
+              _isStep1Valid = isValid;
             });
           },
         );
@@ -151,8 +171,7 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
                   Expanded(
                     flex: _currentStep == 0 ? 1 : 1,
                     child: ElevatedButton(
-                      onPressed:
-                          _currentStep < _totalSteps - 1 ? _nextStep : null,
+                      onPressed: _canProceedToNextStep() ? _nextStep : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor:
