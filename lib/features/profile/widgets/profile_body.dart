@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:country_picker/country_picker.dart';
 import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
+import 'package:kaboodle_app/shared/utils/country_utils.dart';
+import 'package:kaboodle_app/shared/utils/format_utils.dart';
+import 'package:kaboodle_app/shared/widgets/profile_avatar.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
 import 'package:kaboodle_app/features/profile/widgets/profile_edit_sheet.dart';
 import 'package:kaboodle_app/features/profile/widgets/edit_profile_details.dart';
@@ -14,103 +15,6 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
-
-  String _formatMemberSince(DateTime? creationTime) {
-    if (creationTime == null) return 'Unknown';
-    return DateFormat('MMMM yyyy').format(creationTime);
-  }
-
-  String _formatDisplayName(String? displayName, String email) {
-    // If display name exists, use first name only
-    if (displayName != null && displayName.isNotEmpty) {
-      return displayName.split(' ').first;
-    }
-
-    // Otherwise, use email username with ellipsis if too long
-    final username = email.split('@').first;
-    if (username.length > 12) {
-      return '${username.substring(0, 12)}...';
-    }
-    return username;
-  }
-
-  Widget _getCountryFlag(String countryValue) {
-    try {
-      Country? country;
-      // If it's a country code (2 letters), parse it directly
-      if (countryValue.length == 2) {
-        country = Country.parse(countryValue.toUpperCase());
-      } else {
-        // Try to find by name (for backwards compatibility)
-        final commonCodes = [
-          'US',
-          'GB',
-          'CA',
-          'AU',
-          'DE',
-          'FR',
-          'IT',
-          'ES',
-          'NL',
-          'BE',
-          'CH',
-          'AT',
-          'SE',
-          'NO',
-          'DK',
-          'FI',
-          'PL',
-          'CZ',
-          'IE',
-          'PT',
-          'GR',
-          'NZ',
-          'JP',
-          'KR',
-          'CN',
-          'IN',
-          'BR',
-          'MX',
-          'AR',
-          'CL',
-          'CO',
-          'PE',
-          'ZA',
-          'EG',
-          'NG',
-          'KE',
-          'MA',
-          'AE',
-          'SA',
-          'IL',
-          'TR',
-          'RU'
-        ];
-
-        for (final code in commonCodes) {
-          try {
-            final c = Country.parse(code);
-            if (c.name.toLowerCase() == countryValue.toLowerCase()) {
-              country = c;
-              break;
-            }
-          } catch (e) {
-            continue;
-          }
-        }
-      }
-
-      if (country != null) {
-        return Text(
-          country.flagEmoji,
-          style: const TextStyle(fontSize: 16),
-        );
-      }
-    } catch (e) {
-      // If parsing fails, return empty widget
-    }
-    return const SizedBox.shrink();
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -177,38 +81,17 @@ class ProfileBody extends ConsumerWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            // Rounded square profile picture
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.grey[300],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: user.photoUrl != null
-                  ? Image.network(
-                      user.photoUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Icons.person,
-                          size: 50,
-                          color: Colors.grey[600],
-                        );
-                      },
-                    )
-                  : Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Colors.grey[600],
-                    ),
+            // Profile avatar
+            ProfileAvatar(
+              photoUrl: user.photoUrl,
+              size: 100,
+              borderRadius: 16,
             ),
             const SizedBox(height: 16),
 
             // Greeting with name
             Text(
-              'Hey, ${_formatDisplayName(user.displayName, user.email)} ✌️',
+              'Hey, ${FormatUtils.formatDisplayName(user.displayName, user.email)} ✌️',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -222,11 +105,11 @@ class ProfileBody extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (user.country != null && user.country!.isNotEmpty) ...[
-                  _getCountryFlag(user.country!),
+                  CountryUtils.getCountryFlag(user.country!),
                   const SizedBox(width: 8),
                 ],
                 Text(
-                  'Member since ${_formatMemberSince(user.createdAt)}',
+                  'Member since ${FormatUtils.formatMemberSince(user.createdAt)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[600],
                       ),

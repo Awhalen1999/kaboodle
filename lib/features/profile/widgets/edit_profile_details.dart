@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/shared/widgets/profile_avatar.dart';
 
 class EditProfileDetails extends ConsumerStatefulWidget {
   const EditProfileDetails({super.key});
@@ -187,31 +188,10 @@ class _EditProfileDetailsState extends ConsumerState<EditProfileDetails> {
         Center(
           child: Stack(
             children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.grey[300],
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: user.photoUrl != null
-                    ? Image.network(
-                        user.photoUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.person,
-                            size: 50,
-                            color: Colors.grey[600],
-                          );
-                        },
-                      )
-                    : Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Colors.grey[600],
-                      ),
+              ProfileAvatar(
+                photoUrl: user.photoUrl,
+                size: 100,
+                borderRadius: 16,
               ),
               Positioned(
                 bottom: 0,

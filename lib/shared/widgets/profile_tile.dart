@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/shared/utils/format_utils.dart';
 
 class ProfileTile extends ConsumerWidget {
   const ProfileTile({super.key});
@@ -26,7 +27,10 @@ class ProfileTile extends ConsumerWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  user?.displayName ?? user?.email ?? 'Profile',
+                  user != null
+                      ? FormatUtils.formatDisplayName(
+                          user.displayName, user.email)
+                      : 'Profile',
                   style: const TextStyle(
                     fontSize: 14,
                   ),
