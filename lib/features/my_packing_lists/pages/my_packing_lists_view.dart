@@ -1,6 +1,7 @@
 import 'package:kaboodle_app/features/my_packing_lists/widgets/my_packing_lists_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/widgets/custom_app_bar.dart';
@@ -34,7 +35,7 @@ class MyPackingListsView extends ConsumerWidget {
       body: MyPackingListsBody(initialTab: initialTab),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print('🎒 Start new packing list clicked');
+          context.push('/create-packing-list');
         },
         child: const Icon(Icons.add),
       ),
