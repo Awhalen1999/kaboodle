@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
-import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/shared/widgets/profile_tile.dart';
 
 class MenuDrawer extends ConsumerWidget {
   const MenuDrawer({
@@ -12,17 +12,8 @@ class MenuDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tripsState = ref.watch(tripsProvider);
-    final userState = ref.watch(userProvider);
 
-    // TanStack Query pattern: Load user data on demand if not already loaded
-    if (!userState.hasLoaded && !userState.isLoading) {
-      print('🎯 [MenuDrawer] Triggering user profile load');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(userProvider.notifier).loadUserProfile();
-      });
-    }
-
-    // TanStack Query pattern: Load trips data on demand if not already loaded
+    // Query pattern: Load trips data on demand if not already loaded
     if (!tripsState.hasLoaded && !tripsState.isLoading) {
       print('🎯 [MenuDrawer] Triggering trips load');
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -44,7 +35,7 @@ class MenuDrawer extends ConsumerWidget {
                     'Menu',
                     style: TextStyle(
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   IconButton(
@@ -77,6 +68,7 @@ class MenuDrawer extends ConsumerWidget {
               ),
 
               // Trips count section - simple text display
+              // todo: create trip menu tile widget + empty state
               Expanded(
                 child: Center(
                   child: tripsState.isLoading
@@ -109,66 +101,10 @@ class MenuDrawer extends ConsumerWidget {
               ),
 
               // Profile section - always pinned at bottom
-              Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-                margin: const EdgeInsets.only(top: 8.0),
-                padding: const EdgeInsets.only(top: 8.0),
-                child: ListTile(
-                  visualDensity: const VisualDensity(
-                    horizontal: -2,
-                    vertical: -4,
-                  ),
-                  title: Text(
-                    userState.user?.displayName ??
-                        userState.user?.email ??
-                        'Profile',
-                    style: const TextStyle(
-                      fontSize: 14,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                  subtitle: const Text('View and edit'),
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.grey[300],
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: userState.user?.photoUrl != null
-                        ? Image.network(
-                            userState.user!.photoUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.person,
-                                size: 24,
-                                color: Colors.grey[600],
-                              );
-                            },
-                          )
-                        : Icon(
-                            Icons.person,
-                            size: 24,
-                            color: Colors.grey[600],
-                          ),
-                  ),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/profile');
-                  },
-                ),
+              const Divider(
+                color: Colors.grey,
               ),
+              const ProfileTile(),
             ],
           ),
         ),
