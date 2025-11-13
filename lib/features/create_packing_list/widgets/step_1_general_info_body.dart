@@ -366,9 +366,9 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  // None option (grey with line)
+                  // Grey
                   _ColorTagOption(
-                    color: null,
+                    color: 'grey',
                     selectedColor: widget.formData['colorTag'] as String?,
                     onTap: _selectColorTag,
                   ),
@@ -394,16 +394,23 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                     onTap: _selectColorTag,
                   ),
                   const SizedBox(width: 12),
-                  // Yellow
+                  // Purple
                   _ColorTagOption(
-                    color: 'yellow',
+                    color: 'purple',
                     selectedColor: widget.formData['colorTag'] as String?,
                     onTap: _selectColorTag,
                   ),
                   const SizedBox(width: 12),
-                  // Purple
+                  // Orange
                   _ColorTagOption(
-                    color: 'purple',
+                    color: 'orange',
+                    selectedColor: widget.formData['colorTag'] as String?,
+                    onTap: _selectColorTag,
+                  ),
+                  const SizedBox(width: 12),
+                  // Pink
+                  _ColorTagOption(
+                    color: 'pink',
                     selectedColor: widget.formData['colorTag'] as String?,
                     onTap: _selectColorTag,
                   ),
@@ -553,10 +560,12 @@ class _ColorTagOption extends StatelessWidget {
         return Colors.blue;
       case 'green':
         return Colors.green;
-      case 'yellow':
-        return Colors.yellow;
       case 'purple':
         return Colors.purple;
+      case 'orange':
+        return Colors.orange;
+      case 'pink':
+        return Colors.pink;
       default:
         return Colors.grey[400]!.withOpacity(0.5);
     }

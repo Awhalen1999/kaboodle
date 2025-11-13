@@ -8,13 +8,58 @@ import '../../models/packing_item.dart';
 class TripService {
   final ApiService _apiService = ApiService();
 
+  /// Upsert a trip (create if no ID, update if ID provided)
+  /// Returns Trip and PackingList on success, null on error
+  Future<Map<String, dynamic>?> upsertTrip({
+    String? id,
+    required String name,
+    required DateTime startDate,
+    required DateTime endDate,
+    String? description,
+    String? destination,
+    String? colorTag,
+    int? stepCompleted,
+    BuildContext? context,
+  }) async {
+    final requestBody = {
+      if (id != null) 'id': id,
+      'name': name,
+      'startDate': startDate.toIso8601String().split('T')[0], // YYYY-MM-DD
+      'endDate': endDate.toIso8601String().split('T')[0],
+      if (description != null) 'description': description,
+      if (destination != null) 'destination': destination,
+      if (colorTag != null) 'colorTag': colorTag,
+      if (stepCompleted != null) 'stepCompleted': stepCompleted,
+    };
+
+    print('🚀 [TripService.upsertTrip] Request body: $requestBody');
+
+    return await _apiService.safeApiCall(
+      apiCall: () => _apiService.client.post(
+        ApiEndpoints.trips,
+        body: requestBody,
+      ),
+      onSuccess: (data) {
+        print('✅ [TripService.upsertTrip] Success response: $data');
+        return {
+          'trip': Trip.fromJson(data['trip']),
+          'packingList': PackingList.fromJson(data['packingList']),
+        };
+      },
+      context: context,
+    );
+  }
+
   /// Create a new trip
   /// Returns Trip and PackingList on success, null on error
+  @Deprecated('Use upsertTrip() instead')
   Future<Map<String, dynamic>?> createTrip({
     required String name,
     required DateTime startDate,
     required DateTime endDate,
     String? description,
+    String? destination,
+    String? colorTag,
     BuildContext? context,
   }) async {
     return await _apiService.safeApiCall(
@@ -25,6 +70,8 @@ class TripService {
           'startDate': startDate.toIso8601String().split('T')[0], // YYYY-MM-DD
           'endDate': endDate.toIso8601String().split('T')[0],
           if (description != null) 'description': description,
+          if (destination != null) 'destination': destination,
+          if (colorTag != null) 'colorTag': colorTag,
         },
       ),
       onSuccess: (data) {

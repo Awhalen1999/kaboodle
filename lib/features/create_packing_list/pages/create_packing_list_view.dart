@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
+import 'package:toastification/toastification.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_1_general_info_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_2_details_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_3_generate_items_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_4_overview_body.dart';
+import 'package:kaboodle_app/services/trip/trip_service.dart';
 
 class CreatePackingListView extends StatefulWidget {
   const CreatePackingListView({super.key});
@@ -16,18 +18,108 @@ class CreatePackingListView extends StatefulWidget {
 class _CreatePackingListViewState extends State<CreatePackingListView> {
   int _currentStep = 0;
   final int _totalSteps = 4;
+  final TripService _tripService = TripService();
 
   // Form data that will be collected across steps
-  final Map<String, dynamic> _formData = {};
+  final Map<String, dynamic> _formData = {
+    'colorTag': 'grey', // Default color tag
+  };
 
   // Validation state for each step
   bool _isStep1Valid = false;
 
-  void _nextStep() {
+  // Loading state for API calls
+  bool _isLoading = false;
+
+  Future<void> _nextStep() async {
+    // Step 1: Save trip data to backend before proceeding
+    if (_currentStep == 0) {
+      await _saveStep1Data();
+    }
+
+    // Proceed to next step
     if (_currentStep < _totalSteps - 1) {
       setState(() {
         _currentStep++;
       });
+    }
+  }
+
+  Future<void> _saveStep1Data() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final tripId = _formData['tripId'] as String?;
+      final isUpdate = tripId != null;
+
+      print('📝 [SaveStep1] Starting save...');
+      print('📝 [SaveStep1] isUpdate: $isUpdate');
+      print('📝 [SaveStep1] tripId: $tripId');
+      print('📝 [SaveStep1] Form data: ${_formData.toString()}');
+
+      // Upsert trip (create if no ID, update if ID exists)
+      final result = await _tripService.upsertTrip(
+        id: tripId,
+        name: _formData['name'] as String,
+        startDate: _formData['startDate'] as DateTime,
+        endDate: _formData['endDate'] as DateTime,
+        description: _formData['description'] as String?,
+        destination: _formData['destination'] as String?,
+        colorTag: _formData['colorTag'] as String?,
+        stepCompleted: 1,
+        context: context,
+      );
+
+      print('✅ [SaveStep1] Result received: ${result != null}');
+
+      if (result != null && mounted) {
+        // Store trip ID (always present)
+        setState(() {
+          _formData['tripId'] = result['trip'].id;
+
+          // Store packing list ID only if present (only on create)
+          if (result['packingList'] != null) {
+            _formData['packingListId'] = result['packingList'].id;
+          }
+        });
+
+        print('✅ [SaveStep1] Stored tripId: ${result['trip'].id}');
+        if (result['packingList'] != null) {
+          print('✅ [SaveStep1] Stored packingListId: ${result['packingList'].id}');
+        }
+
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.minimal,
+          title: Text(isUpdate ? 'Trip updated successfully!' : 'Trip created successfully!'),
+          autoCloseDuration: const Duration(seconds: 3),
+          alignment: Alignment.topCenter,
+        );
+      }
+    } catch (e, stackTrace) {
+      print('❌ [SaveStep1] Error occurred: $e');
+      print('❌ [SaveStep1] Stack trace: $stackTrace');
+
+      if (mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.minimal,
+          title: const Text('Failed to save trip'),
+          description: Text(e.toString()),
+          autoCloseDuration: const Duration(seconds: 5),
+          alignment: Alignment.topCenter,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -171,7 +263,7 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
                   Expanded(
                     flex: _currentStep == 0 ? 1 : 1,
                     child: ElevatedButton(
-                      onPressed: _canProceedToNextStep() ? _nextStep : null,
+                      onPressed: _canProceedToNextStep() && !_isLoading ? _nextStep : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor:
@@ -182,13 +274,24 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
                         ),
                         elevation: 0,
                       ),
-                      child: Text(
-                        'Next',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontWeight: FontWeight.w600,
+                      child: _isLoading
+                          ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.onPrimary,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              'Next',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
-                      ),
                     ),
                   ),
                 ],
