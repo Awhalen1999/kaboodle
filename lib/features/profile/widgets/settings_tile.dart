@@ -65,7 +65,7 @@ class SettingsTile extends StatelessWidget {
               Text(
                 mode!,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
               ),
@@ -78,7 +78,7 @@ class SettingsTile extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 Icons.chevron_right,
-                color: Colors.grey[400],
+                color: Theme.of(context).colorScheme.outlineVariant,
                 size: 20,
               ),
             ],
@@ -95,7 +95,7 @@ class SettingsTile extends StatelessWidget {
             Divider(
               height: 1,
               thickness: 1,
-              color: Colors.grey[200],
+              color: Theme.of(context).colorScheme.outline,
             ),
         ],
       );
@@ -108,12 +108,12 @@ class SettingsTile extends StatelessWidget {
             color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.grey[200]!,
+              color: Theme.of(context).colorScheme.outline,
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Theme.of(context).colorScheme.shadow,
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -125,7 +125,7 @@ class SettingsTile extends StatelessWidget {
           Divider(
             height: 1,
             thickness: 1,
-            color: Colors.grey[200],
+            color: Theme.of(context).colorScheme.outline,
           ),
       ],
     );
@@ -148,12 +148,12 @@ class SettingsTileGroup extends StatelessWidget {
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.grey[200]!,
+          color: Theme.of(context).colorScheme.outline,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Theme.of(context).colorScheme.shadow,
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

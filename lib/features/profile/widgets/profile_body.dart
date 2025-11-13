@@ -59,7 +59,7 @@ class ProfileBody extends ConsumerWidget {
               Icon(
                 Icons.error_outline,
                 size: 64,
-                color: Colors.grey[400],
+                color: Theme.of(context).colorScheme.outlineVariant,
               ),
               const SizedBox(height: 16),
               Text(
@@ -69,7 +69,8 @@ class ProfileBody extends ConsumerWidget {
               const SizedBox(height: 8),
               Text(
                 error.toString(),
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -122,7 +123,7 @@ class ProfileBody extends ConsumerWidget {
                 Text(
                   'Member since ${FormatUtils.formatMemberSince(user.createdAt)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ],
@@ -266,7 +267,7 @@ class ProfileBody extends ConsumerWidget {
               child: Text(
                 'v 1.0.0',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ),

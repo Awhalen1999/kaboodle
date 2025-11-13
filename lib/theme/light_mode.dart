@@ -7,6 +7,7 @@ ThemeData lightMode = ThemeData(
     onPrimary: Colors.white,
     surface: Color.fromARGB(255, 250, 249, 250),
     onSurface: Colors.black,
+    onSurfaceVariant: const Color.fromARGB(255, 65, 65, 65),
     secondary: Color(0xFF59365e),
     onSecondary: Colors.white,
     tertiary: Color(0xFFa95db2),
@@ -16,6 +17,9 @@ ThemeData lightMode = ThemeData(
     inverseSurface: Color(0xFF000000),
     onInverseSurface: Colors.white,
     surfaceContainer: Colors.white,
+    outline: Color.fromARGB(255, 238, 238, 238),
+    outlineVariant: Color.fromARGB(255, 189, 189, 189),
+    shadow: Color.fromARGB(15, 0, 0, 0),
   ),
   textTheme: ThemeData.light().textTheme.copyWith(
         headlineLarge: TextStyle(

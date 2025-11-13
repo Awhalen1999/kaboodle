@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 ThemeData darkMode = ThemeData(
   brightness: Brightness.dark,
-  colorScheme: const ColorScheme.dark(
+  colorScheme: ColorScheme.dark(
     primary: Color(0xFF48224b),
     onPrimary: Colors.white,
     surface: Color.fromARGB(255, 28, 28, 28),
     onSurface: Colors.white,
+    onSurfaceVariant: const Color.fromARGB(255, 180, 180, 180),
     secondary: Color(0xFF59365e),
     onSecondary: Colors.white,
     tertiary: Color(0xFFa95db2),
@@ -16,6 +17,9 @@ ThemeData darkMode = ThemeData(
     inverseSurface: Color(0xFFf8efff),
     onInverseSurface: Colors.black,
     surfaceContainer: Color.fromARGB(255, 28, 28, 28),
+    outline: Color.fromARGB(255, 60, 60, 60),
+    outlineVariant: Color.fromARGB(255, 100, 100, 100),
+    shadow: Color.fromARGB(15, 0, 0, 0),
   ),
   textTheme: ThemeData.dark().textTheme.copyWith(
         headlineLarge: TextStyle(
@@ -23,6 +27,20 @@ ThemeData darkMode = ThemeData(
           fontWeight: FontWeight.w400,
           color: Colors.white,
           fontSize: 32,
+        ),
+        displayLarge: TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.w500,
+          color: Colors.white,
+          fontSize: 32,
+          letterSpacing: 1.5,
+        ),
+        displayMedium: TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.w500,
+          color: Colors.white,
+          fontSize: 28,
+          letterSpacing: 1.5,
         ),
         displaySmall: TextStyle(
           fontFamily: 'Poppins',
@@ -33,19 +51,19 @@ ThemeData darkMode = ThemeData(
         bodyLarge: TextStyle(
           fontFamily: 'Poppins',
           fontWeight: FontWeight.w400,
-          color: Colors.grey[300],
+          color: Colors.white,
           fontSize: 16,
         ),
         bodyMedium: TextStyle(
           fontFamily: 'Poppins',
-          fontWeight: FontWeight.w300,
-          color: Colors.grey[300],
+          fontWeight: FontWeight.w400,
+          color: Colors.white,
           fontSize: 14,
         ),
         bodySmall: TextStyle(
           fontFamily: 'Poppins',
-          fontWeight: FontWeight.w200,
-          color: Colors.grey[300],
+          fontWeight: FontWeight.w400,
+          color: Colors.white,
           fontSize: 12,
         ),
       ),
