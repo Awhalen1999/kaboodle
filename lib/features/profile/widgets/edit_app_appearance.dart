@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaboodle_app/features/profile/widgets/color_mode_selector.dart';
 import 'package:kaboodle_app/features/profile/widgets/accent_color_selector.dart';
+import 'package:kaboodle_app/providers/theme_provider.dart';
 
-class EditAppTheme extends StatefulWidget {
+class EditAppTheme extends ConsumerStatefulWidget {
   const EditAppTheme({super.key});
 
   @override
-  State<EditAppTheme> createState() => _EditAppThemeState();
+  ConsumerState<EditAppTheme> createState() => _EditAppThemeState();
 }
 
-class _EditAppThemeState extends State<EditAppTheme> {
-  ColorMode _selectedColorMode = ColorMode.system;
+class _EditAppThemeState extends ConsumerState<EditAppTheme> {
   Color? _selectedAccentColor; // null means default (primary color)
 
   Widget _buildSection({
@@ -40,6 +41,8 @@ class _EditAppThemeState extends State<EditAppTheme> {
 
   @override
   Widget build(BuildContext context) {
+    final themeState = ref.watch(themeProvider);
+
     // Simple list-based approach - easy to add/remove sections
     final sections = [
       _buildSection(
@@ -47,11 +50,9 @@ class _EditAppThemeState extends State<EditAppTheme> {
         subtitle:
             'Kaboodle will match your device settings by default, or choose light or dark mode.',
         content: ColorModeSelector(
-          selectedMode: _selectedColorMode,
+          selectedMode: themeState.colorMode,
           onModeSelected: (ColorMode mode) {
-            setState(() {
-              _selectedColorMode = mode;
-            });
+            ref.read(themeProvider.notifier).setThemeMode(mode);
           },
         ),
       ),
