@@ -29,13 +29,14 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeState = ref.watch(themeProvider);
+    // Use select to only rebuild when themeMode changes, not on every theme state change
+    final themeMode = ref.watch(themeProvider.select((state) => state.themeMode));
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: lightMode,
       darkTheme: darkMode,
-      themeMode: themeState.themeMode,
+      themeMode: themeMode,
       routerConfig: router,
     );
   }

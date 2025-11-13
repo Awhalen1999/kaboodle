@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/providers/theme_provider.dart';
+import 'package:kaboodle_app/features/profile/widgets/color_mode_selector.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
 import 'package:kaboodle_app/shared/utils/format_utils.dart';
@@ -9,12 +12,24 @@ import 'package:kaboodle_app/shared/widgets/profile_avatar.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
 import 'package:kaboodle_app/features/profile/widgets/profile_edit_sheet.dart';
 import 'package:kaboodle_app/features/profile/widgets/edit_profile_details.dart';
-import 'package:kaboodle_app/features/profile/widgets/edit_app_appearance.dart';
 import 'package:kaboodle_app/features/profile/widgets/edit_icon_style.dart';
+import 'package:kaboodle_app/features/profile/widgets/theme_switch.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
+
+  // Helper function to format ColorMode for display
+  String _formatColorMode(ColorMode mode) {
+    switch (mode) {
+      case ColorMode.light:
+        return 'Light';
+      case ColorMode.dark:
+        return 'Dark';
+      case ColorMode.system:
+        return 'System default';
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -149,42 +164,41 @@ class ProfileBody extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                SettingsTileGroup(
-                  tiles: [
-                    SettingsTile(
-                      icon: Icons.dark_mode,
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      text: 'App Appearance',
-                      onTap: () {
-                        CupertinoScaffold.showCupertinoModalBottomSheet(
-                          context: context,
-                          expand: false,
-                          builder: (context) => const ProfileEditSheet(
-                            title: 'Edit Appearance',
-                            child: EditAppTheme(),
-                          ),
-                        );
-                      },
-                      isGrouped: true,
-                    ),
-                    SettingsTile(
-                      icon: Icons.light_mode,
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      text: 'Icon Style',
-                      onTap: () {
-                        CupertinoScaffold.showCupertinoModalBottomSheet(
-                          context: context,
-                          expand: false,
-                          builder: (context) => const ProfileEditSheet(
-                            title: 'Edit Icon Style',
-                            child: EditIconStyle(),
-                          ),
-                        );
-                      },
-                      isGrouped: true,
-                      showDivider: false,
-                    ),
-                  ],
+                Builder(
+                  builder: (context) {
+                    final themeState = ref.watch(themeProvider);
+                    return SettingsTileGroup(
+                      tiles: [
+                        SettingsTile(
+                          icon: Icons.dark_mode,
+                          iconColor: Theme.of(context).colorScheme.primary,
+                          text: 'Appearance',
+                          mode: _formatColorMode(themeState.colorMode),
+                          onTap: () {
+                            ThemeSwitch.show(context, ref);
+                          },
+                          isGrouped: true,
+                        ),
+                        SettingsTile(
+                          icon: Icons.light_mode,
+                          iconColor: Theme.of(context).colorScheme.primary,
+                          text: 'Icon Style',
+                          onTap: () {
+                            CupertinoScaffold.showCupertinoModalBottomSheet(
+                              context: context,
+                              expand: false,
+                              builder: (context) => const ProfileEditSheet(
+                                title: 'Edit Icon Style',
+                                child: EditIconStyle(),
+                              ),
+                            );
+                          },
+                          isGrouped: true,
+                          showDivider: false,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
                 SettingsTile(
@@ -227,6 +241,7 @@ class ProfileBody extends ConsumerWidget {
                         // Light mode action
                       },
                       isGrouped: true,
+                      showDivider: false,
                     ),
                   ],
                 ),
@@ -267,6 +282,7 @@ class ProfileBody extends ConsumerWidget {
                         // Data deletion action
                       },
                       isGrouped: true,
+                      showDivider: false,
                     ),
                   ],
                 ),

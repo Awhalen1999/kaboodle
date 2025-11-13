@@ -4,6 +4,7 @@ class SettingsTile extends StatelessWidget {
   final IconData? icon;
   final Color? iconColor;
   final String text;
+  final String? mode;
   final Widget? trailing;
   final VoidCallback? onTap;
   final bool showDivider;
@@ -15,6 +16,7 @@ class SettingsTile extends StatelessWidget {
     this.icon,
     this.iconColor,
     required this.text,
+    this.mode,
     this.trailing,
     this.onTap,
     this.showDivider = true,
@@ -57,6 +59,16 @@ class SettingsTile extends StatelessWidget {
                     ),
               ),
             ),
+            // Mode text (displayed in primary color)
+            if (mode != null) ...[
+              const SizedBox(width: 8),
+              Text(
+                mode!,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+              ),
+            ],
             // Trailing widget (chevron, toggle, value, etc.)
             if (trailing != null) ...[
               const SizedBox(width: 8),
