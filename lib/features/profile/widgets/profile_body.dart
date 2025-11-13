@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
@@ -113,67 +114,64 @@ class ProfileBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userState = ref.watch(userProvider);
+    final userAsync = ref.watch(userProvider);
 
-    // TanStack Query pattern: Load data on demand if not already loaded
-    if (!userState.hasLoaded && !userState.isLoading) {
-      print('🎯 [ProfileBody] Triggering user profile load');
-      // Trigger load after build completes
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(userProvider.notifier).loadUserProfile();
-      });
-    }
+    return userAsync.when(
+      data: (user) {
+        if (user == null) {
+          print('⚠️ [ProfileBody] User data is null');
+          return const Center(
+            child: Text('No user data available'),
+          );
+        }
 
-    // Loading state
-    if (userState.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
+        print(
+            '✅ [ProfileBody] User data received: ${user.displayName ?? user.email}');
+        return _buildProfileContent(context, ref, user);
+      },
+      loading: () {
+        print('⏳ [ProfileBody] User loading...');
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+      error: (error, stackTrace) {
+        print('❌ [ProfileBody] User error: $error');
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load profile',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                error.toString(),
+                style: TextStyle(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(userProvider.notifier).refresh();
+                },
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-    // Error state
-    if (userState.error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Failed to load profile',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              userState.error!,
-              style: TextStyle(color: Colors.grey[600]),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(userProvider.notifier).refreshUserProfile();
-              },
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // No user data
-    if (userState.user == null) {
-      return const Center(
-        child: Text('No user data available'),
-      );
-    }
-
-    final user = userState.user!;
-
+  Widget _buildProfileContent(BuildContext context, WidgetRef ref, User user) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(24.0),

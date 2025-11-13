@@ -11,15 +11,8 @@ class MenuDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tripsState = ref.watch(tripsProvider);
-
-    // Query pattern: Load trips data on demand if not already loaded
-    if (!tripsState.hasLoaded && !tripsState.isLoading) {
-      print('🎯 [MenuDrawer] Triggering trips load');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(tripsProvider.notifier).loadTrips();
-      });
-    }
+    final tripsAsync = ref.watch(tripsProvider);
+    print('👀 [MenuDrawer] Watching trips provider');
 
     return Drawer(
       child: SafeArea(
@@ -71,32 +64,44 @@ class MenuDrawer extends ConsumerWidget {
               // todo: create trip menu tile widget + empty state
               Expanded(
                 child: Center(
-                  child: tripsState.isLoading
-                      ? const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: CircularProgressIndicator(),
-                        )
-                      : tripsState.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                'Nothing here yet',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                              ),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                '${tripsState.trips.length} trip${tripsState.trips.length == 1 ? '' : 's'}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
+                  child: tripsAsync.when(
+                    data: (trips) {
+                      print(
+                          '✅ [MenuDrawer] Trips data: ${trips.length} trip(s)');
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          trips.isEmpty
+                              ? 'Nothing here yet'
+                              : '${trips.length} trip${trips.length == 1 ? '' : 's'}',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      );
+                    },
+                    loading: () {
+                      print('⏳ [MenuDrawer] Trips loading...');
+                      return const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      );
+                    },
+                    error: (error, stackTrace) {
+                      print('❌ [MenuDrawer] Trips error: $error');
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Error loading trips',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
 

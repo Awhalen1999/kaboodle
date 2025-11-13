@@ -8,74 +8,116 @@ class ProfileTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userState = ref.watch(userProvider);
-
-    // Query pattern: Load user data on demand if not already loaded
-    if (!userState.hasLoaded && !userState.isLoading) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(userProvider.notifier).loadUserProfile();
-      });
-    }
+    final userAsync = ref.watch(userProvider);
 
     return Container(
       margin: const EdgeInsets.only(top: 8.0),
-      child: userState.isLoading
-          ? const _ProfileTileSkeleton()
-          : ListTile(
-              visualDensity: const VisualDensity(
-                horizontal: -2,
-                vertical: -4,
-              ),
-              title: SizedBox(
-                height: 20, // Match skeleton height
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    userState.user?.displayName ??
-                        userState.user?.email ??
-                        'Profile',
-                    style: const TextStyle(
-                      fontSize: 14,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                ),
-              ),
-              subtitle: const Text('View and edit'),
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.grey[300],
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: userState.user?.photoUrl != null
-                    ? Image.network(
-                        userState.user!.photoUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.person,
-                            size: 24,
-                            color: Colors.grey[600],
-                          );
-                        },
-                      )
-                    : Icon(
-                        Icons.person,
-                        size: 24,
-                        color: Colors.grey[600],
-                      ),
-              ),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () {
-                Navigator.pop(context);
-                context.push('/profile');
-              },
+      child: userAsync.when(
+        data: (user) {
+          print(
+              '✅ [ProfileTile] User data: ${user?.displayName ?? user?.email ?? 'null'}');
+          return ListTile(
+            visualDensity: const VisualDensity(
+              horizontal: -2,
+              vertical: -4,
             ),
+            title: SizedBox(
+              height: 20, // Match skeleton height
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  user?.displayName ?? user?.email ?? 'Profile',
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  softWrap: false,
+                ),
+              ),
+            ),
+            subtitle: const Text('View and edit'),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey[300],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: user?.photoUrl != null
+                  ? Image.network(
+                      user!.photoUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.person,
+                          size: 24,
+                          color: Colors.grey[600],
+                        );
+                      },
+                    )
+                  : Icon(
+                      Icons.person,
+                      size: 24,
+                      color: Colors.grey[600],
+                    ),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/profile');
+            },
+          );
+        },
+        loading: () {
+          print('⏳ [ProfileTile] User loading...');
+          return const _ProfileTileSkeleton();
+        },
+        error: (error, stackTrace) {
+          print('❌ [ProfileTile] User error: $error');
+          return ListTile(
+            visualDensity: const VisualDensity(
+              horizontal: -2,
+              vertical: -4,
+            ),
+            title: SizedBox(
+              height: 20,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Profile',
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  softWrap: false,
+                ),
+              ),
+            ),
+            subtitle: const Text('View and edit'),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey[300],
+              ),
+              child: Icon(
+                Icons.person,
+                size: 24,
+                color: Colors.grey[600],
+              ),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/profile');
+            },
+          );
+        },
+      ),
     );
   }
 }

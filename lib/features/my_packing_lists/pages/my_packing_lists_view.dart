@@ -1,15 +1,23 @@
 import 'package:kaboodle_app/features/my_packing_lists/widgets/my_packing_lists_body.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kaboodle_app/providers/trips_provider.dart';
+import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/widgets/custom_app_bar.dart';
 import 'package:kaboodle_app/shared/widgets/menu_drawer.dart';
 
-class MyPackingListsView extends StatelessWidget {
+class MyPackingListsView extends ConsumerWidget {
   final String? initialTab;
 
   const MyPackingListsView({super.key, this.initialTab});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch providers - AsyncNotifier automatically loads data when first accessed
+    print('👀 [MyPackingListsView] Watching providers');
+    ref.watch(userProvider);
+    ref.watch(tripsProvider);
+
     return Scaffold(
       appBar: CustomAppBar(
         title: 'My Packing Lists',

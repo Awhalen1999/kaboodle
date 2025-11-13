@@ -24,33 +24,65 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
 
   @override
   Widget build(BuildContext context) {
-    final tripsState = ref.watch(tripsProvider);
+    final tripsAsync = ref.watch(tripsProvider);
 
-    // TanStack Query pattern: Load data on demand if not already loaded
-    if (!tripsState.hasLoaded && !tripsState.isLoading) {
-      print('🎯 [MyPackingListsBody] Triggering trips load');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(tripsProvider.notifier).loadTrips();
-      });
-    }
+    return tripsAsync.when(
+      data: (trips) {
+        print(
+            '✅ [MyPackingListsBody] Trips data received: ${trips.length} trip(s)');
+        if (trips.isEmpty) {
+          print('📭 [MyPackingListsBody] Showing empty state');
+          return _buildEmptyState(context);
+        }
 
-    if (tripsState.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    if (tripsState.isEmpty) {
-      return _buildEmptyState(context);
-    }
-
-    return Column(
-      children: [
-        _buildFilterRow(tripsState.trips.length),
-        Expanded(
-          child: _buildTripsView(context, tripsState.trips.length),
-        ),
-      ],
+        return Column(
+          children: [
+            _buildFilterRow(trips.length),
+            Expanded(
+              child: _buildTripsView(context, trips.length),
+            ),
+          ],
+        );
+      },
+      loading: () {
+        print('⏳ [MyPackingListsBody] Trips loading...');
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+      error: (error, stackTrace) {
+        print('❌ [MyPackingListsBody] Trips error: $error');
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load trips',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                error.toString(),
+                style: TextStyle(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(tripsProvider.notifier).refresh();
+                },
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

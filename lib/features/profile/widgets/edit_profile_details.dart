@@ -132,15 +132,54 @@ class _EditProfileDetailsState extends ConsumerState<EditProfileDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(userProvider);
-    final user = userState.user;
+    final userAsync = ref.watch(userProvider);
 
-    if (user == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return userAsync.when(
+      data: (user) {
+        if (user == null) {
+          print('⚠️ [EditProfileDetails] User data is null');
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    _initializeControllers(user);
+        print(
+            '✅ [EditProfileDetails] User data received: ${user.displayName ?? user.email}');
+        _initializeControllers(user);
+        return _buildEditForm(context, user);
+      },
+      loading: () {
+        print('⏳ [EditProfileDetails] User loading...');
+        return const Center(child: CircularProgressIndicator());
+      },
+      error: (error, stackTrace) {
+        print('❌ [EditProfileDetails] User error: $error');
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Failed to load profile',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                error.toString(),
+                style: TextStyle(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
+  Widget _buildEditForm(BuildContext context, User user) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
