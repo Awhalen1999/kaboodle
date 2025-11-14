@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
-import 'package:toastification/toastification.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_1_general_info_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_2_details_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_3_generate_items_body.dart';
@@ -27,39 +26,66 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
 
   // Validation state for each step
   bool _isStep1Valid = false;
+  bool _isStep2Valid = true; // Optional step, always valid
+  bool _isStep3Valid = true; // Will validate later
+  bool _isStep4Valid = true; // Overview, always valid
 
   // Loading state for API calls
   bool _isLoading = false;
 
   Future<void> _nextStep() async {
-    // Step 1: Save trip data to backend before proceeding
-    if (_currentStep == 0) {
-      await _saveStep1Data();
-    }
+    // Save current step data to backend before proceeding
+    await _saveCurrentStepData();
 
-    // Proceed to next step
-    if (_currentStep < _totalSteps - 1) {
+    // Proceed to next step if save was successful
+    if (_currentStep < _totalSteps - 1 && mounted) {
       setState(() {
         _currentStep++;
       });
     }
   }
 
-  Future<void> _saveStep1Data() async {
+  Future<void> _saveCurrentStepData() async {
+    switch (_currentStep) {
+      case 0:
+        await _saveStepData(
+          stepNumber: 1,
+          requiredFields: ['name', 'startDate', 'endDate'],
+        );
+        break;
+      case 1:
+        await _saveStepData(
+          stepNumber: 2,
+          requiredFields: [],
+        );
+        break;
+      case 2:
+        await _saveStepData(
+          stepNumber: 3,
+          requiredFields: [],
+        );
+        break;
+      case 3:
+        // Final step - will handle submission differently
+        break;
+    }
+  }
+
+  Future<void> _saveStepData({
+    required int stepNumber,
+    required List<String> requiredFields,
+  }) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
       final tripId = _formData['tripId'] as String?;
-      final isUpdate = tripId != null;
 
-      print('📝 [SaveStep1] Starting save...');
-      print('📝 [SaveStep1] isUpdate: $isUpdate');
-      print('📝 [SaveStep1] tripId: $tripId');
-      print('📝 [SaveStep1] Form data: ${_formData.toString()}');
+      print('📝 [SaveStep$stepNumber] Starting save...');
+      print('📝 [SaveStep$stepNumber] tripId: $tripId');
+      print('📝 [SaveStep$stepNumber] Form data: ${_formData.toString()}');
 
-      // Upsert trip (create if no ID, update if ID exists)
       final result = await _tripService.upsertTrip(
         id: tripId,
         name: _formData['name'] as String,
@@ -68,52 +94,25 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
         description: _formData['description'] as String?,
         destination: _formData['destination'] as String?,
         colorTag: _formData['colorTag'] as String?,
-        stepCompleted: 1,
+        stepCompleted: stepNumber,
         context: context,
       );
 
-      print('✅ [SaveStep1] Result received: ${result != null}');
+      print('✅ [SaveStep$stepNumber] Success: ${result != null}');
 
       if (result != null && mounted) {
-        // Store trip ID (always present)
         setState(() {
           _formData['tripId'] = result['trip'].id;
-
-          // Store packing list ID only if present (only on create)
           if (result['packingList'] != null) {
             _formData['packingListId'] = result['packingList'].id;
           }
         });
 
-        print('✅ [SaveStep1] Stored tripId: ${result['trip'].id}');
-        if (result['packingList'] != null) {
-          print('✅ [SaveStep1] Stored packingListId: ${result['packingList'].id}');
-        }
-
-        toastification.show(
-          context: context,
-          type: ToastificationType.success,
-          style: ToastificationStyle.minimal,
-          title: Text(isUpdate ? 'Trip updated successfully!' : 'Trip created successfully!'),
-          autoCloseDuration: const Duration(seconds: 3),
-          alignment: Alignment.topCenter,
-        );
+        print('✅ [SaveStep$stepNumber] Stored IDs - Trip: ${result['trip'].id}');
       }
     } catch (e, stackTrace) {
-      print('❌ [SaveStep1] Error occurred: $e');
-      print('❌ [SaveStep1] Stack trace: $stackTrace');
-
-      if (mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.minimal,
-          title: const Text('Failed to save trip'),
-          description: Text(e.toString()),
-          autoCloseDuration: const Duration(seconds: 5),
-          alignment: Alignment.topCenter,
-        );
-      }
+      print('❌ [SaveStep$stepNumber] Error: $e');
+      print('❌ [SaveStep$stepNumber] Stack trace: $stackTrace');
     } finally {
       if (mounted) {
         setState(() {
@@ -138,13 +137,18 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
   bool _canProceedToNextStep() {
     if (_currentStep >= _totalSteps - 1) return false;
 
-    // Step 1 validation
-    if (_currentStep == 0) {
-      return _isStep1Valid;
+    switch (_currentStep) {
+      case 0:
+        return _isStep1Valid;
+      case 1:
+        return _isStep2Valid;
+      case 2:
+        return _isStep3Valid;
+      case 3:
+        return _isStep4Valid;
+      default:
+        return false;
     }
-
-    // For other steps, allow progression (validation will be added later)
-    return true;
   }
 
   Widget _getStepBody() {

@@ -43,7 +43,8 @@ class TripService {
         print('✅ [TripService.upsertTrip] Success response: $data');
         return {
           'trip': Trip.fromJson(data['trip']),
-          'packingList': PackingList.fromJson(data['packingList']),
+          if (data['packingList'] != null)
+            'packingList': PackingList.fromJson(data['packingList']),
         };
       },
       context: context,
