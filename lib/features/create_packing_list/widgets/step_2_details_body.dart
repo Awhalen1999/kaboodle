@@ -262,47 +262,15 @@ class _Step2DetailsBodyState extends State<Step2DetailsBody> {
           const SizedBox(height: 8),
           Column(
             children: [
-              // First row: Cabin, Road Trip, Camping
+              // First row: Hotel, House, Cabin
               Row(
                 children: [
                   Expanded(
                     child: SvgOptionButton(
-                      svgPath: 'assets/svg/cabin.svg',
-                      title: 'Cabin',
-                      isSelected: _selectedAccommodations == 'cabin',
-                      onTap: () => _updateAccommodations('cabin'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: SvgOptionButton(
-                      svgPath: 'assets/svg/camper-van.svg',
-                      title: 'Road Trip',
-                      isSelected: _selectedAccommodations == 'roadTrip',
-                      onTap: () => _updateAccommodations('roadTrip'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: SvgOptionButton(
-                      svgPath: 'assets/svg/camping.svg',
-                      title: 'Camping',
-                      isSelected: _selectedAccommodations == 'camping',
-                      onTap: () => _updateAccommodations('camping'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              // Second row: Cruise, House, Hotel
-              Row(
-                children: [
-                  Expanded(
-                    child: SvgOptionButton(
-                      svgPath: 'assets/svg/cruise.svg',
-                      title: 'Cruise',
-                      isSelected: _selectedAccommodations == 'cruise',
-                      onTap: () => _updateAccommodations('cruise'),
+                      svgPath: 'assets/svg/hotel.svg',
+                      title: 'Hotel',
+                      isSelected: _selectedAccommodations == 'hotel',
+                      onTap: () => _updateAccommodations('hotel'),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -317,10 +285,42 @@ class _Step2DetailsBodyState extends State<Step2DetailsBody> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: SvgOptionButton(
-                      svgPath: 'assets/svg/hotel.svg',
-                      title: 'Hotel',
-                      isSelected: _selectedAccommodations == 'hotel',
-                      onTap: () => _updateAccommodations('hotel'),
+                      svgPath: 'assets/svg/cabin.svg',
+                      title: 'Cabin',
+                      isSelected: _selectedAccommodations == 'cabin',
+                      onTap: () => _updateAccommodations('cabin'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Second row: Camping, Road Trip, Cruise
+              Row(
+                children: [
+                  Expanded(
+                    child: SvgOptionButton(
+                      svgPath: 'assets/svg/camping.svg',
+                      title: 'Camping',
+                      isSelected: _selectedAccommodations == 'camping',
+                      onTap: () => _updateAccommodations('camping'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: SvgOptionButton(
+                      svgPath: 'assets/svg/camper-van.svg',
+                      title: 'Road Trip',
+                      isSelected: _selectedAccommodations == 'roadTrip',
+                      onTap: () => _updateAccommodations('roadTrip'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: SvgOptionButton(
+                      svgPath: 'assets/svg/cruise.svg',
+                      title: 'Cruise',
+                      isSelected: _selectedAccommodations == 'cruise',
+                      onTap: () => _updateAccommodations('cruise'),
                     ),
                   ),
                 ],
@@ -348,17 +348,10 @@ class _Step2DetailsBodyState extends State<Step2DetailsBody> {
           Column(
             children: [
               SvgOptionTile(
-                svgPath: 'assets/svg/bicycle.svg',
-                title: 'Biking',
-                isSelected: _selectedActivities.contains('biking'),
-                onTap: () => _toggleActivity('biking'),
-              ),
-              const SizedBox(height: 8),
-              SvgOptionTile(
-                svgPath: 'assets/svg/camera.svg',
-                title: 'Photography',
-                isSelected: _selectedActivities.contains('photography'),
-                onTap: () => _toggleActivity('photography'),
+                svgPath: 'assets/svg/umbrella.svg',
+                title: 'Beach',
+                isSelected: _selectedActivities.contains('beach'),
+                onTap: () => _toggleActivity('beach'),
               ),
               const SizedBox(height: 8),
               SvgOptionTile(
@@ -369,13 +362,6 @@ class _Step2DetailsBodyState extends State<Step2DetailsBody> {
               ),
               const SizedBox(height: 8),
               SvgOptionTile(
-                svgPath: 'assets/svg/golf-field.svg',
-                title: 'Golf',
-                isSelected: _selectedActivities.contains('golf'),
-                onTap: () => _toggleActivity('golf'),
-              ),
-              const SizedBox(height: 8),
-              SvgOptionTile(
                 svgPath: 'assets/svg/mountain-route.svg',
                 title: 'Hiking',
                 isSelected: _selectedActivities.contains('hiking'),
@@ -383,10 +369,10 @@ class _Step2DetailsBodyState extends State<Step2DetailsBody> {
               ),
               const SizedBox(height: 8),
               SvgOptionTile(
-                svgPath: 'assets/svg/rod.svg',
-                title: 'Fishing',
-                isSelected: _selectedActivities.contains('fishing'),
-                onTap: () => _toggleActivity('fishing'),
+                svgPath: 'assets/svg/camera.svg',
+                title: 'Photography',
+                isSelected: _selectedActivities.contains('photography'),
+                onTap: () => _toggleActivity('photography'),
               ),
               const SizedBox(height: 8),
               SvgOptionTile(
@@ -397,10 +383,24 @@ class _Step2DetailsBodyState extends State<Step2DetailsBody> {
               ),
               const SizedBox(height: 8),
               SvgOptionTile(
-                svgPath: 'assets/svg/umbrella.svg',
-                title: 'Beach',
-                isSelected: _selectedActivities.contains('beach'),
-                onTap: () => _toggleActivity('beach'),
+                svgPath: 'assets/svg/rod.svg',
+                title: 'Fishing',
+                isSelected: _selectedActivities.contains('fishing'),
+                onTap: () => _toggleActivity('fishing'),
+              ),
+              const SizedBox(height: 8),
+              SvgOptionTile(
+                svgPath: 'assets/svg/golf-field.svg',
+                title: 'Golf',
+                isSelected: _selectedActivities.contains('golf'),
+                onTap: () => _toggleActivity('golf'),
+              ),
+              const SizedBox(height: 8),
+              SvgOptionTile(
+                svgPath: 'assets/svg/bicycle.svg',
+                title: 'Biking',
+                isSelected: _selectedActivities.contains('biking'),
+                onTap: () => _toggleActivity('biking'),
               ),
             ],
           ),

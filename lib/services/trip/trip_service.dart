@@ -18,6 +18,11 @@ class TripService {
     String? description,
     String? destination,
     String? colorTag,
+    String? gender,
+    List<String>? weather,
+    String? purpose,
+    String? accommodations,
+    List<String>? activities,
     int? stepCompleted,
     BuildContext? context,
   }) async {
@@ -29,26 +34,39 @@ class TripService {
       if (description != null) 'description': description,
       if (destination != null) 'destination': destination,
       if (colorTag != null) 'colorTag': colorTag,
+      if (gender != null) 'gender': gender,
+      if (weather != null && weather.isNotEmpty) 'weather': weather,
+      if (purpose != null) 'purpose': purpose,
+      if (accommodations != null) 'accommodations': accommodations,
+      if (activities != null && activities.isNotEmpty) 'activities': activities,
       if (stepCompleted != null) 'stepCompleted': stepCompleted,
     };
 
     print('🚀 [TripService.upsertTrip] Request body: $requestBody');
 
-    return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.post(
-        ApiEndpoints.trips,
-        body: requestBody,
-      ),
-      onSuccess: (data) {
-        print('✅ [TripService.upsertTrip] Success response: $data');
-        return {
-          'trip': Trip.fromJson(data['trip']),
-          if (data['packingList'] != null)
-            'packingList': PackingList.fromJson(data['packingList']),
-        };
-      },
-      context: context,
-    );
+    try {
+      final result = await _apiService.safeApiCall(
+        apiCall: () => _apiService.client.post(
+          ApiEndpoints.trips,
+          body: requestBody,
+        ),
+        onSuccess: (data) {
+          print('✅ [TripService.upsertTrip] Success response: $data');
+          return {
+            'trip': Trip.fromJson(data['trip']),
+            if (data['packingList'] != null)
+              'packingList': PackingList.fromJson(data['packingList']),
+          };
+        },
+        context: context,
+      );
+      print('🎯 [TripService.upsertTrip] Final result: ${result != null}');
+      return result;
+    } catch (e, stackTrace) {
+      print('❌ [TripService.upsertTrip] Exception caught: $e');
+      print('❌ [TripService.upsertTrip] Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
   /// Create a new trip

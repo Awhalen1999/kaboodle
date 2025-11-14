@@ -86,6 +86,10 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
       print('📝 [SaveStep$stepNumber] tripId: $tripId');
       print('📝 [SaveStep$stepNumber] Form data: ${_formData.toString()}');
 
+      // Convert weather and activities lists properly
+      final weatherList = _formData['weather'] as List<dynamic>?;
+      final activitiesList = _formData['activities'] as List<dynamic>?;
+
       final result = await _tripService.upsertTrip(
         id: tripId,
         name: _formData['name'] as String,
@@ -94,6 +98,11 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
         description: _formData['description'] as String?,
         destination: _formData['destination'] as String?,
         colorTag: _formData['colorTag'] as String?,
+        gender: _formData['gender'] as String?,
+        weather: weatherList?.cast<String>(),
+        purpose: _formData['purpose'] as String?,
+        accommodations: _formData['accommodations'] as String?,
+        activities: activitiesList?.cast<String>(),
         stepCompleted: stepNumber,
         context: context,
       );
