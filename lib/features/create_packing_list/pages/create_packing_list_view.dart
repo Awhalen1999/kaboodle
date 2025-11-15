@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_1_general_info_body.dart';
@@ -6,15 +7,17 @@ import 'package:kaboodle_app/features/create_packing_list/widgets/step_2_details
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_3_generate_items_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_4_overview_body.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
+import 'package:kaboodle_app/providers/trips_provider.dart';
 
-class CreatePackingListView extends StatefulWidget {
+class CreatePackingListView extends ConsumerStatefulWidget {
   const CreatePackingListView({super.key});
 
   @override
-  State<CreatePackingListView> createState() => _CreatePackingListViewState();
+  ConsumerState<CreatePackingListView> createState() =>
+      _CreatePackingListViewState();
 }
 
-class _CreatePackingListViewState extends State<CreatePackingListView> {
+class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
   int _currentStep = 0;
   final int _totalSteps = 4;
   final TripService _tripService = TripService();
@@ -107,14 +110,21 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
         context: context,
       );
 
-      print('✅ [SaveStep$stepNumber] Success: ${result != null}');
-
       if (result != null && mounted) {
+        // Store the packing list ID for subsequent saves
         setState(() {
           _formData['packingListId'] = result.id;
         });
 
-        print('✅ [SaveStep$stepNumber] Stored PackingList ID: ${result.id}');
+        // Update the provider with the new/updated packing list
+        // If packingListId was null, it's a new list - add it
+        // If packingListId was not null, it's an update - update it
+        final wasNewList = packingListId == null;
+        if (wasNewList) {
+          ref.read(packingListsProvider.notifier).addPackingList(result);
+        } else {
+          ref.read(packingListsProvider.notifier).updatePackingList(result);
+        }
       }
     } catch (e, stackTrace) {
       print('❌ [SaveStep$stepNumber] Error: $e');
@@ -273,7 +283,9 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
                   Expanded(
                     flex: _currentStep == 0 ? 1 : 1,
                     child: ElevatedButton(
-                      onPressed: _canProceedToNextStep() && !_isLoading ? _nextStep : null,
+                      onPressed: _canProceedToNextStep() && !_isLoading
+                          ? _nextStep
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor:
@@ -297,8 +309,12 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
                             )
                           : Text(
                               'Next',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onPrimary,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),

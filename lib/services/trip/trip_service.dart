@@ -68,20 +68,33 @@ class TripService {
   Future<Map<String, dynamic>?> getPackingLists({
     BuildContext? context,
   }) async {
-    return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.get(ApiEndpoints.packingLists),
-      onSuccess: (data) {
-        final packingListsList = (data['packingLists'] as List)
-            .map((json) => PackingList.fromJson(json))
-            .toList();
+    print('🚀 [TripService.getPackingLists] Calling GET ${ApiEndpoints.packingLists}');
 
-        return {
-          'packingLists': packingListsList,
-          'count': data['count'] as int,
-        };
-      },
-      context: context,
-    );
+    try {
+      final result = await _apiService.safeApiCall(
+        apiCall: () => _apiService.client.get(ApiEndpoints.packingLists),
+        onSuccess: (data) {
+          print('✅ [TripService.getPackingLists] Raw response: $data');
+          final packingListsList = (data['packingLists'] as List)
+              .map((json) => PackingList.fromJson(json))
+              .toList();
+
+          print('✅ [TripService.getPackingLists] Parsed ${packingListsList.length} packing lists');
+          return {
+            'packingLists': packingListsList,
+            'count': packingListsList.length,
+          };
+        },
+        context: context,
+      );
+
+      print('🎯 [TripService.getPackingLists] Returning result: ${result != null}');
+      return result;
+    } catch (e, stackTrace) {
+      print('❌ [TripService.getPackingLists] Exception: $e');
+      print('❌ [TripService.getPackingLists] Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
   /// Get a single packing list by ID

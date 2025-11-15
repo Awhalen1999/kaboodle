@@ -22,6 +22,10 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
   List<ItemTemplate>? _suggestions;
   String? _errorMessage;
 
+  // Track selected items and their quantities
+  final Map<String, bool> _selectedItems = {};
+  final Map<String, int> _itemQuantities = {};
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +70,14 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
           print('   - ${suggestion.name} (${suggestion.category}) [Priority: ${suggestion.priority}, Qty: ${suggestion.defaultQuantity}, Icon: ${suggestion.icon}]');
         }
 
+        // Initialize all items as selected with their default quantities
+        _selectedItems.clear();
+        _itemQuantities.clear();
+        for (var suggestion in suggestions) {
+          _selectedItems[suggestion.id] = true;
+          _itemQuantities[suggestion.id] = suggestion.defaultQuantity;
+        }
+
         setState(() {
           _suggestions = suggestions;
           _isLoading = false;
@@ -90,59 +102,322 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           Text(
-            'Generate Items',
+            'Packing Suggestions',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            'We\'ll create a personalized packing list for you',
+            'Review and customize your personalized packing list',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
 
           // Loading state
           if (_isLoading)
             Center(
-              child: Column(
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Generating personalized suggestions...',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 48.0),
+                child: Column(
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Generating personalized suggestions...',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
           // Error state
           if (_errorMessage != null && !_isLoading)
-            Text(
-              _errorMessage!,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 48.0),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _errorMessage!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
 
-          // Success state (for now, just showing count)
-          if (_suggestions != null && !_isLoading)
+          // Success state - suggestions list
+          if (_suggestions != null && !_isLoading) ...[
+            // Summary text
             Text(
-              'Generated ${_suggestions!.length} suggestions!\nCheck console for details.',
-              style: Theme.of(context).textTheme.bodyLarge,
+              'We found ${_suggestions!.length} items for your trip',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
+            const SizedBox(height: 4),
+            Text(
+              'Tap items to adjust quantity or remove them',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: 16),
+
+            // Group items by category
+            ..._buildCategorizedItems(),
+          ],
         ],
       ),
     );
+  }
+
+  /// Build categorized list of items
+  List<Widget> _buildCategorizedItems() {
+    if (_suggestions == null || _suggestions!.isEmpty) {
+      return [];
+    }
+
+    // Group items by category
+    final Map<String, List<ItemTemplate>> categorizedItems = {};
+    for (var item in _suggestions!) {
+      if (!categorizedItems.containsKey(item.category)) {
+        categorizedItems[item.category] = [];
+      }
+      categorizedItems[item.category]!.add(item);
+    }
+
+    // Build UI for each category
+    final List<Widget> widgets = [];
+    categorizedItems.forEach((category, items) {
+      widgets.add(_buildCategorySection(category, items));
+      widgets.add(const SizedBox(height: 24));
+    });
+
+    return widgets;
+  }
+
+  /// Build a category section with its items
+  Widget _buildCategorySection(String category, List<ItemTemplate> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Category header
+        Text(
+          category.toUpperCase(),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+        ),
+        const SizedBox(height: 12),
+
+        // Items in this category
+        ...items.map((item) => _buildItemTile(item)),
+      ],
+    );
+  }
+
+  /// Build an individual item tile
+  Widget _buildItemTile(ItemTemplate item) {
+    final isSelected = _selectedItems[item.id] ?? true;
+    final quantity = _itemQuantities[item.id] ?? item.defaultQuantity;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Card(
+        elevation: isSelected ? 2 : 0,
+        color: isSelected ? null : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _selectedItems[item.id] = !isSelected;
+            });
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            child: Row(
+              children: [
+                // Checkbox
+                Checkbox(
+                  value: isSelected,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedItems[item.id] = value ?? false;
+                    });
+                  },
+                ),
+                const SizedBox(width: 8),
+
+                // Icon
+                Icon(
+                  _getIconData(item.icon),
+                  size: 28,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 16),
+
+                // Item name
+                Expanded(
+                  child: Text(
+                    item.name,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
+
+                // Quantity controls
+                if (isSelected) ...[
+                  const SizedBox(width: 8),
+                  _buildQuantityControls(item, quantity),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build quantity controls (+/- buttons)
+  Widget _buildQuantityControls(ItemTemplate item, int quantity) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Minus button
+          IconButton(
+            icon: const Icon(Icons.remove, size: 18),
+            onPressed: quantity > 1
+                ? () {
+                    setState(() {
+                      _itemQuantities[item.id] = quantity - 1;
+                    });
+                  }
+                : null,
+            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+
+          // Quantity display
+          Container(
+            constraints: const BoxConstraints(minWidth: 24),
+            child: Text(
+              quantity.toString(),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+            ),
+          ),
+
+          // Plus button
+          IconButton(
+            icon: const Icon(Icons.add, size: 18),
+            onPressed: quantity < 99
+                ? () {
+                    setState(() {
+                      _itemQuantities[item.id] = quantity + 1;
+                    });
+                  }
+                : null,
+            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Map icon name string to IconData
+  IconData _getIconData(String iconName) {
+    // Map common icon names to Material Icons
+    final iconMap = {
+      'luggage': Icons.luggage,
+      'checkroom': Icons.checkroom,
+      'local_laundry_service': Icons.local_laundry_service,
+      'wc': Icons.wc,
+      'clean_hands': Icons.clean_hands,
+      'face': Icons.face,
+      'health_and_safety': Icons.health_and_safety,
+      'headphones': Icons.headphones,
+      'phone_iphone': Icons.phone_iphone,
+      'laptop': Icons.laptop,
+      'camera_alt': Icons.camera_alt,
+      'book': Icons.book,
+      'sports': Icons.sports,
+      'pool': Icons.pool,
+      'hiking': Icons.hiking,
+      'beach_access': Icons.beach_access,
+      'ac_unit': Icons.ac_unit,
+      'wb_sunny': Icons.wb_sunny,
+      'umbrella': Icons.umbrella,
+      'backpack': Icons.backpack,
+      'shopping_bag': Icons.shopping_bag,
+      'restaurant': Icons.restaurant,
+      'local_drink': Icons.local_drink,
+      'medication': Icons.medication,
+      'vaccines': Icons.vaccines,
+      'local_hospital': Icons.local_hospital,
+      'power': Icons.power,
+      'cable': Icons.cable,
+      'vpn_key': Icons.vpn_key,
+      'credit_card': Icons.credit_card,
+      'attach_money': Icons.attach_money,
+      'important_devices': Icons.important_devices,
+      'flight': Icons.flight,
+      'directions_car': Icons.directions_car,
+      'description': Icons.description,
+      'badge': Icons.badge,
+      'map': Icons.map,
+      'navigation': Icons.navigation,
+      'toys': Icons.toys,
+      'child_care': Icons.child_care,
+      'baby_changing_station': Icons.baby_changing_station,
+      'pets': Icons.pets,
+      'watch': Icons.watch,
+      'diamond': Icons.diamond,
+      'glasses': Icons.remove_red_eye,
+      'umbrella_outline': Icons.beach_access,
+    };
+
+    return iconMap[iconName] ?? Icons.category;
   }
 }
