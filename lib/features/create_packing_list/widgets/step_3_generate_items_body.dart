@@ -29,11 +29,11 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
   }
 
   Future<void> _loadSuggestions() async {
-    final tripId = widget.formData['tripId'] as String?;
+    final packingListId = widget.formData['packingListId'] as String?;
 
-    if (tripId == null) {
+    if (packingListId == null) {
       setState(() {
-        _errorMessage = 'No trip ID found. Please complete previous steps first.';
+        _errorMessage = 'No packing list ID found. Please complete previous steps first.';
       });
       return;
     }
@@ -44,10 +44,10 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     });
 
     try {
-      print('🔮 [Step3] Generating suggestions for tripId: $tripId');
+      print('🔮 [Step3] Generating suggestions for packingListId: $packingListId');
 
       final result = await _tripService.generateSuggestions(
-        tripId: tripId,
+        packingListId: packingListId,
         context: context,
       );
 

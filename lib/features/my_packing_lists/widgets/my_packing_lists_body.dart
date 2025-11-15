@@ -24,34 +24,34 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
 
   @override
   Widget build(BuildContext context) {
-    final tripsAsync = ref.watch(tripsProvider);
+    final packingListsAsync = ref.watch(packingListsProvider);
 
-    return tripsAsync.when(
-      data: (trips) {
+    return packingListsAsync.when(
+      data: (packingLists) {
         print(
-            '✅ [MyPackingListsBody] Trips data received: ${trips.length} trip(s)');
-        if (trips.isEmpty) {
+            '✅ [MyPackingListsBody] Packing lists data received: ${packingLists.length} list(s)');
+        if (packingLists.isEmpty) {
           print('📭 [MyPackingListsBody] Showing empty state');
           return _buildEmptyState(context);
         }
 
         return Column(
           children: [
-            _buildFilterRow(trips.length),
+            _buildFilterRow(packingLists.length),
             Expanded(
-              child: _buildTripsView(context, trips.length),
+              child: _buildPackingListsView(context, packingLists.length),
             ),
           ],
         );
       },
       loading: () {
-        print('⏳ [MyPackingListsBody] Trips loading...');
+        print('⏳ [MyPackingListsBody] Packing lists loading...');
         return const Center(
           child: CircularProgressIndicator(),
         );
       },
       error: (error, stackTrace) {
-        print('❌ [MyPackingListsBody] Trips error: $error');
+        print('❌ [MyPackingListsBody] Packing lists error: $error');
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -63,7 +63,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Failed to load trips',
+                'Failed to load packing lists',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
@@ -75,7 +75,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  ref.read(tripsProvider.notifier).refresh();
+                  ref.read(packingListsProvider.notifier).refresh();
                 },
                 child: const Text('Retry'),
               ),
@@ -202,7 +202,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
     );
   }
 
-  Widget _buildTripsView(BuildContext context, int tripCount) {
+  Widget _buildPackingListsView(BuildContext context, int packingListCount) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -210,7 +210,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'You have $tripCount trip${tripCount == 1 ? '' : 's'}',
+              'You have $packingListCount packing list${packingListCount == 1 ? '' : 's'}',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 16),

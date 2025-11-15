@@ -11,8 +11,8 @@ class MenuDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tripsAsync = ref.watch(tripsProvider);
-    print('👀 [MenuDrawer] Watching trips provider');
+    final packingListsAsync = ref.watch(packingListsProvider);
+    print('👀 [MenuDrawer] Watching packing lists provider');
 
     return Drawer(
       child: SafeArea(
@@ -60,20 +60,20 @@ class MenuDrawer extends ConsumerWidget {
                 color: Colors.grey,
               ),
 
-              // Trips count section - simple text display
-              // todo: create trip menu tile widget + empty state
+              // Packing lists count section - simple text display
+              // todo: create packing list menu tile widget + empty state
               Expanded(
                 child: Center(
-                  child: tripsAsync.when(
-                    data: (trips) {
+                  child: packingListsAsync.when(
+                    data: (packingLists) {
                       print(
-                          '✅ [MenuDrawer] Trips data: ${trips.length} trip(s)');
+                          '✅ [MenuDrawer] Packing lists data: ${packingLists.length} list(s)');
                       return Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
-                          trips.isEmpty
+                          packingLists.isEmpty
                               ? 'Nothing here yet'
-                              : '${trips.length} trip${trips.length == 1 ? '' : 's'}',
+                              : '${packingLists.length} packing list${packingLists.length == 1 ? '' : 's'}',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 14,

@@ -80,18 +80,18 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
     });
 
     try {
-      final tripId = _formData['tripId'] as String?;
+      final packingListId = _formData['packingListId'] as String?;
 
       print('📝 [SaveStep$stepNumber] Starting save...');
-      print('📝 [SaveStep$stepNumber] tripId: $tripId');
+      print('📝 [SaveStep$stepNumber] packingListId: $packingListId');
       print('📝 [SaveStep$stepNumber] Form data: ${_formData.toString()}');
 
       // Convert weather and activities lists properly
       final weatherList = _formData['weather'] as List<dynamic>?;
       final activitiesList = _formData['activities'] as List<dynamic>?;
 
-      final result = await _tripService.upsertTrip(
-        id: tripId,
+      final result = await _tripService.upsertPackingList(
+        id: packingListId,
         name: _formData['name'] as String,
         startDate: _formData['startDate'] as DateTime,
         endDate: _formData['endDate'] as DateTime,
@@ -111,13 +111,10 @@ class _CreatePackingListViewState extends State<CreatePackingListView> {
 
       if (result != null && mounted) {
         setState(() {
-          _formData['tripId'] = result['trip'].id;
-          if (result['packingList'] != null) {
-            _formData['packingListId'] = result['packingList'].id;
-          }
+          _formData['packingListId'] = result.id;
         });
 
-        print('✅ [SaveStep$stepNumber] Stored IDs - Trip: ${result['trip'].id}');
+        print('✅ [SaveStep$stepNumber] Stored PackingList ID: ${result.id}');
       }
     } catch (e, stackTrace) {
       print('❌ [SaveStep$stepNumber] Error: $e');

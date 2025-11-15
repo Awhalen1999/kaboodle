@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 import '../api/endpoints.dart';
-import '../../models/trip.dart';
 import '../../models/packing_list.dart';
 import '../../models/packing_item.dart';
 
 class TripService {
   final ApiService _apiService = ApiService();
 
-  /// Upsert a trip (create if no ID, update if ID provided)
-  /// Returns Trip and PackingList on success, null on error
-  Future<Map<String, dynamic>?> upsertTrip({
+  /// Upsert a packing list (create if no ID, update if ID provided)
+  /// Returns PackingList on success, null on error
+  Future<PackingList?> upsertPackingList({
     String? id,
     required String name,
     required DateTime startDate,
@@ -42,182 +41,73 @@ class TripService {
       if (stepCompleted != null) 'stepCompleted': stepCompleted,
     };
 
-    print('🚀 [TripService.upsertTrip] Request body: $requestBody');
+    print('🚀 [TripService.upsertPackingList] Request body: $requestBody');
 
     try {
       final result = await _apiService.safeApiCall(
         apiCall: () => _apiService.client.post(
-          ApiEndpoints.trips,
+          ApiEndpoints.packingLists,
           body: requestBody,
         ),
         onSuccess: (data) {
-          print('✅ [TripService.upsertTrip] Success response: $data');
-          return {
-            'trip': Trip.fromJson(data['trip']),
-            if (data['packingList'] != null)
-              'packingList': PackingList.fromJson(data['packingList']),
-          };
+          print('✅ [TripService.upsertPackingList] Success response: $data');
+          return PackingList.fromJson(data['packingList']);
         },
         context: context,
       );
-      print('🎯 [TripService.upsertTrip] Final result: ${result != null}');
+      print('🎯 [TripService.upsertPackingList] Final result: ${result != null}');
       return result;
     } catch (e, stackTrace) {
-      print('❌ [TripService.upsertTrip] Exception caught: $e');
-      print('❌ [TripService.upsertTrip] Stack trace: $stackTrace');
+      print('❌ [TripService.upsertPackingList] Exception caught: $e');
+      print('❌ [TripService.upsertPackingList] Stack trace: $stackTrace');
       rethrow;
     }
   }
 
-  /// Create a new trip
-  /// Returns Trip and PackingList on success, null on error
-  @Deprecated('Use upsertTrip() instead')
-  Future<Map<String, dynamic>?> createTrip({
-    required String name,
-    required DateTime startDate,
-    required DateTime endDate,
-    String? description,
-    String? destination,
-    String? colorTag,
+  /// Get all packing lists for the current user
+  Future<Map<String, dynamic>?> getPackingLists({
     BuildContext? context,
   }) async {
     return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.post(
-        ApiEndpoints.trips,
-        body: {
-          'name': name,
-          'startDate': startDate.toIso8601String().split('T')[0], // YYYY-MM-DD
-          'endDate': endDate.toIso8601String().split('T')[0],
-          if (description != null) 'description': description,
-          if (destination != null) 'destination': destination,
-          if (colorTag != null) 'colorTag': colorTag,
-        },
-      ),
+      apiCall: () => _apiService.client.get(ApiEndpoints.packingLists),
       onSuccess: (data) {
-        return {
-          'trip': Trip.fromJson(data['trip']),
-          'packingList': PackingList.fromJson(data['packingList']),
-        };
-      },
-      context: context,
-    );
-  }
-
-  /// Get all trips for the current user
-  Future<Map<String, dynamic>?> getTrips({
-    String status = 'all', // 'all', 'upcoming', 'past'
-    int limit = 50,
-    int offset = 0,
-    BuildContext? context,
-  }) async {
-    final queryParams = '?status=$status&limit=$limit&offset=$offset';
-
-    return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.get('${ApiEndpoints.trips}$queryParams'),
-      onSuccess: (data) {
-        final tripsList = (data['trips'] as List)
-            .map((json) => Trip.fromJson(json))
+        final packingListsList = (data['packingLists'] as List)
+            .map((json) => PackingList.fromJson(json))
             .toList();
 
         return {
-          'trips': tripsList,
-          'total': data['total'] as int,
+          'packingLists': packingListsList,
+          'count': data['count'] as int,
         };
       },
       context: context,
     );
   }
 
-  /// Get a single trip by ID
-  Future<Map<String, dynamic>?> getTrip({
-    required String tripId,
+  /// Get a single packing list by ID
+  Future<PackingList?> getPackingList({
+    required String packingListId,
     BuildContext? context,
   }) async {
     return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.get(ApiEndpoints.trip(tripId)),
-      onSuccess: (data) {
-        return {
-          'trip': Trip.fromJson(data['trip']),
-          'packingList': PackingList.fromJson(data['packingList']),
-        };
-      },
+      apiCall: () => _apiService.client.get(ApiEndpoints.packingList(packingListId)),
+      onSuccess: (data) => PackingList.fromJson(data['packingList']),
       context: context,
     );
   }
 
-  /// Update a trip (multi-step process)
-  Future<Trip?> updateTrip({
-    required String tripId,
+  /// Update a packing list
+  Future<PackingList?> updatePackingList({
+    required String packingListId,
     required Map<String, dynamic> data,
     BuildContext? context,
   }) async {
     return await _apiService.safeApiCall(
       apiCall: () => _apiService.client.patch(
-        ApiEndpoints.trip(tripId),
+        ApiEndpoints.packingList(packingListId),
         body: data,
       ),
-      onSuccess: (responseData) => Trip.fromJson(responseData['trip']),
-      context: context,
-    );
-  }
-
-  /// Delete a trip
-  Future<bool> deleteTrip({
-    required String tripId,
-    BuildContext? context,
-  }) async {
-    final result = await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.delete(ApiEndpoints.trip(tripId)),
-      onSuccess: (data) => data['success'] as bool,
-      context: context,
-    );
-
-    return result ?? false;
-  }
-
-  /// Generate packing suggestions based on trip parameters
-  Future<List<dynamic>?> generateSuggestions({
-    required String tripId,
-    BuildContext? context,
-  }) async {
-    return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.post(
-        ApiEndpoints.generateSuggestions(tripId),
-      ),
-      onSuccess: (data) => data['suggestions'] as List,
-      context: context,
-    );
-  }
-
-  /// Get packing lists for a trip
-  Future<List<PackingList>?> getPackingLists({
-    required String tripId,
-    BuildContext? context,
-  }) async {
-    return await _apiService.safeApiCall(
-      apiCall: () =>
-          _apiService.client.get(ApiEndpoints.tripPackingLists(tripId)),
-      onSuccess: (data) {
-        return (data['packingLists'] as List)
-            .map((json) => PackingList.fromJson(json))
-            .toList();
-      },
-      context: context,
-    );
-  }
-
-  /// Update packing list name
-  Future<PackingList?> updatePackingList({
-    required String packingListId,
-    required String name,
-    BuildContext? context,
-  }) async {
-    return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.patch(
-        ApiEndpoints.packingList(packingListId),
-        body: {'name': name},
-      ),
-      onSuccess: (data) => PackingList.fromJson(data['packingList']),
+      onSuccess: (responseData) => PackingList.fromJson(responseData['packingList']),
       context: context,
     );
   }
@@ -228,13 +118,26 @@ class TripService {
     BuildContext? context,
   }) async {
     final result = await _apiService.safeApiCall(
-      apiCall: () =>
-          _apiService.client.delete(ApiEndpoints.packingList(packingListId)),
+      apiCall: () => _apiService.client.delete(ApiEndpoints.packingList(packingListId)),
       onSuccess: (data) => data['success'] as bool,
       context: context,
     );
 
     return result ?? false;
+  }
+
+  /// Generate packing suggestions based on packing list parameters
+  Future<List<dynamic>?> generateSuggestions({
+    required String packingListId,
+    BuildContext? context,
+  }) async {
+    return await _apiService.safeApiCall(
+      apiCall: () => _apiService.client.post(
+        ApiEndpoints.generateSuggestions(packingListId),
+      ),
+      onSuccess: (data) => data['suggestions'] as List,
+      context: context,
+    );
   }
 
   /// Reuse packing list (reset all items to unpacked)

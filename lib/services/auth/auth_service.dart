@@ -158,7 +158,7 @@ class AuthService {
 
     // Invalidate providers after signout to clear state and prevent data sharing across accounts
     // This order prevents the providers from trying to load data while user is still authenticated
-    ref.invalidate(tripsProvider);
+    ref.invalidate(packingListsProvider);
     ref.invalidate(userProvider);
 
     // Redirect immediately after signout

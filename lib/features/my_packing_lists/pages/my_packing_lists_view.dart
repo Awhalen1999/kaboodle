@@ -17,7 +17,7 @@ class MyPackingListsView extends ConsumerWidget {
     // Watch providers - AsyncNotifier automatically loads data when first accessed
     print('👀 [MyPackingListsView] Watching providers');
     ref.watch(userProvider);
-    ref.watch(tripsProvider);
+    ref.watch(packingListsProvider);
 
     return Scaffold(
       appBar: CustomAppBar(

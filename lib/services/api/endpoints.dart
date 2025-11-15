@@ -8,14 +8,10 @@ class ApiEndpoints {
   // Health
   static const String health = '/api/health';
 
-  // Trips
-  static const String trips = '/api/trips';
-  static String trip(String id) => '/api/trips/$id';
-  static String generateSuggestions(String tripId) => '/api/trips/$tripId/generate-suggestions';
-  static String tripPackingLists(String tripId) => '/api/trips/$tripId/packing-lists';
-
   // Packing Lists
+  static const String packingLists = '/api/packing-lists';
   static String packingList(String id) => '/api/packing-lists/$id';
+  static String generateSuggestions(String packingListId) => '/api/packing-lists/$packingListId/generate-suggestions';
   static String packingListItems(String id) => '/api/packing-lists/$id/items';
   static String packingListItemsBulk(String id) => '/api/packing-lists/$id/items/bulk';
   static String packingListReuse(String id) => '/api/packing-lists/$id/reuse';
