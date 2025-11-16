@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kaboodle_app/models/item_template.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
+import 'package:kaboodle_app/features/create_packing_list/widgets/checkbox_tile.dart';
 
 class Step3GenerateItemsBody extends StatefulWidget {
   final Map<String, dynamic> formData;
@@ -70,11 +71,11 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
           print('   - ${suggestion.name} (${suggestion.category}) [Priority: ${suggestion.priority}, Qty: ${suggestion.defaultQuantity}, Icon: ${suggestion.icon}]');
         }
 
-        // Initialize all items as selected with their default quantities
+        // Initialize all items as unselected with their default quantities
         _selectedItems.clear();
         _itemQuantities.clear();
         for (var suggestion in suggestions) {
-          _selectedItems[suggestion.id] = true;
+          _selectedItems[suggestion.id] = false;
           _itemQuantities[suggestion.id] = suggestion.defaultQuantity;
         }
 
@@ -243,128 +244,27 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
 
   /// Build an individual item tile
   Widget _buildItemTile(ItemTemplate item) {
-    final isSelected = _selectedItems[item.id] ?? true;
+    final isSelected = _selectedItems[item.id] ?? false;
     final quantity = _itemQuantities[item.id] ?? item.defaultQuantity;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Card(
-        elevation: isSelected ? 2 : 0,
-        color: isSelected ? null : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        child: InkWell(
-          onTap: () {
-            setState(() {
-              _selectedItems[item.id] = !isSelected;
-            });
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-            child: Row(
-              children: [
-                // Checkbox
-                Checkbox(
-                  value: isSelected,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedItems[item.id] = value ?? false;
-                    });
-                  },
-                ),
-                const SizedBox(width: 8),
-
-                // Icon
-                Icon(
-                  _getIconData(item.icon),
-                  size: 28,
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 16),
-
-                // Item name
-                Expanded(
-                  child: Text(
-                    item.name,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.onSurface
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ),
-
-                // Quantity controls
-                if (isSelected) ...[
-                  const SizedBox(width: 8),
-                  _buildQuantityControls(item, quantity),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
+    return CheckboxTile(
+      icon: _getIconData(item.icon),
+      itemName: item.name,
+      quantity: quantity,
+      note: '', // Will be populated when user adds notes via edit dialog
+      isSelected: isSelected,
+      onToggle: () {
+        setState(() {
+          _selectedItems[item.id] = !isSelected;
+        });
+      },
+      onEdit: () {
+        // TODO: Open dialog to edit quantity and notes
+        print('🔧 [Step3] Edit item: ${item.name} (id: ${item.id})');
+      },
     );
   }
 
-  /// Build quantity controls (+/- buttons)
-  Widget _buildQuantityControls(ItemTemplate item, int quantity) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Minus button
-          IconButton(
-            icon: const Icon(Icons.remove, size: 18),
-            onPressed: quantity > 1
-                ? () {
-                    setState(() {
-                      _itemQuantities[item.id] = quantity - 1;
-                    });
-                  }
-                : null,
-            padding: const EdgeInsets.all(4),
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-
-          // Quantity display
-          Container(
-            constraints: const BoxConstraints(minWidth: 24),
-            child: Text(
-              quantity.toString(),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-            ),
-          ),
-
-          // Plus button
-          IconButton(
-            icon: const Icon(Icons.add, size: 18),
-            onPressed: quantity < 99
-                ? () {
-                    setState(() {
-                      _itemQuantities[item.id] = quantity + 1;
-                    });
-                  }
-                : null,
-            padding: const EdgeInsets.all(4),
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        ],
-      ),
-    );
-  }
 
   /// Map icon name string to IconData
   IconData _getIconData(String iconName) {
