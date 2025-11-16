@@ -184,12 +184,51 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
       categorizedItems[item.category]!.add(item);
     }
 
-    // Build UI for each category
+    // Define category order by importance
+    final categoryOrder = [
+      'Clothing',
+      'Toiletries',
+      'Electronics',
+      'Medication',
+      'Documents',
+      'Accessories',
+      'Entertainment',
+      'Food & Snacks',
+      'Outdoor Gear',
+      'Baby & Kids',
+      'Pet Supplies',
+      'Miscellaneous',
+    ];
+
+    // Sort categories by defined order
+    final sortedCategories = categorizedItems.keys.toList()
+      ..sort((a, b) {
+        // Case-insensitive comparison
+        final indexA = categoryOrder.indexWhere(
+          (cat) => cat.toLowerCase() == a.toLowerCase(),
+        );
+        final indexB = categoryOrder.indexWhere(
+          (cat) => cat.toLowerCase() == b.toLowerCase(),
+        );
+
+        // If both categories are in the order list, sort by index
+        if (indexA != -1 && indexB != -1) {
+          return indexA.compareTo(indexB);
+        }
+        // If only A is in the list, A comes first
+        if (indexA != -1) return -1;
+        // If only B is in the list, B comes first
+        if (indexB != -1) return 1;
+        // If neither is in the list, sort alphabetically
+        return a.compareTo(b);
+      });
+
+    // Build UI for each category in sorted order
     final List<Widget> widgets = [];
-    categorizedItems.forEach((category, items) {
-      widgets.add(_buildCategorySection(category, items));
+    for (var category in sortedCategories) {
+      widgets.add(_buildCategorySection(category, categorizedItems[category]!));
       widgets.add(const SizedBox(height: 24));
-    });
+    }
 
     return widgets;
   }
