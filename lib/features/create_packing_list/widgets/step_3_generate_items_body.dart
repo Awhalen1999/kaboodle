@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:kaboodle_app/models/item_template.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/checkbox_tile.dart';
+import 'package:kaboodle_app/features/create_packing_list/widgets/edit_item_sheet.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class Step3GenerateItemsBody extends StatefulWidget {
   final Map<String, dynamic> formData;
@@ -23,9 +25,10 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
   List<ItemTemplate>? _suggestions;
   String? _errorMessage;
 
-  // Track selected items and their quantities
+  // Track selected items, their quantities, and notes
   final Map<String, bool> _selectedItems = {};
   final Map<String, int> _itemQuantities = {};
+  final Map<String, String> _itemNotes = {};
 
   @override
   void initState() {
@@ -38,7 +41,8 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
 
     if (packingListId == null) {
       setState(() {
-        _errorMessage = 'No packing list ID found. Please complete previous steps first.';
+        _errorMessage =
+            'No packing list ID found. Please complete previous steps first.';
       });
       return;
     }
@@ -49,7 +53,8 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     });
 
     try {
-      print('🔮 [Step3] Generating suggestions for packingListId: $packingListId');
+      print(
+          '🔮 [Step3] Generating suggestions for packingListId: $packingListId');
 
       final result = await _tripService.generateSuggestions(
         packingListId: packingListId,
@@ -65,11 +70,6 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
 
         // Sort by priority (highest first)
         suggestions.sort((a, b) => b.priority.compareTo(a.priority));
-
-        print('📋 [Step3] Suggestions breakdown:');
-        for (var suggestion in suggestions) {
-          print('   - ${suggestion.name} (${suggestion.category}) [Priority: ${suggestion.priority}, Qty: ${suggestion.defaultQuantity}, Icon: ${suggestion.icon}]');
-        }
 
         // Initialize all items as unselected with their default quantities
         _selectedItems.clear();
@@ -115,31 +115,13 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
                 ),
           ),
           const SizedBox(height: 4),
-          Text(
-            'Review and customize your personalized packing list',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-          const SizedBox(height: 24),
 
           // Loading state
           if (_isLoading)
-            Center(
+            const Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 48.0),
-                child: Column(
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Generating personalized suggestions...',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                  ],
-                ),
+                padding: EdgeInsets.symmetric(vertical: 48.0),
+                child: CircularProgressIndicator(),
               ),
             ),
 
@@ -172,16 +154,8 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
           if (_suggestions != null && !_isLoading) ...[
             // Summary text
             Text(
-              'We found ${_suggestions!.length} items for your trip',
+              'We found ${_suggestions!.length} items for your trip. Tap items to add them and hit edit to adjust quantity or add notes.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Tap items to adjust quantity or remove them',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
@@ -246,12 +220,13 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
   Widget _buildItemTile(ItemTemplate item) {
     final isSelected = _selectedItems[item.id] ?? false;
     final quantity = _itemQuantities[item.id] ?? item.defaultQuantity;
+    final note = _itemNotes[item.id] ?? '';
 
     return CheckboxTile(
       icon: _getIconData(item.icon),
       itemName: item.name,
       quantity: quantity,
-      note: '', // Will be populated when user adds notes via edit dialog
+      note: note,
       isSelected: isSelected,
       onToggle: () {
         setState(() {
@@ -259,12 +234,33 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
         });
       },
       onEdit: () {
-        // TODO: Open dialog to edit quantity and notes
-        print('🔧 [Step3] Edit item: ${item.name} (id: ${item.id})');
+        _showEditItemSheet(item);
       },
     );
   }
 
+  /// Show bottom sheet to edit item quantity and notes
+  void _showEditItemSheet(ItemTemplate item) {
+    final currentQuantity = _itemQuantities[item.id] ?? item.defaultQuantity;
+    final currentNote = _itemNotes[item.id] ?? '';
+
+    showCupertinoModalBottomSheet(
+      context: context,
+      expand: false,
+      builder: (context) => EditItemSheet(
+        itemName: item.name,
+        currentQuantity: currentQuantity,
+        currentNote: currentNote,
+        onSave: (quantity, note) {
+          setState(() {
+            _itemQuantities[item.id] = quantity;
+            _itemNotes[item.id] = note;
+          });
+          print('💾 [Step3] Saved ${item.name}: Qty=$quantity, Note="$note"');
+        },
+      ),
+    );
+  }
 
   /// Map icon name string to IconData
   IconData _getIconData(String iconName) {
