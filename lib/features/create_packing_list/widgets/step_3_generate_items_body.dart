@@ -71,12 +71,12 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
         // Sort by priority (highest first)
         suggestions.sort((a, b) => b.priority.compareTo(a.priority));
 
-        // Initialize all items as unselected with their default quantities
+        // Initialize all items as unselected with their calculated quantities
         _selectedItems.clear();
         _itemQuantities.clear();
         for (var suggestion in suggestions) {
           _selectedItems[suggestion.id] = false;
-          _itemQuantities[suggestion.id] = suggestion.defaultQuantity;
+          _itemQuantities[suggestion.id] = suggestion.quantity;
         }
 
         setState(() {
@@ -280,7 +280,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
 
   /// Show bottom sheet to edit item quantity and notes
   void _showEditItemSheet(ItemTemplate item) {
-    final currentQuantity = _itemQuantities[item.id] ?? item.defaultQuantity;
+    final currentQuantity = _itemQuantities[item.id] ?? item.quantity;
     final currentNote = _itemNotes[item.id] ?? '';
 
     showCupertinoModalBottomSheet(

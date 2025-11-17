@@ -9,6 +9,8 @@ class ItemTemplate {
   final List<String>? purposeTags;
   final List<String>? activityTags;
   final int defaultQuantity;
+  final bool allowQuantityMultiplier;
+  final int quantity;
   final int priority;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -24,6 +26,8 @@ class ItemTemplate {
     this.purposeTags,
     this.activityTags,
     required this.defaultQuantity,
+    required this.allowQuantityMultiplier,
+    required this.quantity,
     required this.priority,
     required this.createdAt,
     required this.updatedAt,
@@ -52,6 +56,8 @@ class ItemTemplate {
           ? List<String>.from(json['activityTags'] as List)
           : null,
       defaultQuantity: json['defaultQuantity'] as int,
+      allowQuantityMultiplier: json['allowQuantityMultiplier'] as bool,
+      quantity: json['quantity'] as int,
       priority: json['priority'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -71,6 +77,8 @@ class ItemTemplate {
       'purposeTags': purposeTags,
       'activityTags': activityTags,
       'defaultQuantity': defaultQuantity,
+      'allowQuantityMultiplier': allowQuantityMultiplier,
+      'quantity': quantity,
       'priority': priority,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
