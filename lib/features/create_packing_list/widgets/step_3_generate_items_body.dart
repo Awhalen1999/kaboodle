@@ -30,6 +30,22 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
   final Map<String, int> _itemQuantities = {};
   final Map<String, String> _itemNotes = {};
 
+  // Helper to get trip length in days
+  int? get _tripLength {
+    final startDate = widget.formData['startDate'] as DateTime?;
+    final endDate = widget.formData['endDate'] as DateTime?;
+    if (startDate != null && endDate != null) {
+      return endDate.difference(startDate).inDays;
+    }
+    return null;
+  }
+
+  // Helper to get destination
+  String? get _destination {
+    final dest = widget.formData['destination'] as String?;
+    return (dest != null && dest.isNotEmpty) ? dest : null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -154,7 +170,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
           if (_suggestions != null && !_isLoading) ...[
             // Summary text
             Text(
-              'We found ${_suggestions!.length} items for your trip. Tap items to add them and hit edit to adjust quantity or add notes.',
+              'We found ${_suggestions!.length} items for your ${_tripLength != null ? '$_tripLength day trip' : 'trip'}${_destination != null ? ' to $_destination' : ''}. Tap items to add them and hit edit to adjust quantity or add notes.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
