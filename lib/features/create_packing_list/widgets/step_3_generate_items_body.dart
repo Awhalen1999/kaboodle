@@ -30,6 +30,9 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
   final Map<String, int> _itemQuantities = {};
   final Map<String, String> _itemNotes = {};
 
+  // Track expansion state for each category
+  final Map<String, bool> _categoryExpanded = {};
+
   // Helper to get trip length in days
   int? get _tripLength {
     final startDate = widget.formData['startDate'] as DateTime?;
@@ -251,22 +254,54 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
 
   /// Build a category section with its items
   Widget _buildCategorySection(String category, List<ItemTemplate> items) {
+    // Initialize expansion state if not already set
+    _categoryExpanded[category] ??= true;
+    final isExpanded = _categoryExpanded[category]!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Category header
-        Text(
-          category.toUpperCase(),
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
+        // Category header with clickable arrow
+        Row(
+          children: [
+            // Clickable arrow icon
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _categoryExpanded[category] = !isExpanded;
+                });
+              },
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: AnimatedRotation(
+                  turns: isExpanded ? 0.25 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ),
+            ),
+            const SizedBox(width: 8),
+            // Non-clickable category title
+            Text(
+              category.toUpperCase(),
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-
-        // Items in this category
-        ...items.map((item) => _buildItemTile(item)),
+        // Collapsible items section
+        if (isExpanded) ...[
+          const SizedBox(height: 12),
+          ...items.map((item) => _buildItemTile(item)),
+        ],
       ],
     );
   }
