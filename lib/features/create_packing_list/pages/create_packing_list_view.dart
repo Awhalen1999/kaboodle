@@ -348,6 +348,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
   }
 
   bool _canProceedToNextStep() {
+    // On step 4, always allow finishing
+    if (_currentStep == _totalSteps - 1) return true;
+
     if (_currentStep >= _totalSteps - 1) return false;
 
     switch (_currentStep) {
@@ -362,6 +365,11 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
       default:
         return false;
     }
+  }
+
+  void _handleFinish() {
+    // Navigate back to packing lists page
+    context.pop();
   }
 
   Widget _getStepBody() {
@@ -481,7 +489,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
                     flex: _currentStep == 0 ? 1 : 1,
                     child: ElevatedButton(
                       onPressed: _canProceedToNextStep() && !_isLoading
-                          ? _nextStep
+                          ? (_currentStep == _totalSteps - 1
+                              ? _handleFinish
+                              : _nextStep)
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -505,7 +515,7 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
                               ),
                             )
                           : Text(
-                              'Next',
+                              _currentStep == _totalSteps - 1 ? 'Finish' : 'Next',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
