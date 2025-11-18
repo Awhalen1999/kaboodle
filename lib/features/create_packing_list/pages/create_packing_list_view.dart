@@ -63,10 +63,7 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         );
         break;
       case 2:
-        await _saveStepData(
-          stepNumber: 3,
-          requiredFields: [],
-        );
+        await _saveStep3Data();
         break;
       case 3:
         // Final step - will handle submission differently
@@ -129,6 +126,206 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
     } catch (e, stackTrace) {
       print('❌ [SaveStep$stepNumber] Error: $e');
       print('❌ [SaveStep$stepNumber] Stack trace: $stackTrace');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveStep3Data() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final packingListId = _formData['packingListId'] as String?;
+
+      if (packingListId == null) {
+        print('❌ [SaveStep3] No packing list ID found');
+        return;
+      }
+
+      print('📝 [SaveStep3] Starting save for packingListId: $packingListId');
+
+      // Get selected items data from Step 3
+      final selectedItems = _formData['selectedItems'] as Map<String, bool>? ?? {};
+      final itemQuantities = _formData['itemQuantities'] as Map<String, int>? ?? {};
+      final itemNotes = _formData['itemNotes'] as Map<String, String>? ?? {};
+      final customItems = _formData['customItems'] as Map<String, List<Map<String, dynamic>>>? ?? {};
+      final suggestions = _formData['suggestions'] as List? ?? [];
+
+      // Get existing items to avoid duplicates
+      final existingItemsResult = await _tripService.getPackingListItems(
+        packingListId: packingListId,
+        context: mounted ? context : null,
+      );
+
+      final existingItems = existingItemsResult?['items'] as List? ?? [];
+      final existingItemNames = <String>{};
+      final existingItemsById = <String, dynamic>{};
+
+      for (var item in existingItems) {
+        existingItemNames.add(item.name.toLowerCase());
+        existingItemsById[item.id] = item;
+      }
+
+      print('📝 [SaveStep3] Found ${existingItems.length} existing items');
+
+      // Build a map of template ID to item name for later matching
+      final Map<String, String> templateIdToName = {};
+      for (var suggestion in suggestions) {
+        templateIdToName[suggestion.id] = suggestion.name;
+      }
+
+      // Separate template items from custom items, filter out existing ones
+      final List<String> newTemplateItemIds = [];
+      final Map<String, Map<String, dynamic>> itemUpdates = {};
+
+      for (var entry in selectedItems.entries) {
+        final itemId = entry.key;
+        final isSelected = entry.value;
+
+        if (!isSelected) continue; // Skip unselected items
+
+        // Check if it's a custom item
+        if (itemId.startsWith('custom_')) {
+          continue; // We'll handle custom items separately
+        }
+
+        final itemName = templateIdToName[itemId];
+        if (itemName == null) continue;
+
+        // Check if this item already exists
+        if (!existingItemNames.contains(itemName.toLowerCase())) {
+          // New item - add to bulk add list
+          newTemplateItemIds.add(itemId);
+        }
+
+        // Track items that need note updates (both new and existing)
+        final note = itemNotes[itemId] ?? '';
+        if (note.isNotEmpty) {
+          itemUpdates[itemId] = {
+            'name': itemName,
+            'note': note,
+          };
+        }
+      }
+
+      print('📝 [SaveStep3] New template items to add: ${newTemplateItemIds.length}');
+      print('📝 [SaveStep3] Items with notes to update: ${itemUpdates.length}');
+
+      // Step 1: Bulk add new template items
+      List? addedItems;
+      if (newTemplateItemIds.isNotEmpty) {
+        final bulkResult = await _tripService.bulkAddItems(
+          packingListId: packingListId,
+          itemTemplateIds: newTemplateItemIds,
+          context: mounted ? context : null,
+        );
+
+        if (bulkResult != null) {
+          addedItems = bulkResult['added'] as List?;
+          print('✅ [SaveStep3] Bulk added ${bulkResult['count']} items');
+        }
+      }
+
+      // Step 1.5: Update items that have custom notes
+      if (itemUpdates.isNotEmpty) {
+        for (var updateEntry in itemUpdates.entries) {
+          final updateData = updateEntry.value;
+          final itemName = updateData['name'] as String?;
+          final note = updateData['note'] as String;
+
+          if (itemName == null) continue;
+
+          // Find the item in either newly added items or existing items
+          dynamic targetItem;
+
+          // First check newly added items
+          if (addedItems != null) {
+            try {
+              targetItem = addedItems.firstWhere(
+                (item) => item.name == itemName,
+              );
+            } catch (e) {
+              // Not in newly added items
+            }
+          }
+
+          // If not found in newly added, check existing items
+          if (targetItem == null) {
+            for (var item in existingItems) {
+              if (item.name.toLowerCase() == itemName.toLowerCase()) {
+                targetItem = item;
+                break;
+              }
+            }
+          }
+
+          if (targetItem != null) {
+            await _tripService.updateItem(
+              itemId: targetItem.id,
+              notes: note,
+              context: mounted ? context : null,
+            );
+            print('✅ [SaveStep3] Updated notes for ${targetItem.name}');
+          } else {
+            print('⚠️ [SaveStep3] Could not find item "$itemName" to update notes');
+          }
+        }
+      }
+
+      // Step 2: Add new custom items (skip existing ones)
+      int customItemCount = 0;
+      for (var categoryEntry in customItems.entries) {
+        final category = categoryEntry.key;
+        final items = categoryEntry.value;
+
+        for (var customItem in items) {
+          final itemId = customItem['id'] as String;
+
+          // Only add if selected
+          if (selectedItems[itemId] != true) continue;
+
+          final name = customItem['name'] as String;
+
+          // Skip if this custom item already exists (by name)
+          if (existingItemNames.contains(name.toLowerCase())) {
+            print('⏭️ [SaveStep3] Skipping existing custom item: $name');
+            continue;
+          }
+
+          final quantity = itemQuantities[itemId] ?? customItem['quantity'] as int;
+          final note = itemNotes[itemId] ?? customItem['note'] as String;
+
+          await _tripService.addCustomItem(
+            packingListId: packingListId,
+            name: name,
+            category: category,
+            quantity: quantity,
+            notes: note.isNotEmpty ? note : null,
+            context: mounted ? context : null,
+          );
+
+          customItemCount++;
+          print('✅ [SaveStep3] Added custom item: $name');
+        }
+      }
+
+      print('✅ [SaveStep3] Added $customItemCount new custom items');
+
+      // Update step completion
+      await _saveStepData(
+        stepNumber: 3,
+        requiredFields: [],
+      );
+
+    } catch (e, stackTrace) {
+      print('❌ [SaveStep3] Error: $e');
+      print('❌ [SaveStep3] Stack trace: $stackTrace');
     } finally {
       if (mounted) {
         setState(() {

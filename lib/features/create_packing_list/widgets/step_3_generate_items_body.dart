@@ -60,6 +60,17 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     _loadSuggestions();
   }
 
+  /// Notify parent of data changes (selected items and custom items)
+  void _notifyDataChanged() {
+    widget.onDataChanged({
+      'selectedItems': _selectedItems,
+      'itemQuantities': _itemQuantities,
+      'itemNotes': _itemNotes,
+      'customItems': _customItems,
+      'suggestions': _suggestions, // Include suggestions for name matching
+    });
+  }
+
   Future<void> _loadSuggestions() async {
     final packingListId = widget.formData['packingListId'] as String?;
 
@@ -80,15 +91,27 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
       print(
           '🔮 [Step3] Generating suggestions for packingListId: $packingListId');
 
-      final result = await _tripService.generateSuggestions(
-        packingListId: packingListId,
-        context: context,
-      );
+      // Load both suggestions and existing items in parallel
+      final results = await Future.wait([
+        _tripService.generateSuggestions(
+          packingListId: packingListId,
+          context: context,
+        ),
+        _tripService.getPackingListItems(
+          packingListId: packingListId,
+          context: context,
+        ),
+      ]);
 
-      print('✅ [Step3] Received ${result?.length ?? 0} suggestions');
+      final suggestionsResult = results[0] as List?;
+      final itemsResult = results[1] as Map<String, dynamic>?;
 
-      if (result != null) {
-        final suggestions = result
+      print('✅ [Step3] Received ${suggestionsResult?.length ?? 0} suggestions');
+      print(
+          '✅ [Step3] Received ${itemsResult?['items']?.length ?? 0} existing items');
+
+      if (suggestionsResult != null) {
+        final suggestions = suggestionsResult
             .map((json) => ItemTemplate.fromJson(json as Map<String, dynamic>))
             .toList();
 
@@ -98,15 +121,64 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
         // Initialize all items as unselected with their calculated quantities
         _selectedItems.clear();
         _itemQuantities.clear();
+        _itemNotes.clear();
+        _customItems.clear();
         for (var suggestion in suggestions) {
           _selectedItems[suggestion.id] = false;
           _itemQuantities[suggestion.id] = suggestion.quantity;
+        }
+
+        // Pre-populate selections from existing items
+        if (itemsResult != null) {
+          final existingItems = itemsResult['items'] as List;
+
+          for (var item in existingItems) {
+            if (item.isCustom) {
+              // It's a custom item - add to custom items list
+              final category = item.category ?? 'Miscellaneous';
+              final customId = 'custom_${item.id}';
+
+              _customItems[category] ??= [];
+              _customItems[category]!.add({
+                'id': customId,
+                'name': item.name,
+                'quantity': item.quantity,
+                'note': item.notes ?? '',
+              });
+
+              // Mark as selected
+              _selectedItems[customId] = true;
+              _itemQuantities[customId] = item.quantity;
+              _itemNotes[customId] = item.notes ?? '';
+
+              print('✨ [Step3] Restored custom item: ${item.name}');
+            } else {
+              // It's a template item - find matching suggestion by name
+              final matchingSuggestion = suggestions.where(
+                (s) => s.name.toLowerCase() == item.name.toLowerCase(),
+              );
+
+              if (matchingSuggestion.isNotEmpty) {
+                final suggestion = matchingSuggestion.first;
+                _selectedItems[suggestion.id] = true;
+                _itemQuantities[suggestion.id] = item.quantity;
+                if (item.notes != null && item.notes!.isNotEmpty) {
+                  _itemNotes[suggestion.id] = item.notes!;
+                }
+                print(
+                    '✅ [Step3] Restored selection: ${item.name} (qty: ${item.quantity})');
+              }
+            }
+          }
         }
 
         setState(() {
           _suggestions = suggestions;
           _isLoading = false;
         });
+
+        // Notify parent of initial data
+        _notifyDataChanged();
       } else {
         setState(() {
           _errorMessage = 'Failed to generate suggestions';
@@ -349,6 +421,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
         setState(() {
           _selectedItems[item.id] = !isSelected;
         });
+        _notifyDataChanged();
       },
       onEdit: () {
         _showEditItemSheet(item);
@@ -373,6 +446,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
             _itemQuantities[item.id] = quantity;
             _itemNotes[item.id] = note;
           });
+          _notifyDataChanged();
           print('💾 [Step3] Saved ${item.name}: Qty=$quantity, Note="$note"');
         },
       ),
@@ -407,6 +481,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
             _itemQuantities[id] = quantity;
             _itemNotes[id] = note;
           });
+          _notifyDataChanged();
           print('✨ [Step3] Added custom item: $name to $category');
         },
       ),
@@ -432,6 +507,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
         setState(() {
           _selectedItems[id] = !isSelected;
         });
+        _notifyDataChanged();
       },
       onEdit: () {
         // Edit custom item
@@ -450,6 +526,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
                 customItem['quantity'] = newQuantity;
                 customItem['note'] = newNote;
               });
+              _notifyDataChanged();
             },
           ),
         );
