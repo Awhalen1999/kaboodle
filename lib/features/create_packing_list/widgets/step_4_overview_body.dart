@@ -77,10 +77,10 @@ class Step4OverviewBody extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
+          color: colorScheme.outline,
           width: 1,
         ),
       ),
@@ -161,40 +161,61 @@ class Step4OverviewBody extends StatelessWidget {
     final destination = formData['destination'] as String?;
     final description = formData['description'] as String?;
 
+    // Build lists for labels and values
+    final List<String> labels = [];
+    final List<String> values = [];
+
+    labels.add('Trip Name');
+    values.add(name ?? 'Not set');
+
+    if (startDate != null && endDate != null) {
+      labels.add('Dates');
+      values.add(
+          '${DateFormat('MMM d').format(startDate)} - ${DateFormat('MMM d, yyyy').format(endDate)}');
+    }
+
+    if (destination != null && destination.isNotEmpty) {
+      labels.add('Destination');
+      values.add(destination);
+    }
+
+    if (description != null && description.isNotEmpty) {
+      labels.add('Description');
+      values.add(description);
+    }
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildInfoRow(
-          context: context,
-          label: 'Trip Name',
-          value: name ?? 'Not set',
-        ),
-        if (startDate != null && endDate != null) ...[
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            context: context,
-            label: 'Dates',
-            value:
-                '${DateFormat('MMM d').format(startDate)} - ${DateFormat('MMM d, yyyy').format(endDate)}',
+      children: List.generate(labels.length, (index) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: index < labels.length - 1 ? 12 : 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Label
+              SizedBox(
+                width: 100,
+                child: Text(
+                  labels[index],
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 24),
+              // Value
+              Expanded(
+                child: Text(
+                  values[index],
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-        if (destination != null && destination.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            context: context,
-            label: 'Destination',
-            value: destination,
-          ),
-        ],
-        if (description != null && description.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            context: context,
-            label: 'Description',
-            value: description,
-          ),
-        ],
-      ],
+        );
+      }),
     );
   }
 
@@ -208,74 +229,86 @@ class Step4OverviewBody extends StatelessWidget {
     final accommodations = formData['accommodations'] as String?;
     final activities = formData['activities'] as List?;
 
+    // Show message if no details added
+    if ((gender == null || gender.isEmpty) &&
+        (weather == null || weather.isEmpty) &&
+        (purpose == null || purpose.isEmpty) &&
+        (accommodations == null || accommodations.isEmpty) &&
+        (activities == null || activities.isEmpty)) {
+      return Text(
+        'No trip details added',
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    }
+
+    // Build lists for labels and values
+    final List<String> labels = [];
+    final List<String> values = [];
+
+    if (gender != null && gender.isNotEmpty) {
+      labels.add('Gender');
+      values.add(gender[0].toUpperCase() + gender.substring(1));
+    }
+
+    if (weather != null && weather.isNotEmpty) {
+      labels.add('Weather');
+      values.add(weather
+          .map((w) => w.toString()[0].toUpperCase() + w.toString().substring(1))
+          .join(', '));
+    }
+
+    if (purpose != null && purpose.isNotEmpty) {
+      labels.add('Purpose');
+      values.add(purpose[0].toUpperCase() + purpose.substring(1));
+    }
+
+    if (accommodations != null && accommodations.isNotEmpty) {
+      labels.add('Accommodations');
+      values.add(accommodations[0].toUpperCase() + accommodations.substring(1));
+    }
+
+    if (activities != null && activities.isNotEmpty) {
+      labels.add('Activities');
+      values.add(activities
+          .map((a) => a.toString()[0].toUpperCase() + a.toString().substring(1))
+          .join(', '));
+    }
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (gender != null && gender.isNotEmpty)
-          _buildInfoRow(
-            context: context,
-            label: 'Gender',
-            value: gender[0].toUpperCase() + gender.substring(1),
+      children: List.generate(labels.length, (index) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: index < labels.length - 1 ? 12 : 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Label
+              SizedBox(
+                width: 120,
+                child: Text(
+                  labels[index],
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 24),
+              // Value
+              Expanded(
+                child: Text(
+                  values[index],
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
-        if (weather != null && weather.isNotEmpty) ...[
-          if (gender != null && gender.isNotEmpty) const SizedBox(height: 12),
-          _buildInfoRow(
-            context: context,
-            label: 'Weather',
-            value: weather
-                .map((w) => w.toString()[0].toUpperCase() + w.toString().substring(1))
-                .join(', '),
-          ),
-        ],
-        if (purpose != null && purpose.isNotEmpty) ...[
-          if ((gender != null && gender.isNotEmpty) ||
-              (weather != null && weather.isNotEmpty))
-            const SizedBox(height: 12),
-          _buildInfoRow(
-            context: context,
-            label: 'Purpose',
-            value: purpose[0].toUpperCase() + purpose.substring(1),
-          ),
-        ],
-        if (accommodations != null && accommodations.isNotEmpty) ...[
-          if ((gender != null && gender.isNotEmpty) ||
-              (weather != null && weather.isNotEmpty) ||
-              (purpose != null && purpose.isNotEmpty))
-            const SizedBox(height: 12),
-          _buildInfoRow(
-            context: context,
-            label: 'Accommodations',
-            value: accommodations[0].toUpperCase() + accommodations.substring(1),
-          ),
-        ],
-        if (activities != null && activities.isNotEmpty) ...[
-          if ((gender != null && gender.isNotEmpty) ||
-              (weather != null && weather.isNotEmpty) ||
-              (purpose != null && purpose.isNotEmpty) ||
-              (accommodations != null && accommodations.isNotEmpty))
-            const SizedBox(height: 12),
-          _buildInfoRow(
-            context: context,
-            label: 'Activities',
-            value: activities
-                .map((a) => a.toString()[0].toUpperCase() + a.toString().substring(1))
-                .join(', '),
-          ),
-        ],
-        // Show message if no details added
-        if ((gender == null || gender.isEmpty) &&
-            (weather == null || weather.isEmpty) &&
-            (purpose == null || purpose.isEmpty) &&
-            (accommodations == null || accommodations.isEmpty) &&
-            (activities == null || activities.isEmpty))
-          Text(
-            'No trip details added',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-      ],
+        );
+      }),
     );
   }
 
@@ -284,7 +317,8 @@ class Step4OverviewBody extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     final selectedItems = formData['selectedItems'] as Map<String, bool>?;
-    final customItems = formData['customItems'] as Map<String, List<Map<String, dynamic>>>?;
+    final customItems =
+        formData['customItems'] as Map<String, List<Map<String, dynamic>>>?;
 
     if (selectedItems == null || selectedItems.isEmpty) {
       return Text(
@@ -307,56 +341,51 @@ class Step4OverviewBody extends StatelessWidget {
       }
     }
 
+    // Build lists for labels and values
+    final List<String> labels = [];
+    final List<String> values = [];
+
+    labels.add('Total Items');
+    values.add('$selectedCount items selected');
+
+    if (customCount > 0) {
+      labels.add('Custom Items');
+      values.add('$customCount custom items added');
+    }
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildInfoRow(
-          context: context,
-          label: 'Total Items',
-          value: '$selectedCount items selected',
-        ),
-        if (customCount > 0) ...[
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            context: context,
-            label: 'Custom Items',
-            value: '$customCount custom items added',
+      children: List.generate(labels.length, (index) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: index < labels.length - 1 ? 12 : 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Label
+              SizedBox(
+                width: 100,
+                child: Text(
+                  labels[index],
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 24),
+              // Value
+              Expanded(
+                child: Text(
+                  values[index],
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ],
+        );
+      }),
     );
   }
 
-  Widget _buildInfoRow({
-    required BuildContext context,
-    required String label,
-    required String value,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 120,
-          child: Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }
