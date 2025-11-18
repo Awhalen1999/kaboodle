@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:intl/intl.dart';
+import 'package:country_picker/country_picker.dart';
+import 'package:kaboodle_app/shared/utils/country_utils.dart';
 
 class Step1GeneralInfoBody extends StatefulWidget {
   final Map<String, dynamic> formData;
@@ -21,7 +23,8 @@ class Step1GeneralInfoBody extends StatefulWidget {
 class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
-  late TextEditingController _destinationController;
+  Country? _selectedCountry;
+  bool _countryInitialized = false;
   List<DateTime?> _selectedDates = [];
 
   @override
@@ -33,9 +36,14 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
     _descriptionController = TextEditingController(
       text: widget.formData['description'] as String? ?? '',
     );
-    _destinationController = TextEditingController(
-      text: widget.formData['destination'] as String? ?? '',
-    );
+
+    // Initialize country from formData if available
+    if (!_countryInitialized &&
+        widget.formData['destination'] != null &&
+        widget.formData['destination']!.isNotEmpty) {
+      _selectedCountry = CountryUtils.getCountry(widget.formData['destination']!);
+      _countryInitialized = true;
+    }
 
     // Initialize dates from formData if available
     if (widget.formData['startDate'] != null &&
@@ -49,7 +57,6 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
     // Listen to changes and update form data
     _nameController.addListener(_updateFormData);
     _descriptionController.addListener(_updateFormData);
-    _destinationController.addListener(_updateFormData);
 
     // Check initial validation state
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -63,7 +70,6 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _destinationController.dispose();
     super.dispose();
   }
 
@@ -81,9 +87,7 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
       'description': _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
-      'destination': _destinationController.text.trim().isEmpty
-          ? null
-          : _destinationController.text.trim(),
+      'destination': _selectedCountry?.name,
       'startDate': _selectedDates.isNotEmpty && _selectedDates[0] != null
           ? _selectedDates[0]
           : null,
@@ -307,39 +311,77 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                     ),
               ),
               const SizedBox(height: 8),
-              TextField(
-                controller: _destinationController,
-                decoration: InputDecoration(
-                  hintText: 'Where are you going? (optional)',
-                  hintStyle: Theme.of(context).textTheme.bodyLarge,
-                  filled: false,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
+              InkWell(
+                onTap: () {
+                  showCountryPicker(
+                    context: context,
+                    showPhoneCode: false,
+                    onSelect: (Country country) {
+                      setState(() {
+                        _selectedCountry = country;
+                      });
+                      _updateFormData();
+                    },
+                    countryListTheme: CountryListThemeData(
+                      bottomSheetHeight:
+                          MediaQuery.of(context).size.height * 0.60,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                      inputDecoration: InputDecoration(
+                        labelText: 'Search',
+                        hintText: 'Start typing to search',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey[300]!,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 16,
                   ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      width: 0.5,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      if (_selectedCountry != null) ...[
+                        Text(
+                          _selectedCountry!.flagEmoji,
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _selectedCountry!.name,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ] else
+                        Expanded(
+                          child: Text(
+                            'Where are you going? (optional)',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ),
+                      Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.grey[600],
+                      ),
+                    ],
+                  ),
                 ),
-                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),
