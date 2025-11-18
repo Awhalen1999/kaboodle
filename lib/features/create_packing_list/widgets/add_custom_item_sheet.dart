@@ -1,39 +1,37 @@
 import 'package:flutter/material.dart';
 
-/// Bottom sheet for editing packing list item quantity and notes
+/// Bottom sheet for adding a custom packing list item
 ///
 /// Clean, modern UI inspired by Notion/ClickUp/Vercel
-class EditItemSheet extends StatefulWidget {
-  final String itemName;
-  final int currentQuantity;
-  final String currentNote;
-  final Function(int quantity, String note) onSave;
+class AddCustomItemSheet extends StatefulWidget {
+  final String category;
+  final Function(String name, int quantity, String note) onAdd;
 
-  const EditItemSheet({
+  const AddCustomItemSheet({
     super.key,
-    required this.itemName,
-    required this.currentQuantity,
-    required this.currentNote,
-    required this.onSave,
+    required this.category,
+    required this.onAdd,
   });
 
   @override
-  State<EditItemSheet> createState() => _EditItemSheetState();
+  State<AddCustomItemSheet> createState() => _AddCustomItemSheetState();
 }
 
-class _EditItemSheetState extends State<EditItemSheet> {
-  late int _quantity;
+class _AddCustomItemSheetState extends State<AddCustomItemSheet> {
+  late TextEditingController _nameController;
   late TextEditingController _noteController;
+  int _quantity = 1;
 
   @override
   void initState() {
     super.initState();
-    _quantity = widget.currentQuantity;
-    _noteController = TextEditingController(text: widget.currentNote);
+    _nameController = TextEditingController();
+    _noteController = TextEditingController();
   }
 
   @override
   void dispose() {
+    _nameController.dispose();
     _noteController.dispose();
     super.dispose();
   }
@@ -54,8 +52,13 @@ class _EditItemSheetState extends State<EditItemSheet> {
     }
   }
 
-  void _handleSave() {
-    widget.onSave(_quantity, _noteController.text.trim());
+  void _handleAdd() {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      // Show error or just return
+      return;
+    }
+    widget.onAdd(name, _quantity, _noteController.text.trim());
     Navigator.of(context).pop();
   }
 
@@ -91,7 +94,7 @@ class _EditItemSheetState extends State<EditItemSheet> {
                   const SizedBox(width: 40),
                   Expanded(
                     child: Text(
-                      'Edit Item',
+                      'Add Custom Item',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w600,
@@ -112,31 +115,58 @@ class _EditItemSheetState extends State<EditItemSheet> {
 
               const SizedBox(height: 24),
 
-              // Item name with quantity and note (same layout as tile)
+              // Item name field
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${widget.itemName}   x${widget.currentQuantity}',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
+                    'Item Name',
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  if (widget.currentNote.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        widget.currentNote,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurface.withValues(alpha: 0.7),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _nameController,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      hintText: 'e.g., Beach Towel',
+                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      filled: false,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: colorScheme.onSurface,
+                          width: 0.5,
                         ),
                       ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: colorScheme.onSurface,
+                          width: 0.5,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: colorScheme.onSurface,
+                          width: 0.5,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
+                  ),
                 ],
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
               // Quantity adjustment
               Column(
@@ -306,10 +336,10 @@ class _EditItemSheetState extends State<EditItemSheet> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Save button
+                  // Add button
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _handleSave,
+                      onPressed: _handleAdd,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
@@ -320,7 +350,7 @@ class _EditItemSheetState extends State<EditItemSheet> {
                         elevation: 0,
                       ),
                       child: Text(
-                        'Save',
+                        'Add',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onPrimary,
                           fontWeight: FontWeight.w600,

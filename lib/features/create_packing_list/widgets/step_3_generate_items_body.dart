@@ -3,6 +3,7 @@ import 'package:kaboodle_app/models/item_template.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/checkbox_tile.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/edit_item_sheet.dart';
+import 'package:kaboodle_app/features/create_packing_list/widgets/add_custom_item_sheet.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class Step3GenerateItemsBody extends StatefulWidget {
@@ -32,6 +33,10 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
 
   // Track expansion state for each category
   final Map<String, bool> _categoryExpanded = {};
+
+  // Track custom items by category
+  // Each item: {id, name, quantity, note}
+  final Map<String, List<Map<String, dynamic>>> _customItems = {};
 
   // Helper to get trip length in days
   int? get _tripLength {
@@ -258,10 +263,13 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     _categoryExpanded[category] ??= true;
     final isExpanded = _categoryExpanded[category]!;
 
+    // Get custom items for this category
+    final customItems = _customItems[category] ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Category header with clickable arrow
+        // Category header with clickable arrow and add button
         Row(
           children: [
             // Clickable arrow icon
@@ -287,19 +295,38 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
             ),
             const SizedBox(width: 8),
             // Non-clickable category title
-            Text(
-              category.toUpperCase(),
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
+            Expanded(
+              child: Text(
+                category.toUpperCase(),
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+              ),
+            ),
+            // Add custom item button
+            InkWell(
+              onTap: () => _showAddCustomItemSheet(category),
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  Icons.add,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ),
           ],
         ),
         // Collapsible items section
         if (isExpanded) ...[
           const SizedBox(height: 12),
+          // Show custom items first
+          ...customItems
+              .map((customItem) => _buildCustomItemTile(customItem, category)),
+          // Then show suggestions
           ...items.map((item) => _buildItemTile(item)),
         ],
       ],
@@ -349,6 +376,84 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
           print('💾 [Step3] Saved ${item.name}: Qty=$quantity, Note="$note"');
         },
       ),
+    );
+  }
+
+  /// Show bottom sheet to add a custom item
+  void _showAddCustomItemSheet(String category) {
+    showCupertinoModalBottomSheet(
+      context: context,
+      expand: false,
+      builder: (context) => AddCustomItemSheet(
+        category: category,
+        onAdd: (name, quantity, note) {
+          setState(() {
+            // Generate a unique ID using timestamp
+            final id = 'custom_${DateTime.now().millisecondsSinceEpoch}';
+
+            // Initialize custom items list for this category if needed
+            _customItems[category] ??= [];
+
+            // Add the custom item
+            _customItems[category]!.add({
+              'id': id,
+              'name': name,
+              'quantity': quantity,
+              'note': note,
+            });
+
+            // Mark as selected by default
+            _selectedItems[id] = true;
+            _itemQuantities[id] = quantity;
+            _itemNotes[id] = note;
+          });
+          print('✨ [Step3] Added custom item: $name to $category');
+        },
+      ),
+    );
+  }
+
+  /// Build a custom item tile
+  Widget _buildCustomItemTile(
+      Map<String, dynamic> customItem, String category) {
+    final id = customItem['id'] as String;
+    final name = customItem['name'] as String;
+    final isSelected = _selectedItems[id] ?? true; // Default to selected
+    final quantity = _itemQuantities[id] ?? customItem['quantity'] as int;
+    final note = _itemNotes[id] ?? customItem['note'] as String;
+
+    return CheckboxTile(
+      icon: Icons.bookmark_border_rounded, // Custom item indicator icon
+      itemName: name,
+      quantity: quantity,
+      note: note,
+      isSelected: isSelected,
+      onToggle: () {
+        setState(() {
+          _selectedItems[id] = !isSelected;
+        });
+      },
+      onEdit: () {
+        // Edit custom item
+        showCupertinoModalBottomSheet(
+          context: context,
+          expand: false,
+          builder: (context) => EditItemSheet(
+            itemName: name,
+            currentQuantity: quantity,
+            currentNote: note,
+            onSave: (newQuantity, newNote) {
+              setState(() {
+                _itemQuantities[id] = newQuantity;
+                _itemNotes[id] = newNote;
+                // Update in custom items list
+                customItem['quantity'] = newQuantity;
+                customItem['note'] = newNote;
+              });
+            },
+          ),
+        );
+      },
     );
   }
 
