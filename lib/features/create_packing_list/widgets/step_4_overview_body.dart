@@ -3,10 +3,12 @@ import 'package:intl/intl.dart';
 
 class Step4OverviewBody extends StatelessWidget {
   final Map<String, dynamic> formData;
+  final Function(int step)? onEditStep;
 
   const Step4OverviewBody({
     super.key,
     required this.formData,
+    this.onEditStep,
   });
 
   @override
@@ -39,7 +41,7 @@ class Step4OverviewBody extends StatelessWidget {
           _buildSectionContainer(
             context: context,
             title: 'General Info',
-            onEdit: () => print('🔧 Edit Step 1 clicked'),
+            onEdit: () => onEditStep?.call(0),
             child: _buildStep1Content(context),
           ),
           const SizedBox(height: 16),
@@ -48,7 +50,7 @@ class Step4OverviewBody extends StatelessWidget {
           _buildSectionContainer(
             context: context,
             title: 'Trip Details',
-            onEdit: () => print('🔧 Edit Step 2 clicked'),
+            onEdit: () => onEditStep?.call(1),
             child: _buildStep2Content(context),
           ),
           const SizedBox(height: 16),
@@ -57,7 +59,7 @@ class Step4OverviewBody extends StatelessWidget {
           _buildSectionContainer(
             context: context,
             title: 'Packing Items',
-            onEdit: () => print('🔧 Edit Step 3 clicked'),
+            onEdit: () => onEditStep?.call(2),
             child: _buildStep3Content(context),
           ),
           const SizedBox(height: 24),

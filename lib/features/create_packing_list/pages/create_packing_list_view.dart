@@ -36,6 +36,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
   // Loading state for API calls
   bool _isLoading = false;
 
+  // Edit mode state
+  bool _isEditMode = false;
+
   Future<void> _nextStep() async {
     // Save current step data to backend before proceeding
     await _saveCurrentStepData();
@@ -372,6 +375,26 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
     context.pop();
   }
 
+  void _handleEditStep(int step) {
+    setState(() {
+      _isEditMode = true;
+      _currentStep = step;
+    });
+  }
+
+  Future<void> _handleDone() async {
+    // Save current step data
+    await _saveCurrentStepData();
+
+    // Return to overview and exit edit mode
+    if (mounted) {
+      setState(() {
+        _currentStep = 3; // Back to Step 4 (Overview)
+        _isEditMode = false;
+      });
+    }
+  }
+
   Widget _getStepBody() {
     switch (_currentStep) {
       case 0:
@@ -409,6 +432,7 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
       case 3:
         return Step4OverviewBody(
           formData: _formData,
+          onEditStep: _handleEditStep,
         );
       default:
         return const SizedBox.shrink();
@@ -460,75 +484,124 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             child: SafeArea(
-              child: Row(
-                children: [
-                  if (_currentStep > 0)
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _previousStep,
-                        style: OutlinedButton.styleFrom(
+              child: _isEditMode
+                  ? // Edit mode: Single full-width "Done" button
+                  SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: !_isLoading ? _handleDone : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          side: BorderSide(
-                            color: Colors.grey[300]!,
-                          ),
+                          elevation: 0,
                         ),
-                        child: Text(
-                          'Back',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Colors.grey[700],
+                        child: _isLoading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).colorScheme.onPrimary,
                                   ),
-                        ),
+                                ),
+                              )
+                            : Text(
+                                'Done',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
                       ),
-                    ),
-                  if (_currentStep > 0) const SizedBox(width: 12),
-                  Expanded(
-                    flex: _currentStep == 0 ? 1 : 1,
-                    child: ElevatedButton(
-                      onPressed: _canProceedToNextStep() && !_isLoading
-                          ? (_currentStep == _totalSteps - 1
-                              ? _handleFinish
-                              : _nextStep)
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: _isLoading
-                          ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Theme.of(context).colorScheme.onPrimary,
+                    )
+                  : // Normal mode: Back/Next buttons
+                  Row(
+                      children: [
+                        if (_currentStep > 0)
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: _previousStep,
+                              style: OutlinedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                side: BorderSide(
+                                  color: Colors.grey[300]!,
                                 ),
                               ),
-                            )
-                          : Text(
-                              _currentStep == _totalSteps - 1 ? 'Finish' : 'Next',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              child: Text(
+                                'Back',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Colors.grey[700],
+                                    ),
+                              ),
                             ),
+                          ),
+                        if (_currentStep > 0) const SizedBox(width: 12),
+                        Expanded(
+                          flex: _currentStep == 0 ? 1 : 1,
+                          child: ElevatedButton(
+                            onPressed: _canProceedToNextStep() && !_isLoading
+                                ? (_currentStep == _totalSteps - 1
+                                    ? _handleFinish
+                                    : _nextStep)
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: _isLoading
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    _currentStep == _totalSteps - 1
+                                        ? 'Finish'
+                                        : 'Next',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
