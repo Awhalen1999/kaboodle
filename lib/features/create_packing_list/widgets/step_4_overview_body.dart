@@ -111,7 +111,7 @@ class Step4OverviewBody extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: colorScheme.outline.withValues(alpha: 0.3),
+                        color: colorScheme.outline,
                         width: 1,
                       ),
                     ),
