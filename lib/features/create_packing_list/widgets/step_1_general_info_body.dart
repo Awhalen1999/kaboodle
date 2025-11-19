@@ -87,7 +87,7 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
       'description': _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
-      'destination': _selectedCountry?.name,
+      'destination': _selectedCountry?.countryCode,
       'startDate': _selectedDates.isNotEmpty && _selectedDates[0] != null
           ? _selectedDates[0]
           : null,

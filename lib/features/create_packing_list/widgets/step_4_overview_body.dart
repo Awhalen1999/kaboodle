@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kaboodle_app/shared/utils/country_utils.dart';
 
 class Step4OverviewBody extends StatelessWidget {
   final Map<String, dynamic> formData;
@@ -164,6 +165,7 @@ class Step4OverviewBody extends StatelessWidget {
     // Build lists for labels and values
     final List<String> labels = [];
     final List<String> values = [];
+    String? destinationCode; // Store country code for flag lookup
 
     labels.add('Trip Name');
     values.add(name ?? 'Not set');
@@ -176,7 +178,10 @@ class Step4OverviewBody extends StatelessWidget {
 
     if (destination != null && destination.isNotEmpty) {
       labels.add('Destination');
-      values.add(destination);
+      // Get the full country name from the country code
+      final country = CountryUtils.getCountry(destination);
+      destinationCode = destination; // Store the country code
+      values.add(country?.name ?? destination);
     }
 
     if (description != null && description.isNotEmpty) {
@@ -186,6 +191,8 @@ class Step4OverviewBody extends StatelessWidget {
 
     return Column(
       children: List.generate(labels.length, (index) {
+        final isDestination = labels[index] == 'Destination';
+
         return Padding(
           padding: EdgeInsets.only(bottom: index < labels.length - 1 ? 12 : 0),
           child: Row(
@@ -205,12 +212,27 @@ class Step4OverviewBody extends StatelessWidget {
               const SizedBox(width: 24),
               // Value
               Expanded(
-                child: Text(
-                  values[index],
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                  ),
-                ),
+                child: isDestination && destinationCode != null
+                    ? Row(
+                        children: [
+                          CountryUtils.getCountryFlag(destinationCode),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              values[index],
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Text(
+                        values[index],
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
               ),
             ],
           ),

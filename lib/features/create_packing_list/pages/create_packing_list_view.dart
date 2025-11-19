@@ -370,9 +370,53 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
     }
   }
 
-  void _handleFinish() {
-    // Navigate back to packing lists page
-    context.pop();
+  Future<void> _handleFinish() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final packingListId = _formData['packingListId'] as String?;
+
+      if (packingListId != null) {
+        print('🏁 [Finish] Marking packing list as completed: $packingListId');
+
+        // Mark as completed by setting stepCompleted to 4
+        final result = await _tripService.upsertPackingList(
+          id: packingListId,
+          name: _formData['name'] as String,
+          startDate: _formData['startDate'] as DateTime,
+          endDate: _formData['endDate'] as DateTime,
+          description: _formData['description'] as String?,
+          destination: _formData['destination'] as String?,
+          colorTag: _formData['colorTag'] as String?,
+          gender: _formData['gender'] as String?,
+          weather: (_formData['weather'] as List<dynamic>?)?.cast<String>(),
+          purpose: _formData['purpose'] as String?,
+          accommodations: _formData['accommodations'] as String?,
+          activities: (_formData['activities'] as List<dynamic>?)?.cast<String>(),
+          stepCompleted: 4,
+          context: context,
+        );
+
+        if (result != null && mounted) {
+          // Update the provider with the completed packing list
+          ref.read(packingListsProvider.notifier).updatePackingList(result);
+          print('✅ [Finish] Packing list marked as completed');
+        }
+      }
+    } catch (e, stackTrace) {
+      print('❌ [Finish] Error: $e');
+      print('❌ [Finish] Stack trace: $stackTrace');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        // Navigate back to packing lists page
+        context.pop();
+      }
+    }
   }
 
   void _handleEditStep(int step) {
