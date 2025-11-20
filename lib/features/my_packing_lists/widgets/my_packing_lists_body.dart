@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:kaboodle_app/features/my_packing_lists/widgets/packing_list_tile.dart';
+import 'package:kaboodle_app/models/packing_list.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/shared/widgets/filter_chip_button.dart';
 
@@ -39,7 +42,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           children: [
             _buildFilterRow(packingLists.length),
             Expanded(
-              child: _buildPackingListsView(context, packingLists.length),
+              child: _buildPackingListsView(context, packingLists),
             ),
           ],
         );
@@ -202,27 +205,47 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
     );
   }
 
-  Widget _buildPackingListsView(BuildContext context, int packingListCount) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'You have $packingListCount packing list${packingListCount == 1 ? '' : 's'}',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '(List tiles coming soon)',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
-          ],
-        ),
-      ),
+  Widget _buildPackingListsView(BuildContext context, List<PackingList> packingLists) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: packingLists.length,
+      itemBuilder: (context, index) {
+        final packingList = packingLists[index];
+
+        // Format dates
+        final startDate = _formatDate(packingList.startDate);
+        final endDate = _formatDate(packingList.endDate);
+
+        // Generate color based on index
+        final colors = [
+          Colors.blue,
+          Colors.purple,
+          Colors.green,
+          Colors.orange,
+          Colors.red,
+          Colors.teal,
+          Colors.indigo,
+          Colors.pink,
+        ];
+        final accentColor = colors[index % colors.length];
+
+        return PackingListTile(
+          tripName: packingList.name,
+          description: packingList.description,
+          startDate: startDate,
+          endDate: endDate,
+          destination: packingList.destination,
+          accentColor: accentColor,
+          onTap: () {
+            // TODO: Navigate to packing list details
+            debugPrint('Navigate to packing list details for: ${packingList.name}');
+          },
+        );
+      },
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('MMM d').format(date);
   }
 }
