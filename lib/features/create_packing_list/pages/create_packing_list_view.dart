@@ -141,7 +141,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         purpose: _formData['purpose'] as String?,
         accommodations: _formData['accommodations'] as String?,
         activities: activitiesList?.cast<String>(),
-        stepCompleted: stepNumber,
+        // Only update stepCompleted if not in edit mode
+        stepCompleted: _isEditMode ? null : stepNumber,
         context: context,
       );
 

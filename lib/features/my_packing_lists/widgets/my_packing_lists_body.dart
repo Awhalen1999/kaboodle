@@ -30,10 +30,34 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
   }
 
   Future<void> _handleDeletePackingList(String packingListId, String packingListName) async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Packing List'),
+        content: Text('Are you sure you want to delete "$packingListName"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFFE4A49),
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
     try {
       final success = await _tripService.deletePackingList(
         packingListId: packingListId,
-        context: context,
+        context: mounted ? context : null,
       );
 
       if (success && mounted) {
