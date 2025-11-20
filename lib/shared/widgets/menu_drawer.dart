@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/shared/widgets/profile_tile.dart';
+import 'package:kaboodle_app/shared/widgets/packing_list_drawer_tile.dart';
 
 class MenuDrawer extends ConsumerWidget {
   const MenuDrawer({
@@ -60,38 +61,76 @@ class MenuDrawer extends ConsumerWidget {
                 color: Colors.grey,
               ),
 
-              // Packing lists count section - simple text display
-              // todo: create packing list menu tile widget + empty state
+              // Packing lists section
               Expanded(
-                child: Center(
-                  child: packingListsAsync.when(
-                    data: (packingLists) {
-                      print(
-                          '✅ [MenuDrawer] Packing lists data: ${packingLists.length} list(s)');
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          packingLists.isEmpty
-                              ? 'Nothing here yet'
-                              : '${packingLists.length} packing list${packingLists.length == 1 ? '' : 's'}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
+                child: packingListsAsync.when(
+                  data: (packingLists) {
+                    print(
+                        '✅ [MenuDrawer] Packing lists data: ${packingLists.length} list(s)');
+
+                    if (packingLists.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'Nothing here yet',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                       );
-                    },
-                    loading: () {
-                      print('⏳ [MenuDrawer] Trips loading...');
-                      return const Padding(
+                    }
+
+                    // Generate colors for each packing list
+                    final colors = [
+                      Colors.blue,
+                      Colors.purple,
+                      Colors.green,
+                      Colors.orange,
+                      Colors.red,
+                      Colors.teal,
+                      Colors.indigo,
+                      Colors.pink,
+                    ];
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      itemCount: packingLists.length,
+                      itemBuilder: (context, index) {
+                        final packingList = packingLists[index];
+                        final accentColor = colors[index % colors.length];
+
+                        return PackingListDrawerTile(
+                          tripName: packingList.name,
+                          description: packingList.description,
+                          accentColor: accentColor,
+                          isSelected: false, // TODO: Track selected packing list
+                          onTap: () {
+                            Navigator.pop(context);
+                            context.push(
+                              '/use-packing-list/${packingList.id}?name=${Uri.encodeComponent(packingList.name)}',
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                  loading: () {
+                    print('⏳ [MenuDrawer] Trips loading...');
+                    return const Center(
+                      child: Padding(
                         padding: EdgeInsets.all(16.0),
                         child: CircularProgressIndicator(),
-                      );
-                    },
-                    error: (error, stackTrace) {
-                      print('❌ [MenuDrawer] Trips error: $error');
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
+                      ),
+                    );
+                  },
+                  error: (error, stackTrace) {
+                    print('❌ [MenuDrawer] Trips error: $error');
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
                         child: Text(
                           'Error loading trips',
                           style: TextStyle(
@@ -99,9 +138,9 @@ class MenuDrawer extends ConsumerWidget {
                             fontSize: 14,
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
 
