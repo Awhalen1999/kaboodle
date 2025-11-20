@@ -3,6 +3,7 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:intl/intl.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
+import 'package:kaboodle_app/shared/widgets/standard_text_field.dart';
 
 class Step1GeneralInfoBody extends StatefulWidget {
   final Map<String, dynamic> formData;
@@ -24,7 +25,6 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   Country? _selectedCountry;
-  bool _countryInitialized = false;
   List<DateTime?> _selectedDates = [];
 
   @override
@@ -38,11 +38,9 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
     );
 
     // Initialize country from formData if available
-    if (!_countryInitialized &&
-        widget.formData['destination'] != null &&
+    if (widget.formData['destination'] != null &&
         widget.formData['destination']!.isNotEmpty) {
       _selectedCountry = CountryUtils.getCountry(widget.formData['destination']!);
-      _countryInitialized = true;
     }
 
     // Initialize dates from formData if available
@@ -67,6 +65,20 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
   }
 
   @override
+  void didUpdateWidget(Step1GeneralInfoBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update country if formData changed
+    if (widget.formData['destination'] != oldWidget.formData['destination']) {
+      final destination = widget.formData['destination'];
+      if (destination != null && destination.isNotEmpty) {
+        _selectedCountry = CountryUtils.getCountry(destination);
+      } else {
+        _selectedCountry = null;
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
@@ -82,11 +94,12 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
   }
 
   void _updateFormData() {
+    final name = _nameController.text.trim();
+    final description = _descriptionController.text.trim();
+
     widget.onDataChanged({
-      'name': _nameController.text.trim(),
-      'description': _descriptionController.text.trim().isEmpty
-          ? null
-          : _descriptionController.text.trim(),
+      'name': name.isNotEmpty ? name : null,
+      'description': description.isNotEmpty ? description : null,
       'destination': _selectedCountry?.countryCode,
       'startDate': _selectedDates.isNotEmpty && _selectedDates[0] != null
           ? _selectedDates[0]
@@ -210,39 +223,9 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                 ],
               ),
               const SizedBox(height: 8),
-              TextField(
+              StandardTextField(
                 controller: _nameController,
-                decoration: InputDecoration(
-                  hintText: 'Enter trip name',
-                  hintStyle: Theme.of(context).textTheme.bodyLarge,
-                  filled: false,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                ),
-                style: Theme.of(context).textTheme.bodyMedium,
+                hintText: 'Enter trip name',
               ),
             ],
           ),
@@ -260,40 +243,10 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                     ),
               ),
               const SizedBox(height: 8),
-              TextField(
+              StandardTextField(
                 controller: _descriptionController,
+                hintText: 'Add a description (optional)',
                 maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Add a description (optional)',
-                  hintStyle: Theme.of(context).textTheme.bodyLarge,
-                  filled: false,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                ),
-                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),

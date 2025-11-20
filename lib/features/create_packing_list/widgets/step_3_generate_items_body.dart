@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:toastification/toastification.dart';
 import 'package:kaboodle_app/models/item_template.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/checkbox_tile.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/edit_item_sheet.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/add_custom_item_sheet.dart';
+import 'package:kaboodle_app/shared/utils/icon_utils.dart';
+import 'package:kaboodle_app/shared/constants/category_constants.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class Step3GenerateItemsBody extends StatefulWidget {
@@ -60,6 +63,21 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     _loadSuggestions();
   }
 
+  /// Show error toast notification
+  void _showErrorToast(String message) {
+    if (!mounted) return;
+
+    toastification.show(
+      context: context,
+      type: ToastificationType.error,
+      style: ToastificationStyle.minimal,
+      title: const Text('Error'),
+      description: Text(message),
+      autoCloseDuration: const Duration(seconds: 3),
+      alignment: Alignment.bottomCenter,
+    );
+  }
+
   /// Notify parent of data changes (selected items and custom items)
   void _notifyDataChanged() {
     widget.onDataChanged({
@@ -79,6 +97,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
         _errorMessage =
             'No packing list ID found. Please complete previous steps first.';
       });
+      _showErrorToast('Please complete Step 1 first');
       return;
     }
 
@@ -88,27 +107,23 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     });
 
     try {
-      print(
-          '🔮 [Step3] Generating suggestions for packingListId: $packingListId');
+      print('💡 Generating packing suggestions...');
 
       // Load both suggestions and existing items in parallel
-      final results = await Future.wait([
-        _tripService.generateSuggestions(
-          packingListId: packingListId,
-          context: context,
-        ),
-        _tripService.getPackingListItems(
-          packingListId: packingListId,
-          context: context,
-        ),
-      ]);
+      final suggestionsFuture = _tripService.generateSuggestions(
+        packingListId: packingListId,
+        context: context,
+      );
+      final itemsFuture = _tripService.getPackingListItems(
+        packingListId: packingListId,
+        context: context,
+      );
 
+      final results = await Future.wait([suggestionsFuture, itemsFuture]);
       final suggestionsResult = results[0] as List?;
       final itemsResult = results[1] as Map<String, dynamic>?;
 
-      print('✅ [Step3] Received ${suggestionsResult?.length ?? 0} suggestions');
-      print(
-          '✅ [Step3] Received ${itemsResult?['items']?.length ?? 0} existing items');
+      print('✅ Generated ${suggestionsResult?.length ?? 0} suggestions');
 
       if (suggestionsResult != null) {
         final suggestions = suggestionsResult
@@ -165,8 +180,6 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
                 if (item.notes != null && item.notes!.isNotEmpty) {
                   _itemNotes[suggestion.id] = item.notes!;
                 }
-                print(
-                    '✅ [Step3] Restored selection: ${item.name} (qty: ${item.quantity})');
               }
             }
           }
@@ -180,17 +193,21 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
         // Notify parent of initial data
         _notifyDataChanged();
       } else {
+        final errorMsg = 'Failed to generate suggestions';
         setState(() {
-          _errorMessage = 'Failed to generate suggestions';
+          _errorMessage = errorMsg;
           _isLoading = false;
         });
+        _showErrorToast(errorMsg);
       }
     } catch (e, stackTrace) {
-      print('❌ [Step3] Error generating suggestions: $e');
-      print('❌ [Step3] Stack trace: $stackTrace');
+      final errorMsg = 'Error generating suggestions: ${e.toString()}';
+      _showErrorToast(errorMsg);
+      print('❌ [Step3] Error: $e');
+      print('❌ Stack trace: $stackTrace');
 
       setState(() {
-        _errorMessage = 'Error: $e';
+        _errorMessage = errorMsg;
         _isLoading = false;
       });
     }
@@ -280,44 +297,9 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
       categorizedItems[item.category]!.add(item);
     }
 
-    // Define category order by importance
-    final categoryOrder = [
-      'Clothing',
-      'Toiletries',
-      'Electronics',
-      'Medication',
-      'Documents',
-      'Accessories',
-      'Entertainment',
-      'Food & Snacks',
-      'Outdoor Gear',
-      'Baby & Kids',
-      'Pet Supplies',
-      'Miscellaneous',
-    ];
-
-    // Sort categories by defined order
-    final sortedCategories = categorizedItems.keys.toList()
-      ..sort((a, b) {
-        // Case-insensitive comparison
-        final indexA = categoryOrder.indexWhere(
-          (cat) => cat.toLowerCase() == a.toLowerCase(),
-        );
-        final indexB = categoryOrder.indexWhere(
-          (cat) => cat.toLowerCase() == b.toLowerCase(),
-        );
-
-        // If both categories are in the order list, sort by index
-        if (indexA != -1 && indexB != -1) {
-          return indexA.compareTo(indexB);
-        }
-        // If only A is in the list, A comes first
-        if (indexA != -1) return -1;
-        // If only B is in the list, B comes first
-        if (indexB != -1) return 1;
-        // If neither is in the list, sort alphabetically
-        return a.compareTo(b);
-      });
+    // Sort categories using CategoryConstants
+    final sortedCategories =
+        CategoryConstants.sortCategories(categorizedItems.keys.toList());
 
     // Build UI for each category in sorted order
     final List<Widget> widgets = [];
@@ -412,7 +394,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     final note = _itemNotes[item.id] ?? '';
 
     return CheckboxTile(
-      icon: _getIconData(item.icon),
+      icon: IconUtils.getIconData(item.icon),
       itemName: item.name,
       quantity: quantity,
       note: note,
@@ -482,7 +464,6 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
             _itemNotes[id] = note;
           });
           _notifyDataChanged();
-          print('✨ [Step3] Added custom item: $name to $category');
         },
       ),
     );
@@ -534,58 +515,4 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     );
   }
 
-  /// Map icon name string to IconData
-  IconData _getIconData(String iconName) {
-    // Map common icon names to Material Icons
-    final iconMap = {
-      'luggage': Icons.luggage,
-      'checkroom': Icons.checkroom,
-      'local_laundry_service': Icons.local_laundry_service,
-      'wc': Icons.wc,
-      'clean_hands': Icons.clean_hands,
-      'face': Icons.face,
-      'health_and_safety': Icons.health_and_safety,
-      'headphones': Icons.headphones,
-      'phone_iphone': Icons.phone_iphone,
-      'laptop': Icons.laptop,
-      'camera_alt': Icons.camera_alt,
-      'book': Icons.book,
-      'sports': Icons.sports,
-      'pool': Icons.pool,
-      'hiking': Icons.hiking,
-      'beach_access': Icons.beach_access,
-      'ac_unit': Icons.ac_unit,
-      'wb_sunny': Icons.wb_sunny,
-      'umbrella': Icons.umbrella,
-      'backpack': Icons.backpack,
-      'shopping_bag': Icons.shopping_bag,
-      'restaurant': Icons.restaurant,
-      'local_drink': Icons.local_drink,
-      'medication': Icons.medication,
-      'vaccines': Icons.vaccines,
-      'local_hospital': Icons.local_hospital,
-      'power': Icons.power,
-      'cable': Icons.cable,
-      'vpn_key': Icons.vpn_key,
-      'credit_card': Icons.credit_card,
-      'attach_money': Icons.attach_money,
-      'important_devices': Icons.important_devices,
-      'flight': Icons.flight,
-      'directions_car': Icons.directions_car,
-      'description': Icons.description,
-      'badge': Icons.badge,
-      'map': Icons.map,
-      'navigation': Icons.navigation,
-      'toys': Icons.toys,
-      'child_care': Icons.child_care,
-      'baby_changing_station': Icons.baby_changing_station,
-      'pets': Icons.pets,
-      'watch': Icons.watch,
-      'diamond': Icons.diamond,
-      'glasses': Icons.remove_red_eye,
-      'umbrella_outline': Icons.beach_access,
-    };
-
-    return iconMap[iconName] ?? Icons.category;
-  }
 }
