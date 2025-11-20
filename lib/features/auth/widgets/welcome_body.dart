@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:kaboodle_app/features/auth/widgets/auth_bottom_sheet.dart';
+import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class WelcomeBody extends StatelessWidget {
@@ -13,16 +14,14 @@ class WelcomeBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Placeholder for animation - will be replaced later
+          // Lottie animation
           // Expanded fills remaining space and pushes content down
           Expanded(
             child: Container(
-              child: Center(
-                child: Icon(
-                  Icons.rocket_launch,
-                  size: 120,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
-                ),
+              padding: const EdgeInsets.all(16),
+              child: Lottie.asset(
+                'assets/lottie/temp_animation.json',
+                fit: BoxFit.contain,
               ),
             ),
           ),
