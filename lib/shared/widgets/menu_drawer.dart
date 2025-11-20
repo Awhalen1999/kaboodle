@@ -96,7 +96,8 @@ class MenuDrawer extends ConsumerWidget {
                     ];
 
                     return ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 8),
                       itemCount: packingLists.length,
                       itemBuilder: (context, index) {
                         final packingList = packingLists[index];
@@ -106,12 +107,22 @@ class MenuDrawer extends ConsumerWidget {
                           tripName: packingList.name,
                           description: packingList.description,
                           accentColor: accentColor,
-                          isSelected: false, // TODO: Track selected packing list
+                          isSelected:
+                              false, // TODO: Track selected packing list
+                          stepCompleted: packingList.stepCompleted,
                           onTap: () {
                             Navigator.pop(context);
-                            context.push(
-                              '/use-packing-list/${packingList.id}?name=${Uri.encodeComponent(packingList.name)}',
-                            );
+                            if (packingList.stepCompleted < 4) {
+                              // List is not complete - log for now
+                              debugPrint(
+                                  '🚧 User clicked continue creation for "${packingList.name}" (step ${packingList.stepCompleted}/4)');
+                              // TODO: Ask user if they want to continue creation
+                            } else {
+                              // List is complete - navigate to use page
+                              context.push(
+                                '/use-packing-list/${packingList.id}?name=${Uri.encodeComponent(packingList.name)}',
+                              );
+                            }
                           },
                         );
                       },

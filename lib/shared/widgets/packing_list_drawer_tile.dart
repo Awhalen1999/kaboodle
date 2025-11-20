@@ -6,6 +6,7 @@ class PackingListDrawerTile extends StatelessWidget {
   final Color accentColor;
   final VoidCallback onTap;
   final bool isSelected;
+  final int stepCompleted;
 
   const PackingListDrawerTile({
     super.key,
@@ -14,6 +15,7 @@ class PackingListDrawerTile extends StatelessWidget {
     required this.accentColor,
     required this.onTap,
     this.isSelected = false,
+    required this.stepCompleted,
   });
 
   @override
@@ -22,7 +24,10 @@ class PackingListDrawerTile extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        debugPrint('🎯 Tapped packing list: $tripName');
+        onTap();
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
@@ -36,54 +41,67 @@ class PackingListDrawerTile extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Row(
-          children: [
-            // Color stripe
-            Container(
-              width: 3,
-              constraints: const BoxConstraints(minHeight: 40),
-              decoration: BoxDecoration(
-                color: accentColor,
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(6),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Color stripe
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Container(
+                  width: 3,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(6),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            // Trip name and description
-            Expanded(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      tripName,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (description != null && description!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+              // Trip name and description
+              Expanded(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Text(
-                        description!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: colorScheme.onSurface.withValues(alpha: 0.5),
+                        tripName,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: stepCompleted < 4
+                              ? FontWeight.w500
+                              : (isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500),
+                          color: stepCompleted < 4
+                              ? colorScheme.onSurface.withValues(alpha: 0.5)
+                              : null,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      if (description != null && description!.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          description!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 11,
+                            color: stepCompleted < 4
+                                ? colorScheme.onSurface.withValues(alpha: 0.4)
+                                : colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
