@@ -298,10 +298,18 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           endDate: endDate,
           destination: packingList.destination,
           accentColor: accentColor,
+          stepCompleted: packingList.stepCompleted,
           onTap: () {
-            context.push(
-              '/use-packing-list/${packingList.id}?name=${Uri.encodeComponent(packingList.name)}',
-            );
+            if (packingList.stepCompleted < 4) {
+              // List is not complete - log for now
+              debugPrint('🚧 User clicked continue creation for "${packingList.name}" (step ${packingList.stepCompleted}/4)');
+              // TODO: Ask user if they want to continue creation
+            } else {
+              // List is complete - navigate to use page
+              context.push(
+                '/use-packing-list/${packingList.id}?name=${Uri.encodeComponent(packingList.name)}',
+              );
+            }
           },
           onDelete: () => _handleDeletePackingList(packingList.id, packingList.name),
         );
