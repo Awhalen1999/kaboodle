@@ -5,6 +5,7 @@ import 'package:kaboodle_app/features/auth/pages/welcome_view.dart';
 import 'package:kaboodle_app/features/profile/pages/profile_view.dart';
 import 'package:kaboodle_app/features/profile_edit/pages/profile_edit_view.dart';
 import 'package:kaboodle_app/features/create_packing_list/pages/create_packing_list_view.dart';
+import 'package:kaboodle_app/features/use_packing_list/pages/use_packing_list_view.dart';
 
 // GoRouter configuration
 final router = GoRouter(
@@ -36,6 +37,17 @@ final router = GoRouter(
     GoRoute(
       path: '/create-packing-list',
       builder: (context, state) => const CreatePackingListView(),
+    ),
+    GoRoute(
+      path: '/use-packing-list/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        final name = state.uri.queryParameters['name'] ?? 'Packing List';
+        return UsePackingListView(
+          packingListId: id,
+          packingListName: name,
+        );
+      },
     ),
   ],
 );

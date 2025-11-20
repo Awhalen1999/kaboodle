@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:kaboodle_app/features/my_packing_lists/widgets/packing_list_tile.dart';
 import 'package:kaboodle_app/models/packing_list.dart';
@@ -237,8 +238,9 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           destination: packingList.destination,
           accentColor: accentColor,
           onTap: () {
-            // TODO: Navigate to packing list details
-            debugPrint('Navigate to packing list details for: ${packingList.name}');
+            context.push(
+              '/use-packing-list/${packingList.id}?name=${Uri.encodeComponent(packingList.name)}',
+            );
           },
         );
       },
