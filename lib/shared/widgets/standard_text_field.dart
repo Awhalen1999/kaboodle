@@ -7,6 +7,10 @@ class StandardTextField extends StatelessWidget {
   final int maxLines;
   final TextInputType? keyboardType;
   final bool enabled;
+  final bool obscureText;
+  final Widget? suffixIcon;
+  final TextInputAction? textInputAction;
+  final VoidCallback? onEditingComplete;
 
   const StandardTextField({
     super.key,
@@ -15,6 +19,10 @@ class StandardTextField extends StatelessWidget {
     this.maxLines = 1,
     this.keyboardType,
     this.enabled = true,
+    this.obscureText = false,
+    this.suffixIcon,
+    this.textInputAction,
+    this.onEditingComplete,
   });
 
   @override
@@ -27,10 +35,14 @@ class StandardTextField extends StatelessWidget {
       maxLines: maxLines,
       keyboardType: keyboardType,
       enabled: enabled,
+      obscureText: obscureText,
+      textInputAction: textInputAction,
+      onEditingComplete: onEditingComplete,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: theme.textTheme.bodyLarge,
         filled: false,
+        suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(

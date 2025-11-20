@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
+import 'package:kaboodle_app/shared/widgets/standard_text_field.dart';
 import 'package:toastification/toastification.dart';
 
 class AuthBottomSheet extends StatefulWidget {
@@ -185,38 +186,9 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                           ),
                     ),
                     const SizedBox(height: 8),
-                    TextField(
+                    StandardTextField(
                       controller: _emailController,
-                      decoration: InputDecoration(
-                        hintText: 'Email Address',
-                        hintStyle: Theme.of(context).textTheme.bodyLarge,
-                        filled: false,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            width: 0.5,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            width: 0.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            width: 0.5,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                      ),
+                      hintText: 'Email Address',
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                     ),
@@ -235,57 +207,28 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                           ),
                     ),
                     const SizedBox(height: 8),
-                    TextField(
+                    StandardTextField(
                       controller: _passwordController,
-                      decoration: InputDecoration(
-                        hintText: 'Password',
-                        hintStyle: Theme.of(context).textTheme.bodyLarge,
-                        filled: false,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            width: 0.5,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            width: 0.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            width: 0.5,
-                          ),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                      ),
+                      hintText: 'Password',
                       obscureText: _obscurePassword,
                       textInputAction: widget.isSignUp
                           ? TextInputAction.next
                           : TextInputAction.done,
                       onEditingComplete:
                           widget.isSignUp ? null : _handleEmailAuth,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -302,55 +245,26 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                             ),
                       ),
                       const SizedBox(height: 8),
-                      TextField(
+                      StandardTextField(
                         controller: _confirmPasswordController,
-                        decoration: InputDecoration(
-                          hintText: 'Confirm Password',
-                          hintStyle: Theme.of(context).textTheme.bodyLarge,
-                          filled: false,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              width: 1,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              width: 1,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              width: 1,
-                            ),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureConfirmPassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscureConfirmPassword =
-                                    !_obscureConfirmPassword;
-                              });
-                            },
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                        ),
+                        hintText: 'Confirm Password',
                         obscureText: _obscureConfirmPassword,
                         textInputAction: TextInputAction.done,
                         onEditingComplete: _handleEmailAuth,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword =
+                                  !_obscureConfirmPassword;
+                            });
+                          },
+                        ),
                       ),
                     ],
                   ),
