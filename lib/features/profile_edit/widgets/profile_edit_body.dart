@@ -4,6 +4,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/widgets/profile_avatar.dart';
+import 'package:kaboodle_app/shared/widgets/standard_text_field.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
 
 class ProfileEditBody extends ConsumerStatefulWidget {
@@ -180,39 +181,9 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
                     ),
               ),
               const SizedBox(height: 8),
-              TextField(
+              StandardTextField(
                 controller: _displayNameController!,
-                decoration: InputDecoration(
-                  hintText: 'Enter your name',
-                  hintStyle: Theme.of(context).textTheme.bodyLarge,
-                  filled: false,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      width: 0.5,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                ),
-                style: Theme.of(context).textTheme.bodyMedium,
+                hintText: 'Enter your name',
               ),
             ],
           ),
