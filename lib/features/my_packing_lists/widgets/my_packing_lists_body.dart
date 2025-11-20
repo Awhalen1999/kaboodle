@@ -5,7 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:kaboodle_app/features/my_packing_lists/widgets/packing_list_tile.dart';
 import 'package:kaboodle_app/models/packing_list.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
+import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/shared/widgets/filter_chip_button.dart';
+import 'package:toastification/toastification.dart';
 
 class MyPackingListsBody extends ConsumerStatefulWidget {
   final String? initialTab;
@@ -18,12 +20,46 @@ class MyPackingListsBody extends ConsumerStatefulWidget {
 
 class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
   late String selectedFilter;
+  final TripService _tripService = TripService();
 
   @override
   void initState() {
     super.initState();
     // Set initial filter based on the parameter, default to 'all'
     selectedFilter = widget.initialTab ?? 'all';
+  }
+
+  Future<void> _handleDeletePackingList(String packingListId, String packingListName) async {
+    try {
+      final success = await _tripService.deletePackingList(
+        packingListId: packingListId,
+        context: context,
+      );
+
+      if (success && mounted) {
+        // Refresh the list
+        ref.read(packingListsProvider.notifier).refresh();
+
+        // Show success message
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: Text('Deleted "$packingListName"'),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: Text('Failed to delete: ${e.toString()}'),
+        );
+      }
+    }
   }
 
   @override
@@ -207,9 +243,10 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
   }
 
   Widget _buildPackingListsView(BuildContext context, List<PackingList> packingLists) {
-    return ListView.builder(
+    return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: packingLists.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final packingList = packingLists[index];
 
@@ -242,6 +279,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               '/use-packing-list/${packingList.id}?name=${Uri.encodeComponent(packingList.name)}',
             );
           },
+          onDelete: () => _handleDeletePackingList(packingList.id, packingList.name),
         );
       },
     );
