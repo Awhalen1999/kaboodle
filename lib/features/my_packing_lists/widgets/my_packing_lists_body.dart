@@ -317,6 +317,12 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               '/create-packing-list?id=${packingList.id}&step=$step',
             );
           },
+          onShare: packingList.stepCompleted >= 4
+              ? () {
+                  // TODO: Implement share functionality
+                  debugPrint('📤 Share packing list: ${packingList.name}');
+                }
+              : null,
           onDelete: () =>
               _handleDeletePackingList(packingList.id, packingList.name),
         );

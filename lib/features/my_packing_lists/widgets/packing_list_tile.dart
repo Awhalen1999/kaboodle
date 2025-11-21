@@ -13,6 +13,7 @@ class PackingListTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
+  final VoidCallback? onShare;
 
   const PackingListTile({
     super.key,
@@ -26,6 +27,7 @@ class PackingListTile extends StatelessWidget {
     required this.onTap,
     this.onDelete,
     this.onEdit,
+    this.onShare,
   });
 
   void _showActionSheet(BuildContext context) {
@@ -36,6 +38,7 @@ class PackingListTile extends StatelessWidget {
         return PackingListOptionsSheet(
           stepCompleted: stepCompleted,
           onEdit: onEdit,
+          onShare: onShare,
           onDelete: onDelete,
         );
       },
