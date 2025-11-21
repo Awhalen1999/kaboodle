@@ -160,7 +160,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
         children: [
           const SizedBox(width: 16),
           FilterChipButton(
-            label: 'All trips',
+            label: 'All Trips',
             count: totalTrips,
             isSelected: selectedFilter == 'all',
             onTap: () {
@@ -172,62 +172,50 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           ),
           const SizedBox(width: 8),
           FilterChipButton(
-            label: 'Upcoming',
+            label: 'Upcoming Trips',
             count: 0, // TODO: Calculate from trips with future dates
-            isSelected: selectedFilter == 'upcoming',
+            isSelected: selectedFilter == 'upcoming_trips',
             onTap: () {
               setState(() {
-                selectedFilter = 'upcoming';
+                selectedFilter = 'upcoming_trips';
               });
-              print('🔍 Filter: Upcoming');
+              print('🔍 Filter: Upcoming Trips');
             },
           ),
           const SizedBox(width: 8),
           FilterChipButton(
-            label: 'Active',
+            label: 'Incomplete Lists',
             count: 0, // Placeholder
-            isSelected: selectedFilter == 'active',
+            isSelected: selectedFilter == 'incomplete_lists',
             onTap: () {
               setState(() {
-                selectedFilter = 'active';
+                selectedFilter = 'incomplete_lists';
               });
-              print('🔍 Filter: Active');
+              print('🔍 Filter: Incomplete Lists');
             },
           ),
           const SizedBox(width: 8),
           FilterChipButton(
-            label: 'Past',
+            label: 'Current Trips',
             count: 0, // Placeholder
-            isSelected: selectedFilter == 'past',
+            isSelected: selectedFilter == 'current_trips',
             onTap: () {
               setState(() {
-                selectedFilter = 'past';
+                selectedFilter = 'current_trips';
               });
-              print('🔍 Filter: Past');
+              print('🔍 Filter: Current Trips');
             },
           ),
           const SizedBox(width: 8),
           FilterChipButton(
-            label: 'Completed',
+            label: 'Past Trips',
             count: 0, // Placeholder
-            isSelected: selectedFilter == 'completed',
+            isSelected: selectedFilter == 'past_trips',
             onTap: () {
               setState(() {
-                selectedFilter = 'completed';
+                selectedFilter = 'past_trips';
               });
-              print('🔍 Filter: Completed');
-            },
-          ),
-          const SizedBox(width: 8),
-          FilterChipButton(
-            label: 'In Progress',
-            count: 0, // Placeholder
-            isSelected: selectedFilter == 'in_progress',
-            onTap: () {
-              setState(() {
-                selectedFilter = 'in_progress';
-              });
-              print('🔍 Filter: In Progress');
+              print('🔍 Filter: Past Trips');
             },
           ),
           const SizedBox(width: 16),
