@@ -313,8 +313,12 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           },
           onEdit: () {
             // Navigate to create/edit page
+            // If list is incomplete, go to the next step they need to complete (continuing creation)
+            // If list is complete, go to step 4 (overview) where they can navigate to edit any step
+            // stepCompleted represents the last completed step, so we go to that step (0-indexed)
+            final step = packingList.stepCompleted < 4 ? packingList.stepCompleted : 3;
             context.push(
-              '/create-packing-list?id=${packingList.id}',
+              '/create-packing-list?id=${packingList.id}&step=$step',
             );
           },
           onDelete: () => _handleDeletePackingList(packingList.id, packingList.name),

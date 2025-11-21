@@ -36,7 +36,15 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/create-packing-list',
-      builder: (context, state) => const CreatePackingListView(),
+      builder: (context, state) {
+        final id = state.uri.queryParameters['id'];
+        final stepString = state.uri.queryParameters['step'];
+        final step = stepString != null ? int.tryParse(stepString) : null;
+        return CreatePackingListView(
+          packingListId: id,
+          initialStep: step,
+        );
+      },
     ),
     GoRoute(
       path: '/use-packing-list/:id',

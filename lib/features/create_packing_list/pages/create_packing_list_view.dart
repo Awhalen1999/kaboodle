@@ -11,7 +11,14 @@ import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 
 class CreatePackingListView extends ConsumerStatefulWidget {
-  const CreatePackingListView({super.key});
+  final String? packingListId;
+  final int? initialStep;
+
+  const CreatePackingListView({
+    super.key,
+    this.packingListId,
+    this.initialStep,
+  });
 
   @override
   ConsumerState<CreatePackingListView> createState() =>
@@ -39,6 +46,84 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
 
   // Edit mode state
   bool _isEditMode = false;
+
+  // Loading state for initial data
+  bool _isLoadingInitialData = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load existing packing list data if ID is provided
+    if (widget.packingListId != null) {
+      _loadExistingPackingList();
+    }
+    // Set initial step if provided
+    if (widget.initialStep != null) {
+      _currentStep = widget.initialStep!;
+    }
+  }
+
+  Future<void> _loadExistingPackingList() async {
+    if (widget.packingListId == null) return;
+
+    setState(() {
+      _isLoadingInitialData = true;
+    });
+
+    try {
+      // Get packing list from provider
+      final packingListsAsync = ref.read(packingListsProvider);
+
+      packingListsAsync.whenData((packingLists) {
+        final packingList = packingLists.firstWhere(
+          (pl) => pl.id == widget.packingListId,
+          orElse: () => throw Exception('Packing list not found'),
+        );
+
+        // Determine if this is editing (complete list) or continuing (incomplete list)
+        final isCompleteList = packingList.stepCompleted >= 4;
+
+        // Populate form data with existing values
+        setState(() {
+          _formData['packingListId'] = packingList.id;
+          _formData['name'] = packingList.name;
+          _formData['description'] = packingList.description;
+          _formData['destination'] = packingList.destination;
+          _formData['startDate'] = packingList.startDate;
+          _formData['endDate'] = packingList.endDate;
+          _formData['colorTag'] = packingList.colorTag ?? 'grey';
+          _formData['gender'] = packingList.gender;
+          _formData['weather'] = packingList.weather;
+          _formData['purpose'] = packingList.purpose;
+          _formData['accommodations'] = packingList.accommodations;
+          _formData['activities'] = packingList.activities;
+          _formData['currentStepCompleted'] = packingList.stepCompleted;
+
+          // Only set edit mode if the list is complete
+          // If incomplete, we're continuing the creation process
+          _isEditMode = isCompleteList;
+
+          // Mark step 1 as valid since we have existing data
+          _isStep1Valid = true;
+        });
+
+        if (isCompleteList) {
+          debugPrint('✏️ Editing complete packing list: ${packingList.name}');
+        } else {
+          debugPrint('▶️ Continuing incomplete packing list: ${packingList.name} (step ${packingList.stepCompleted}/4)');
+        }
+      });
+    } catch (e) {
+      debugPrint('❌ Error loading packing list: $e');
+      _showErrorToast('Failed to load packing list data');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingInitialData = false;
+        });
+      }
+    }
+  }
 
   /// Show error toast notification
   void _showErrorToast(String message) {
@@ -117,16 +202,22 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
 
     try {
       final packingListId = _formData['packingListId'] as String?;
-
-      if (packingListId == null) {
-        print('💾 Creating new packing list (Step $stepNumber)');
-      } else {
-        print('💾 Updating packing list (Step $stepNumber): $packingListId');
-      }
+      final isNewList = packingListId == null;
 
       // Convert weather and activities lists properly
       final weatherList = _formData['weather'] as List<dynamic>?;
       final activitiesList = _formData['activities'] as List<dynamic>?;
+
+      // Determine what stepCompleted value to send
+      int? stepCompletedValue;
+      if (_isEditMode) {
+        stepCompletedValue = null;
+      } else {
+        final currentStepCompleted = _formData['currentStepCompleted'] as int? ?? 0;
+        stepCompletedValue = stepNumber > currentStepCompleted ? stepNumber : null;
+      }
+
+      debugPrint('📝 Step $stepNumber: ${isNewList ? "Creating" : "Updating"} "${_formData['name']}" (stepCompleted: ${stepCompletedValue ?? "unchanged"})');
 
       final result = await _tripService.upsertPackingList(
         id: packingListId,
@@ -141,36 +232,32 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         purpose: _formData['purpose'] as String?,
         accommodations: _formData['accommodations'] as String?,
         activities: activitiesList?.cast<String>(),
-        // Only update stepCompleted if not in edit mode
-        stepCompleted: _isEditMode ? null : stepNumber,
+        stepCompleted: stepCompletedValue,
         context: context,
       );
 
       if (result != null && mounted) {
-        // Store the packing list ID for subsequent saves
         setState(() {
           _formData['packingListId'] = result.id;
+          _formData['currentStepCompleted'] = result.stepCompleted;
         });
 
-        // Update the provider with the new/updated packing list
-        final wasNewList = packingListId == null;
-        if (wasNewList) {
+        if (isNewList) {
           ref.read(packingListsProvider.notifier).addPackingList(result);
-          print('✅ Packing list created successfully');
         } else {
           ref.read(packingListsProvider.notifier).updatePackingList(result);
-          print('✅ Packing list updated successfully');
         }
+        debugPrint('✅ Step $stepNumber saved (progress: ${result.stepCompleted}/4)');
         return true;
       } else {
         _showErrorToast('Failed to save trip details');
-        print('❌ Save failed: No result returned');
+        debugPrint('❌ Step $stepNumber failed: No result');
         return false;
       }
     } catch (e, stackTrace) {
       _showErrorToast('Error saving trip details: ${e.toString()}');
-      print('❌ [SaveStep$stepNumber] Error: $e');
-      print('❌ Stack trace: $stackTrace');
+      debugPrint('❌ Step $stepNumber error: $e');
+      debugPrint(stackTrace.toString());
       return false;
     } finally {
       if (mounted) {
@@ -191,11 +278,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
 
       if (packingListId == null) {
         _showErrorToast('No packing list found. Please start from Step 1.');
-        print('❌ No packing list ID found');
+        debugPrint('❌ Step 3: No packing list ID');
         return false;
       }
-
-      print('💾 Saving packing items: $packingListId');
 
       // Get selected items data from Step 3
       final selectedItems = _formData['selectedItems'] as Map<String, bool>? ?? {};
@@ -203,6 +288,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
       final itemNotes = _formData['itemNotes'] as Map<String, String>? ?? {};
       final customItems = _formData['customItems'] as Map<String, List<Map<String, dynamic>>>? ?? {};
       final suggestions = _formData['suggestions'] as List? ?? [];
+
+      final selectedCount = selectedItems.values.where((v) => v).length;
+      debugPrint('📦 Step 3: Saving $selectedCount items');
 
       // Get existing items to avoid duplicates
       final existingItemsResult = await _tripService.getPackingListItems(
@@ -218,8 +306,6 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         existingItemNames.add(item.name.toLowerCase());
         existingItemsById[item.id] = item;
       }
-
-      print('✅ Found ${existingItems.length} existing items');
 
       // Build a map of template ID to item name for later matching
       final Map<String, String> templateIdToName = {};
@@ -272,7 +358,6 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
 
         if (bulkResult != null) {
           addedItems = bulkResult['added'] as List?;
-          print('✅ Added ${bulkResult['count']} template items');
         }
       }
 
@@ -354,8 +439,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         }
       }
 
-      if (customItemCount > 0) {
-        print('✅ Added $customItemCount custom items');
+      final totalNew = newTemplateItemIds.length + customItemCount;
+      if (totalNew > 0) {
+        debugPrint('✅ Step 3: Added $totalNew items (${newTemplateItemIds.length} template, $customItemCount custom)');
       }
 
       // Update step completion
@@ -367,8 +453,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
       return success;
     } catch (e, stackTrace) {
       _showErrorToast('Error saving packing items: ${e.toString()}');
-      print('❌ [SaveStep3] Error: $e');
-      print('❌ Stack trace: $stackTrace');
+      debugPrint('❌ Step 3 error: $e');
+      debugPrint(stackTrace.toString());
       return false;
     } finally {
       if (mounted) {
@@ -424,7 +510,7 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
       final packingListId = _formData['packingListId'] as String?;
 
       if (packingListId != null) {
-        print('🏁 Finishing packing list: $packingListId');
+        debugPrint('🏁 Finishing "${_formData['name']}"');
 
         // Mark as completed by setting stepCompleted to 4
         final result = await _tripService.upsertPackingList(
@@ -445,17 +531,16 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         );
 
         if (result != null && mounted) {
-          // Update the provider with the completed packing list
           ref.read(packingListsProvider.notifier).updatePackingList(result);
-          print('✅ Packing list completed successfully');
+          debugPrint('✅ Packing list complete!');
         } else {
           _showErrorToast('Failed to complete packing list');
         }
       }
     } catch (e, stackTrace) {
       _showErrorToast('Error completing packing list: ${e.toString()}');
-      print('❌ [Finish] Error: $e');
-      print('❌ Stack trace: $stackTrace');
+      debugPrint('❌ Finish error: $e');
+      debugPrint(stackTrace.toString());
     } finally {
       if (mounted) {
         setState(() {

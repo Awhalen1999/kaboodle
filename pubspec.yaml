@@ -51,7 +51,6 @@ dependencies:
   step_progress_indicator: ^1.0.2
   calendar_date_picker2: ^2.0.1
   lottie: ^3.1.0
-  flutter_slidable: ^4.0.3
 
 dev_dependencies:
   flutter_test:
