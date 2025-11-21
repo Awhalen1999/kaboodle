@@ -22,13 +22,13 @@ class FilterChipButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-              : Colors.grey[100],
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+              : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: isSelected
                 ? Theme.of(context).colorScheme.primary
-                : Colors.grey[300]!,
+                : Theme.of(context).colorScheme.outline,
             width: 1,
           ),
         ),
@@ -40,9 +40,7 @@ class FilterChipButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.grey[700],
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(width: 6),
@@ -51,7 +49,7 @@ class FilterChipButton extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? Theme.of(context).colorScheme.primary
-                    : Colors.grey[300],
+                    : Theme.of(context).colorScheme.outline,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -59,7 +57,9 @@ class FilterChipButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.grey[700],
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),

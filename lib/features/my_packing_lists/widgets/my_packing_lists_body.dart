@@ -6,7 +6,7 @@ import 'package:kaboodle_app/features/my_packing_lists/widgets/packing_list_tile
 import 'package:kaboodle_app/models/packing_list.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
-import 'package:kaboodle_app/shared/widgets/filter_chip_button.dart';
+import 'package:kaboodle_app/features/my_packing_lists/widgets/filter_chip_button.dart';
 import 'package:toastification/toastification.dart';
 
 class MyPackingListsBody extends ConsumerStatefulWidget {
