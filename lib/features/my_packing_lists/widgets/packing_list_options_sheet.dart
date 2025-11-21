@@ -79,7 +79,7 @@ class PackingListOptionsSheet extends StatelessWidget {
                       const SizedBox(width: 16),
                       Text(
                         stepCompleted < 4
-                            ? 'Continue Building List'
+                            ? 'Continue Building List (Step ${stepCompleted + 1}/4)'
                             : 'Edit List',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: colorScheme.onSurface,

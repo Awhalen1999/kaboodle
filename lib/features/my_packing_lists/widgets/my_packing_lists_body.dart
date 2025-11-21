@@ -29,7 +29,8 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
     selectedFilter = widget.initialTab ?? 'all';
   }
 
-  Future<void> _handleDeletePackingList(String packingListId, String packingListName) async {
+  Future<void> _handleDeletePackingList(
+      String packingListId, String packingListName) async {
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
@@ -153,10 +154,11 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
   Widget _buildFilterRow(int totalTrips) {
     return Container(
       height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
+          const SizedBox(width: 16),
           FilterChipButton(
             label: 'All trips',
             count: totalTrips,
@@ -228,6 +230,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               print('🔍 Filter: In Progress');
             },
           ),
+          const SizedBox(width: 16),
         ],
       ),
     );
@@ -266,9 +269,10 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
     );
   }
 
-  Widget _buildPackingListsView(BuildContext context, List<PackingList> packingLists) {
+  Widget _buildPackingListsView(
+      BuildContext context, List<PackingList> packingLists) {
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 64),
       itemCount: packingLists.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
@@ -319,12 +323,14 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
             // If list is incomplete, go to the next step they need to complete (continuing creation)
             // If list is complete, go to step 4 (overview) where they can navigate to edit any step
             // stepCompleted represents the last completed step, so we go to that step (0-indexed)
-            final step = packingList.stepCompleted < 4 ? packingList.stepCompleted : 3;
+            final step =
+                packingList.stepCompleted < 4 ? packingList.stepCompleted : 3;
             context.push(
               '/create-packing-list?id=${packingList.id}&step=$step',
             );
           },
-          onDelete: () => _handleDeletePackingList(packingList.id, packingList.name),
+          onDelete: () =>
+              _handleDeletePackingList(packingList.id, packingList.name),
         );
       },
     );
