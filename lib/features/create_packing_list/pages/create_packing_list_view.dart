@@ -620,6 +620,30 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
 
   @override
   Widget build(BuildContext context) {
+    // Show loading indicator while initial data is loading
+    if (_isLoadingInitialData) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: _close,
+          ),
+          title: Text(
+            'Create Packing List',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

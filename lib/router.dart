@@ -13,11 +13,11 @@ final router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => AuthGate(),
+      builder: (context, state) => const AuthGate(),
     ),
     GoRoute(
       path: '/welcome',
-      builder: (context, state) => WelcomeView(),
+      builder: (context, state) => const WelcomeView(),
     ),
     GoRoute(
       path: '/my-packing-lists',
@@ -28,7 +28,7 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/profile',
-      builder: (context, state) => ProfileView(),
+      builder: (context, state) => const ProfileView(),
     ),
     GoRoute(
       path: '/profile-edit',
