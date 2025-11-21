@@ -95,10 +95,12 @@ class MenuDrawer extends ConsumerWidget {
                       Colors.pink,
                     ];
 
-                    return ListView.builder(
+                    return ListView.separated(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 8),
                       itemCount: packingLists.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 8),
                       itemBuilder: (context, index) {
                         final packingList = packingLists[index];
                         final accentColor = colors[index % colors.length];
