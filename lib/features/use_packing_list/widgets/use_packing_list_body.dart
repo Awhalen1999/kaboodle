@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
+import 'package:kaboodle_app/models/packing_item.dart';
 
 class UsePackingListBody extends StatefulWidget {
   final String packingListId;
   final String packingListName;
+  final void Function(PackingListStats)? onStatsUpdated;
 
   const UsePackingListBody({
     super.key,
     required this.packingListId,
     required this.packingListName,
+    this.onStatsUpdated,
   });
 
   @override
@@ -17,7 +20,8 @@ class UsePackingListBody extends StatefulWidget {
 
 class _UsePackingListBodyState extends State<UsePackingListBody> {
   final TripService _tripService = TripService();
-  Map<String, dynamic>? _itemsData;
+  List<PackingItem>? _items;
+  PackingListStats? _stats;
   bool _isLoading = true;
   String? _error;
 
@@ -40,7 +44,12 @@ class _UsePackingListBodyState extends State<UsePackingListBody> {
 
       if (mounted) {
         setState(() {
-          _itemsData = result;
+          if (result != null) {
+            _items = result['items'] as List<PackingItem>;
+            _stats = result['stats'] as PackingListStats;
+            // Notify parent of stats update
+            widget.onStatsUpdated?.call(_stats!);
+          }
           _isLoading = false;
         });
       }
@@ -54,8 +63,49 @@ class _UsePackingListBodyState extends State<UsePackingListBody> {
     }
   }
 
+  Future<void> _toggleItemPacked(PackingItem item) async {
+    final newPackedStatus = !item.isPacked;
+
+    try {
+      final updatedItem = await _tripService.updateItem(
+        itemId: item.id,
+        isPacked: newPackedStatus,
+        context: context,
+      );
+
+      if (updatedItem != null && mounted) {
+        // Update local state
+        setState(() {
+          final index = _items!.indexWhere((i) => i.id == item.id);
+          if (index != -1) {
+            _items![index] = updatedItem;
+          }
+
+          // Recalculate stats
+          final packedCount = _items!.where((i) => i.isPacked).length;
+          _stats = PackingListStats(
+            total: _items!.length,
+            packed: packedCount,
+            remaining: _items!.length - packedCount,
+          );
+
+          // Notify parent of stats update
+          widget.onStatsUpdated?.call(_stats!);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update item: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -64,27 +114,32 @@ class _UsePackingListBodyState extends State<UsePackingListBody> {
           // Trip name
           Text(
             widget.packingListName,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: theme.textTheme.headlineMedium,
           ),
           const SizedBox(height: 24),
 
           // Items section
           if (_isLoading)
-            const Center(child: CircularProgressIndicator())
+            const Expanded(
+              child: Center(child: CircularProgressIndicator()),
+            )
           else if (_error != null)
-            Center(
-              child: Column(
-                children: [
-                  Text('Error loading items: $_error'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadItems,
-                    child: const Text('Retry'),
-                  ),
-                ],
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Error loading items: $_error'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _loadItems,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
               ),
             )
-          else if (_itemsData != null)
+          else if (_items != null && _items!.isNotEmpty)
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -92,31 +147,54 @@ class _UsePackingListBodyState extends State<UsePackingListBody> {
                   children: [
                     Text(
                       'Packing Items',
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: theme.textTheme.titleLarge,
                     ),
                     const SizedBox(height: 16),
-                    // Display raw items data temporarily
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                      child: Text(
-                        _itemsData.toString(),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ),
+                    // Display items
+                    ..._items!.map((item) => _buildItemTile(item)),
                   ],
                 ),
               ),
             )
           else
-            const Center(child: Text('No items found')),
+            const Expanded(
+              child: Center(child: Text('No items found')),
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildItemTile(PackingItem item) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: CheckboxListTile(
+        value: item.isPacked,
+        onChanged: (_) => _toggleItemPacked(item),
+        title: Text(
+          item.name,
+          style: TextStyle(
+            decoration: item.isPacked
+                ? TextDecoration.lineThrough
+                : TextDecoration.none,
+            color: item.isPacked
+                ? colorScheme.onSurface.withValues(alpha: 0.6)
+                : colorScheme.onSurface,
+          ),
+        ),
+        subtitle: item.notes != null && item.notes!.isNotEmpty
+            ? Text(item.notes!)
+            : null,
+        secondary: item.quantity > 1
+            ? Chip(
+                label: Text('x${item.quantity}'),
+                padding: EdgeInsets.zero,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              )
+            : null,
       ),
     );
   }

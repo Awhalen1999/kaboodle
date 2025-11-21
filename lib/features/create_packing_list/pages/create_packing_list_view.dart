@@ -110,7 +110,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         if (isCompleteList) {
           debugPrint('✏️ Editing complete packing list: ${packingList.name}');
         } else {
-          debugPrint('▶️ Continuing incomplete packing list: ${packingList.name} (step ${packingList.stepCompleted}/4)');
+          debugPrint(
+              '▶️ Continuing incomplete packing list: ${packingList.name} (step ${packingList.stepCompleted}/4)');
         }
       });
     } catch (e) {
@@ -213,11 +214,14 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
       if (_isEditMode) {
         stepCompletedValue = null;
       } else {
-        final currentStepCompleted = _formData['currentStepCompleted'] as int? ?? 0;
-        stepCompletedValue = stepNumber > currentStepCompleted ? stepNumber : null;
+        final currentStepCompleted =
+            _formData['currentStepCompleted'] as int? ?? 0;
+        stepCompletedValue =
+            stepNumber > currentStepCompleted ? stepNumber : null;
       }
 
-      debugPrint('📝 Step $stepNumber: ${isNewList ? "Creating" : "Updating"} "${_formData['name']}" (stepCompleted: ${stepCompletedValue ?? "unchanged"})');
+      debugPrint(
+          '📝 Step $stepNumber: ${isNewList ? "Creating" : "Updating"} "${_formData['name']}" (stepCompleted: ${stepCompletedValue ?? "unchanged"})');
 
       final result = await _tripService.upsertPackingList(
         id: packingListId,
@@ -247,7 +251,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         } else {
           ref.read(packingListsProvider.notifier).updatePackingList(result);
         }
-        debugPrint('✅ Step $stepNumber saved (progress: ${result.stepCompleted}/4)');
+        debugPrint(
+            '✅ Step $stepNumber saved (progress: ${result.stepCompleted}/4)');
         return true;
       } else {
         _showErrorToast('Failed to save trip details');
@@ -283,10 +288,14 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
       }
 
       // Get selected items data from Step 3
-      final selectedItems = _formData['selectedItems'] as Map<String, bool>? ?? {};
-      final itemQuantities = _formData['itemQuantities'] as Map<String, int>? ?? {};
+      final selectedItems =
+          _formData['selectedItems'] as Map<String, bool>? ?? {};
+      final itemQuantities =
+          _formData['itemQuantities'] as Map<String, int>? ?? {};
       final itemNotes = _formData['itemNotes'] as Map<String, String>? ?? {};
-      final customItems = _formData['customItems'] as Map<String, List<Map<String, dynamic>>>? ?? {};
+      final customItems = _formData['customItems']
+              as Map<String, List<Map<String, dynamic>>>? ??
+          {};
       final suggestions = _formData['suggestions'] as List? ?? [];
 
       final selectedCount = selectedItems.values.where((v) => v).length;
@@ -423,7 +432,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
             continue;
           }
 
-          final quantity = itemQuantities[itemId] ?? customItem['quantity'] as int;
+          final quantity =
+              itemQuantities[itemId] ?? customItem['quantity'] as int;
           final note = itemNotes[itemId] ?? customItem['note'] as String;
 
           await _tripService.addCustomItem(
@@ -441,7 +451,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
 
       final totalNew = newTemplateItemIds.length + customItemCount;
       if (totalNew > 0) {
-        debugPrint('✅ Step 3: Added $totalNew items (${newTemplateItemIds.length} template, $customItemCount custom)');
+        debugPrint(
+            '✅ Step 3: Added $totalNew items (${newTemplateItemIds.length} template, $customItemCount custom)');
       }
 
       // Update step completion
@@ -525,7 +536,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
           weather: (_formData['weather'] as List<dynamic>?)?.cast<String>(),
           purpose: _formData['purpose'] as String?,
           accommodations: _formData['accommodations'] as String?,
-          activities: (_formData['activities'] as List<dynamic>?)?.cast<String>(),
+          activities:
+              (_formData['activities'] as List<dynamic>?)?.cast<String>(),
           stepCompleted: 4,
           context: context,
         );
@@ -671,8 +683,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
               size: 8,
               padding: 4,
               selectedColor: Theme.of(context).colorScheme.primary,
-              unselectedColor:
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
+              // todo: use theme color here instead of hardcoded color
+              unselectedColor: Colors.grey[300]!,
               roundedEdges: const Radius.circular(4),
             ),
           ),
@@ -694,7 +706,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
                       child: ElevatedButton(
                         onPressed: !_isLoading ? _handleDone : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
                           foregroundColor:
                               Theme.of(context).colorScheme.onPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 14),
