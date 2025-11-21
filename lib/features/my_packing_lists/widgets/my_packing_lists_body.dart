@@ -87,6 +87,46 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
     }
   }
 
+  List<PackingList> _filterPackingLists(List<PackingList> packingLists) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    switch (selectedFilter) {
+      case 'upcoming_trips':
+        // Filter trips with start date in the future, sort by start date (earliest first)
+        final upcoming = packingLists
+            .where((list) => list.startDate.isAfter(today))
+            .toList();
+        upcoming.sort((a, b) => a.startDate.compareTo(b.startDate));
+        return upcoming;
+
+      case 'incomplete_lists':
+        // Filter lists that haven't been completed (stepCompleted < 4)
+        return packingLists
+            .where((list) => list.stepCompleted < 4)
+            .toList();
+
+      case 'current_trips':
+        // Filter trips that are currently happening (today is between start and end date)
+        return packingLists
+            .where((list) =>
+                !list.startDate.isAfter(today) && !list.endDate.isBefore(today))
+            .toList();
+
+      case 'past_trips':
+        // Filter trips that have ended (end date before today), sort by end date (most recent first)
+        final past = packingLists
+            .where((list) => list.endDate.isBefore(today))
+            .toList();
+        past.sort((a, b) => b.endDate.compareTo(a.endDate));
+        return past;
+
+      case 'all':
+      default:
+        return packingLists;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final packingListsAsync = ref.watch(packingListsProvider);
@@ -100,11 +140,34 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           return _buildEmptyState(context);
         }
 
+        // Apply filters
+        final filteredLists = _filterPackingLists(packingLists);
+
+        // Calculate filter counts
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final upcomingCount = packingLists
+            .where((list) => list.startDate.isAfter(today))
+            .length;
+        final incompleteCount = packingLists
+            .where((list) => list.stepCompleted < 4)
+            .length;
+        final currentCount = packingLists
+            .where((list) =>
+                !list.startDate.isAfter(today) && !list.endDate.isBefore(today))
+            .length;
+        final pastCount = packingLists
+            .where((list) => list.endDate.isBefore(today))
+            .length;
+
         return Column(
           children: [
-            _buildFilterRow(packingLists.length),
+            _buildFilterRow(
+                packingLists.length, upcomingCount, incompleteCount, currentCount, pastCount),
             Expanded(
-              child: _buildPackingListsView(context, packingLists),
+              child: filteredLists.isEmpty
+                  ? _buildEmptyFilterState(context)
+                  : _buildPackingListsView(context, filteredLists),
             ),
           ],
         );
@@ -151,7 +214,8 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
     );
   }
 
-  Widget _buildFilterRow(int totalTrips) {
+  Widget _buildFilterRow(int totalTrips, int upcomingCount, int incompleteCount,
+      int currentCount, int pastCount) {
     return Container(
       height: 50,
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -173,7 +237,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           const SizedBox(width: 8),
           FilterChipButton(
             label: 'Upcoming Trips',
-            count: 0, // TODO: Calculate from trips with future dates
+            count: upcomingCount,
             isSelected: selectedFilter == 'upcoming_trips',
             onTap: () {
               setState(() {
@@ -185,7 +249,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           const SizedBox(width: 8),
           FilterChipButton(
             label: 'Incomplete Lists',
-            count: 0, // Placeholder
+            count: incompleteCount,
             isSelected: selectedFilter == 'incomplete_lists',
             onTap: () {
               setState(() {
@@ -197,7 +261,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           const SizedBox(width: 8),
           FilterChipButton(
             label: 'Current Trips',
-            count: 0, // Placeholder
+            count: currentCount,
             isSelected: selectedFilter == 'current_trips',
             onTap: () {
               setState(() {
@@ -209,7 +273,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           const SizedBox(width: 8),
           FilterChipButton(
             label: 'Past Trips',
-            count: 0, // Placeholder
+            count: pastCount,
             isSelected: selectedFilter == 'past_trips',
             onTap: () {
               setState(() {
@@ -246,6 +310,39 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
             const SizedBox(height: 12),
             Text(
               'Start packing by creating\nyour first trip',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyFilterState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.filter_list_off,
+              size: 80,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'No trips found',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Try a different filter',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Colors.grey[600],
@@ -331,6 +428,6 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat('MMM d').format(date);
+    return DateFormat('MMM d, yyyy').format(date);
   }
 }

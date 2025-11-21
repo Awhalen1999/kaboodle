@@ -54,7 +54,7 @@ class MenuDrawer extends ConsumerWidget {
                 leading: const Icon(Icons.double_arrow_rounded),
                 onTap: () {
                   Navigator.pop(context);
-                  context.push('/my-packing-lists?tab=upcoming');
+                  context.push('/my-packing-lists?tab=upcoming_trips');
                 },
               ),
               const Divider(

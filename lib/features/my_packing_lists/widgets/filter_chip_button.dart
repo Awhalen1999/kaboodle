@@ -38,8 +38,8 @@ class FilterChipButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -55,7 +55,7 @@ class FilterChipButton extends StatelessWidget {
               child: Text(
                 count.toString(),
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: isSelected
                       ? Theme.of(context).colorScheme.onPrimary
