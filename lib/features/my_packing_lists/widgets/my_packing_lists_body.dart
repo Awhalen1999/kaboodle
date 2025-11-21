@@ -301,9 +301,12 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           stepCompleted: packingList.stepCompleted,
           onTap: () {
             if (packingList.stepCompleted < 4) {
-              // List is not complete - log for now
-              debugPrint('🚧 User clicked continue creation for "${packingList.name}" (step ${packingList.stepCompleted}/4)');
-              // TODO: Ask user if they want to continue creation
+              // List is incomplete - continue creation
+              final step = packingList.stepCompleted;
+              debugPrint('🚧 Continuing "${packingList.name}" from step $step');
+              context.push(
+                '/create-packing-list?id=${packingList.id}&step=$step',
+              );
             } else {
               // List is complete - navigate to use page
               context.push(
