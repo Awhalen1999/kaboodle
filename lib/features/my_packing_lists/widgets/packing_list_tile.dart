@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:kaboodle_app/features/my_packing_lists/widgets/packing_list_options_sheet.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
 
 class PackingListTile extends StatelessWidget {
@@ -12,6 +12,7 @@ class PackingListTile extends StatelessWidget {
   final int stepCompleted;
   final VoidCallback onTap;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   const PackingListTile({
     super.key,
@@ -24,153 +25,177 @@ class PackingListTile extends StatelessWidget {
     required this.stepCompleted,
     required this.onTap,
     this.onDelete,
+    this.onEdit,
   });
+
+  void _showActionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return PackingListOptionsSheet(
+          stepCompleted: stepCompleted,
+          onEdit: onEdit,
+          onDelete: onDelete,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Slidable(
-      enabled: onDelete != null,
-      endActionPane: onDelete != null
-          ? ActionPane(
-              motion: const DrawerMotion(),
-              children: [
-                SlidableAction(
-                  onPressed: (_) => onDelete!(),
-                  backgroundColor: const Color(0xFFFE4A49),
-                  foregroundColor: Colors.white,
-                  icon: Icons.delete_outline,
-                  label: 'Delete',
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ],
-            )
-          : null,
-      child: GestureDetector(
-        onTap: () {
-          debugPrint('🎯 Tapped packing list: $tripName');
-          onTap();
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainer,
-            border: Border.all(
-              color: colorScheme.outline,
-              width: 1,
+    return GestureDetector(
+      onTap: () {
+        debugPrint('🎯 Tapped packing list: $tripName');
+        onTap();
+      },
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainer,
+              border: Border.all(
+                color: colorScheme.outline,
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
             ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Color stripe column
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Container(
-                    width: 4,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(8),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Color stripe column
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Container(
+                      width: 4,
+                      decoration: BoxDecoration(
+                        color: accentColor,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(8),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // Main content column
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Trip name
-                        Text(
-                          tripName,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: stepCompleted < 4
-                                ? FontWeight.w500
-                                : FontWeight.w600,
-                            color: stepCompleted < 4
-                                ? colorScheme.onSurface.withValues(alpha: 0.5)
-                                : null,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (description != null && description!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
+                  // Main content column
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Trip name
                           Text(
-                            description!,
-                            style: theme.textTheme.bodySmall?.copyWith(
+                            tripName,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: stepCompleted < 4
+                                  ? FontWeight.w500
+                                  : FontWeight.w600,
                               color: stepCompleted < 4
-                                  ? colorScheme.onSurface.withValues(alpha: 0.4)
-                                  : colorScheme.onSurface
-                                      .withValues(alpha: 0.6),
+                                  ? colorScheme.onSurface.withValues(alpha: 0.5)
+                                  : null,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ],
-                        const SizedBox(height: 8),
-                        // Chips row
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            // Date chip
-                            if (startDate != null || endDate != null)
-                              _buildChip(
-                                context,
-                                icon: Icons.calendar_today,
-                                label: _formatDateRange(),
+                          if (description != null && description!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              description!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: stepCompleted < 4
+                                    ? colorScheme.onSurface.withValues(alpha: 0.4)
+                                    : colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
                               ),
-                            // Location chip
-                            if (destination != null && destination!.isNotEmpty)
-                              _buildLocationChip(context, destination!),
-                            // Incomplete badge
-                            if (stepCompleted < 4)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.orange.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.edit_outlined,
-                                      size: 12,
-                                      color: Colors.orange[700],
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Step $stepCompleted/4',
-                                      style:
-                                          theme.textTheme.bodySmall?.copyWith(
-                                        fontSize: 11,
-                                        color: Colors.orange[700],
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ],
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          // Chips row
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              // Date chip
+                              if (startDate != null || endDate != null)
+                                _buildChip(
+                                  context,
+                                  icon: Icons.calendar_today,
+                                  label: _formatDateRange(),
+                                ),
+                              // Location chip
+                              if (destination != null && destination!.isNotEmpty)
+                                _buildLocationChip(context, destination!),
+                              // Incomplete badge
+                              if (stepCompleted < 4)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.edit_outlined,
+                                        size: 12,
+                                        color: Colors.orange[700],
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Step $stepCompleted/4',
+                                        style:
+                                            theme.textTheme.bodySmall?.copyWith(
+                                          fontSize: 11,
+                                          color: Colors.orange[700],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  // Spacer for floating button
+                  const SizedBox(width: 32),
+                ],
+              ),
             ),
           ),
-        ),
+          // Floating edit button
+          if (onEdit != null || onDelete != null)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: GestureDetector(
+                onTap: () => _showActionSheet(context),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(
+                    Icons.more_horiz,
+                    size: 18,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -311,6 +311,12 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               );
             }
           },
+          onEdit: () {
+            // Navigate to create/edit page
+            context.push(
+              '/create-packing-list?id=${packingList.id}',
+            );
+          },
           onDelete: () => _handleDeletePackingList(packingList.id, packingList.name),
         );
       },
