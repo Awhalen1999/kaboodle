@@ -53,7 +53,8 @@ class UsePackingItemsNotifier
       final item = items[itemIndex];
       final newPackedState = !item.isPacked;
 
-      debugPrint('📝 [UsePackingItems] Item "${item.name}" (${item.id}) changed: ${item.isPacked} → $newPackedState');
+      debugPrint(
+          '📝 [UsePackingItems] Item "${item.name}" (${item.id}) changed: ${item.isPacked} → $newPackedState');
 
       final updatedItem = item.copyWith(isPacked: newPackedState);
       final updatedItems = [...items];
@@ -61,11 +62,57 @@ class UsePackingItemsNotifier
 
       // Track this item as modified
       _modifiedItemIds.add(itemId);
-      debugPrint('✏️ [UsePackingItems] Modified items count: ${_modifiedItemIds.length}');
+      debugPrint(
+          '✏️ [UsePackingItems] Modified items count: ${_modifiedItemIds.length}');
 
       // Calculate stats for logging
       final packed = updatedItems.where((i) => i.isPacked).length;
-      debugPrint('📊 [UsePackingItems] Stats: $packed/${updatedItems.length} packed (${updatedItems.length - packed} remaining)');
+      debugPrint(
+          '📊 [UsePackingItems] Stats: $packed/${updatedItems.length} packed (${updatedItems.length - packed} remaining)');
+
+      state = AsyncData(updatedItems);
+    });
+  }
+
+  /// Check all items (local state only)
+  void checkAllItems() {
+    debugPrint('✅ [UsePackingItems] Checking all items');
+
+    state.whenData((items) {
+      final updatedItems = items.map((item) {
+        if (!item.isPacked) {
+          _modifiedItemIds.add(item.id);
+          return item.copyWith(isPacked: true);
+        }
+        return item;
+      }).toList();
+
+      debugPrint(
+          '✏️ [UsePackingItems] Modified items count: ${_modifiedItemIds.length}');
+      debugPrint(
+          '📊 [UsePackingItems] All ${updatedItems.length} items checked');
+
+      state = AsyncData(updatedItems);
+    });
+  }
+
+  /// Uncheck all items (local state only)
+  void uncheckAllItems() {
+    debugPrint('❌ [UsePackingItems] Unchecking all items');
+
+    state.whenData((items) {
+      final updatedItems = items.map((item) {
+        if (item.isPacked) {
+          _modifiedItemIds.add(item.id);
+          return item.copyWith(isPacked: false);
+        }
+        return item;
+      }).toList();
+
+      debugPrint(
+          '✏️ [UsePackingItems] Modified items count: ${_modifiedItemIds.length}');
+      debugPrint(
+          '📊 [UsePackingItems] All ${updatedItems.length} items unchecked');
 
       state = AsyncData(updatedItems);
     });
@@ -74,7 +121,8 @@ class UsePackingItemsNotifier
   /// Save all modified items to the API
   Future<bool> saveProgress() async {
     debugPrint('💾 [UsePackingItems] Starting save progress...');
-    debugPrint('💾 [UsePackingItems] Modified items to save: ${_modifiedItemIds.length}');
+    debugPrint(
+        '💾 [UsePackingItems] Modified items to save: ${_modifiedItemIds.length}');
 
     if (_modifiedItemIds.isEmpty) {
       debugPrint('⏭️ [UsePackingItems] No changes to save');
@@ -84,7 +132,8 @@ class UsePackingItemsNotifier
     return await state.when(
       data: (items) async {
         try {
-          debugPrint('🚀 [UsePackingItems] Saving ${_modifiedItemIds.length} modified items to API');
+          debugPrint(
+              '🚀 [UsePackingItems] Saving ${_modifiedItemIds.length} modified items to API');
 
           int successCount = 0;
           int failureCount = 0;
@@ -93,7 +142,8 @@ class UsePackingItemsNotifier
           for (final itemId in _modifiedItemIds) {
             final item = items.firstWhere((i) => i.id == itemId);
 
-            debugPrint('📤 [UsePackingItems] Updating item "${item.name}" (${item.id}): isPacked=${item.isPacked}');
+            debugPrint(
+                '📤 [UsePackingItems] Updating item "${item.name}" (${item.id}): isPacked=${item.isPacked}');
 
             try {
               await _tripService.updateItem(
@@ -101,15 +151,18 @@ class UsePackingItemsNotifier
                 isPacked: item.isPacked,
               );
               successCount++;
-              debugPrint('✅ [UsePackingItems] Successfully updated item ${item.id}');
+              debugPrint(
+                  '✅ [UsePackingItems] Successfully updated item ${item.id}');
             } catch (e) {
               failureCount++;
-              debugPrint('❌ [UsePackingItems] Failed to update item ${item.id}: $e');
+              debugPrint(
+                  '❌ [UsePackingItems] Failed to update item ${item.id}: $e');
               rethrow;
             }
           }
 
-          debugPrint('🎉 [UsePackingItems] Save complete: $successCount succeeded, $failureCount failed');
+          debugPrint(
+              '🎉 [UsePackingItems] Save complete: $successCount succeeded, $failureCount failed');
 
           // Clear modified items after successful save
           _modifiedItemIds.clear();
@@ -138,7 +191,8 @@ class UsePackingItemsNotifier
     debugPrint('🔄 [UsePackingItems] Refreshing items from API');
 
     if (_modifiedItemIds.isNotEmpty) {
-      debugPrint('⚠️ [UsePackingItems] Warning: Discarding ${_modifiedItemIds.length} unsaved changes');
+      debugPrint(
+          '⚠️ [UsePackingItems] Warning: Discarding ${_modifiedItemIds.length} unsaved changes');
       _modifiedItemIds.clear();
     }
 
@@ -149,7 +203,8 @@ class UsePackingItemsNotifier
   /// Check if there are unsaved changes
   bool hasUnsavedChanges() {
     final hasChanges = _modifiedItemIds.isNotEmpty;
-    debugPrint('🔍 [UsePackingItems] Has unsaved changes: $hasChanges (${_modifiedItemIds.length} items)');
+    debugPrint(
+        '🔍 [UsePackingItems] Has unsaved changes: $hasChanges (${_modifiedItemIds.length} items)');
     return hasChanges;
   }
 
@@ -157,7 +212,8 @@ class UsePackingItemsNotifier
   void _logItemsSummary(List<PackingItem> items) {
     final packed = items.where((item) => item.isPacked).length;
     final unpacked = items.length - packed;
-    debugPrint('📋 [UsePackingItems] Items summary: $packed packed, $unpacked unpacked, ${items.length} total');
+    debugPrint(
+        '📋 [UsePackingItems] Items summary: $packed packed, $unpacked unpacked, ${items.length} total');
 
     // Log individual items in debug mode
     if (kDebugMode) {

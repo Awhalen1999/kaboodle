@@ -60,28 +60,41 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
                         _buildMenuItem(
                           icon: Icons.check_box_rounded,
                           label: 'Check All',
-                          onTap: () {},
+                          onTap: () {
+                            ref
+                                .read(usePackingItemsProvider(
+                                        widget.packingListId)
+                                    .notifier)
+                                .checkAllItems();
+                          },
                         ),
                         _buildMenuItem(
                           icon: Icons.check_box_outline_blank_rounded,
                           label: 'Uncheck All',
-                          onTap: () {},
-                        ),
-                        _buildMenuItem(
-                          icon: Icons.playlist_add_check,
-                          label: 'Check Remaining',
-                          onTap: () {},
+                          onTap: () {
+                            ref
+                                .read(usePackingItemsProvider(
+                                        widget.packingListId)
+                                    .notifier)
+                                .uncheckAllItems();
+                          },
                         ),
                         _buildMenuItem(
                           icon: Icons.visibility_outlined,
                           label: 'Unhide All',
-                          onTap: () {},
+                          onTap: () {
+                            debugPrint(
+                                '👁️ [UsePackingListView] Unhide All clicked');
+                          },
                         ),
                         const Divider(height: 1),
                         _buildMenuItem(
                           icon: Icons.refresh,
                           label: 'Reset to Saved',
-                          onTap: () {},
+                          onTap: () {
+                            ref.invalidate(
+                                usePackingItemsProvider(widget.packingListId));
+                          },
                         ),
                       ],
                     ),
