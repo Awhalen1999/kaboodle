@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:kaboodle_app/services/trip/trip_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaboodle_app/models/packing_item.dart';
+import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
+import 'package:toastification/toastification.dart';
+import 'package:lottie/lottie.dart';
 
-class UsePackingListBody extends StatefulWidget {
+class UsePackingListBody extends ConsumerStatefulWidget {
   final String packingListId;
   final String packingListName;
   final void Function(PackingListStats)? onStatsUpdated;
@@ -15,153 +18,314 @@ class UsePackingListBody extends StatefulWidget {
   });
 
   @override
-  State<UsePackingListBody> createState() => _UsePackingListBodyState();
+  ConsumerState<UsePackingListBody> createState() => _UsePackingListBodyState();
 }
 
-class _UsePackingListBodyState extends State<UsePackingListBody> {
-  final TripService _tripService = TripService();
-  List<PackingItem>? _items;
-  PackingListStats? _stats;
-  bool _isLoading = true;
-  String? _error;
+class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _loadItems();
+    debugPrint(
+        '🎬 [UsePackingListBody] Initializing for list: ${widget.packingListId}');
   }
 
-  Future<void> _loadItems() async {
+  void _toggleItemPacked(String itemId) {
+    debugPrint('🔘 [UsePackingListBody] User toggled item: $itemId');
+    ref
+        .read(usePackingItemsProvider(widget.packingListId).notifier)
+        .toggleItemPacked(itemId);
+    // Stats will be updated in build method via postFrameCallback
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good Morning';
+    } else if (hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
+  }
+
+  Future<void> _handleSaveProgress() async {
+    debugPrint('💾 [UsePackingListBody] Save button pressed');
+
+    final itemsAsync = ref.read(usePackingItemsProvider(widget.packingListId));
+
+    // Get allPacked state from items
+    final allPacked = itemsAsync.whenOrNull(
+          data: (items) =>
+              items.isNotEmpty && items.every((item) => item.isPacked),
+        ) ??
+        false;
+
+    debugPrint('💾 [UsePackingListBody] All items packed: $allPacked');
+
     setState(() {
-      _isLoading = true;
-      _error = null;
+      _isSaving = true;
     });
 
     try {
-      final result = await _tripService.getPackingListItems(
-        packingListId: widget.packingListId,
-      );
+      final notifier =
+          ref.read(usePackingItemsProvider(widget.packingListId).notifier);
+      final success = await notifier.saveProgress();
+
+      if (!mounted) return;
+
+      if (success) {
+        debugPrint('✅ [UsePackingListBody] Save successful');
+
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.minimal,
+          title: Text(allPacked ? 'Packing complete! 🎉' : 'Progress saved'),
+          description: allPacked
+              ? const Text('All items packed and saved')
+              : const Text('Your packing progress has been saved'),
+          autoCloseDuration: const Duration(seconds: 3),
+          alignment: Alignment.topCenter,
+        );
+
+        if (allPacked) {
+          debugPrint(
+              '🎯 [UsePackingListBody] All items complete, navigating back');
+          // Navigate back after a short delay to show the success message
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (mounted) {
+              Navigator.of(context).pop();
+            }
+          });
+        }
+      } else {
+        debugPrint('❌ [UsePackingListBody] Save failed');
+        _showErrorToast('Failed to save progress');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('❌ [UsePackingListBody] Error saving: $e');
+      debugPrint(stackTrace.toString());
 
       if (mounted) {
-        setState(() {
-          if (result != null) {
-            _items = result['items'] as List<PackingItem>;
-            _stats = result['stats'] as PackingListStats;
-            // Notify parent of stats update
-            widget.onStatsUpdated?.call(_stats!);
-          }
-          _isLoading = false;
-        });
+        _showErrorToast('Error saving progress: ${e.toString()}');
       }
-    } catch (e) {
+    } finally {
       if (mounted) {
         setState(() {
-          _error = e.toString();
-          _isLoading = false;
+          _isSaving = false;
         });
       }
     }
   }
 
-  Future<void> _toggleItemPacked(PackingItem item) async {
-    final newPackedStatus = !item.isPacked;
-
-    try {
-      final updatedItem = await _tripService.updateItem(
-        itemId: item.id,
-        isPacked: newPackedStatus,
-        context: context,
-      );
-
-      if (updatedItem != null && mounted) {
-        // Update local state
-        setState(() {
-          final index = _items!.indexWhere((i) => i.id == item.id);
-          if (index != -1) {
-            _items![index] = updatedItem;
-          }
-
-          // Recalculate stats
-          final packedCount = _items!.where((i) => i.isPacked).length;
-          _stats = PackingListStats(
-            total: _items!.length,
-            packed: packedCount,
-            remaining: _items!.length - packedCount,
-          );
-
-          // Notify parent of stats update
-          widget.onStatsUpdated?.call(_stats!);
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update item: $e')),
-        );
-      }
-    }
+  void _showErrorToast(String message) {
+    toastification.show(
+      context: context,
+      type: ToastificationType.error,
+      style: ToastificationStyle.minimal,
+      title: const Text('Error'),
+      description: Text(message),
+      autoCloseDuration: const Duration(seconds: 4),
+      alignment: Alignment.topCenter,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final itemsAsync = ref.watch(usePackingItemsProvider(widget.packingListId));
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Trip name
-          Text(
-            widget.packingListName,
-            style: theme.textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 24),
+    return Column(
+      children: [
+        // Items section
+        Expanded(
+          child: itemsAsync.when(
+            data: (items) {
+              // Calculate stats directly from items
+              final packedCount = items.where((item) => item.isPacked).length;
+              final stats = PackingListStats(
+                total: items.length,
+                packed: packedCount,
+                remaining: items.length - packedCount,
+              );
 
-          // Items section
-          if (_isLoading)
-            const Expanded(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (_error != null)
-            Expanded(
-              child: Center(
+              // Update parent with stats whenever items change
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                widget.onStatsUpdated?.call(stats);
+              });
+
+              if (items.isEmpty) {
+                return const Center(child: Text('No items found'));
+              }
+
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Character/Illustration Section
+                    Stack(
+                      children: [
+                        ClipPath(
+                          clipper: WaveClipper(),
+                          child: Container(
+                            width: double.infinity,
+                            height: 375,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  theme.colorScheme.secondaryContainer
+                                      .withValues(alpha: 0.35),
+                                  theme.colorScheme.secondaryContainer
+                                      .withValues(alpha: 0.15),
+                                  theme.colorScheme.secondaryContainer
+                                      .withValues(alpha: 0.05),
+                                ],
+                                stops: const [0.0, 0.6, 1.0],
+                              ),
+                            ),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 16, left: 16, right: 16, bottom: 25),
+                                child: Lottie.asset(
+                                  'assets/lottie/temp_animation.json',
+                                  fit: BoxFit.contain,
+                                  height: 220,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Header Content Section
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hi ${_getGreeting()},',
+                            style: theme.textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Pack Your Items',
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Check off items as you pack them for your trip',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Checklist Section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        children:
+                            items.map((item) => _buildItemTile(item)).toList(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 100), // Bottom padding for button
+                  ],
+                ),
+              );
+            },
+            loading: () {
+              return const Center(child: CircularProgressIndicator());
+            },
+            error: (error, stackTrace) {
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Error loading items: $_error'),
+                    Text('Error loading items: $error'),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: _loadItems,
+                      onPressed: () {
+                        ref.invalidate(
+                            usePackingItemsProvider(widget.packingListId));
+                      },
                       child: const Text('Retry'),
                     ),
                   ],
                 ),
-              ),
-            )
-          else if (_items != null && _items!.isNotEmpty)
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Packing Items',
-                      style: theme.textTheme.titleLarge,
+              );
+            },
+          ),
+        ),
+        // Save Progress / Finish Button
+        Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+          child: SafeArea(
+            child: itemsAsync.when(
+              data: (items) {
+                if (items.isEmpty) return const SizedBox.shrink();
+
+                // Calculate if all items are packed directly from items
+                final allPacked =
+                    items.isNotEmpty && items.every((item) => item.isPacked);
+                final buttonText = allPacked ? 'Finish' : 'Save Progress';
+
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
                     ),
-                    const SizedBox(height: 16),
-                    // Display items
-                    ..._items!.map((item) => _buildItemTile(item)),
-                  ],
-                ),
-              ),
-            )
-          else
-            const Expanded(
-              child: Center(child: Text('No items found')),
+                    onPressed: _isSaving ? null : _handleSaveProgress,
+                    child: _isSaving
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            buttonText,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                );
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
             ),
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -173,7 +337,7 @@ class _UsePackingListBodyState extends State<UsePackingListBody> {
       margin: const EdgeInsets.only(bottom: 8),
       child: CheckboxListTile(
         value: item.isPacked,
-        onChanged: (_) => _toggleItemPacked(item),
+        onChanged: (_) => _toggleItemPacked(item.id),
         title: Text(
           item.name,
           style: TextStyle(
@@ -198,4 +362,81 @@ class _UsePackingListBodyState extends State<UsePackingListBody> {
       ),
     );
   }
+}
+
+/// Custom clipper for soft, rounded cloud-like bottom edge
+class WaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    // Start from top left
+    path.lineTo(0, 0);
+    path.lineTo(0, size.height - 75);
+
+    // First cloud bump (tall, climbing UP from left edge)
+    path.cubicTo(
+      size.width * 0.02,
+      size.height - 80,
+      size.width * 0.08,
+      size.height - 35,
+      size.width * 0.18,
+      size.height - 40,
+    );
+
+    path.cubicTo(
+      size.width * 0.25,
+      size.height - 44,
+      size.width * 0.30,
+      size.height - 58,
+      size.width * 0.38,
+      size.height - 52,
+    );
+
+    // Second cloud bump (medium rounded)
+    path.cubicTo(
+      size.width * 0.44,
+      size.height - 48,
+      size.width * 0.50,
+      size.height - 68,
+      size.width * 0.58,
+      size.height - 66,
+    );
+
+    path.cubicTo(
+      size.width * 0.64,
+      size.height - 64,
+      size.width * 0.68,
+      size.height - 54,
+      size.width * 0.74,
+      size.height - 50,
+    );
+
+    // Third cloud bump (gentle rounded)
+    path.cubicTo(
+      size.width * 0.80,
+      size.height - 48,
+      size.width * 0.86,
+      size.height - 62,
+      size.width * 0.92,
+      size.height - 60,
+    );
+
+    path.cubicTo(
+      size.width * 0.96,
+      size.height - 58,
+      size.width * 0.99,
+      size.height - 52,
+      size.width,
+      size.height - 50,
+    );
+
+    path.lineTo(size.width, 0);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
