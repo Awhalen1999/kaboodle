@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaboodle_app/features/use_packing_list/widgets/use_packing_list_body.dart';
 import 'package:kaboodle_app/models/packing_item.dart';
 import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
+import 'package:kaboodle_app/shared/widgets/custom_dialog.dart';
 
 class UsePackingListView extends ConsumerStatefulWidget {
   final String packingListId;
@@ -171,47 +172,37 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
 
     if (!mounted) return false;
 
-    final shouldPop = await showDialog<bool>(
+    final shouldPop = await CustomDialog.show<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Unsaved Changes'),
-        content: const Text(
+      title: 'Unsaved Changes',
+      description:
           'You have unsaved packing progress. Do you want to save before leaving?',
+      actions: [
+        CustomDialogAction(
+          label: 'Discard',
+          isDestructive: true,
+          onPressed: () {
+            debugPrint(
+                '🗑️ [UsePackingListView] User chose to discard changes');
+            ref.invalidate(usePackingItemsProvider(widget.packingListId));
+            Navigator.of(context).pop(true);
+          },
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              debugPrint(
-                  '🗑️ [UsePackingListView] User chose to discard changes');
-              // Refresh provider to discard local changes and reload from API
-              ref.invalidate(usePackingItemsProvider(widget.packingListId));
-              Navigator.of(context).pop(true); // Discard and leave
-            },
-            child: const Text('Discard'),
-          ),
-          TextButton(
-            onPressed: () {
-              debugPrint('🚫 [UsePackingListView] User cancelled navigation');
-              Navigator.of(context).pop(false); // Cancel navigation
-            },
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              debugPrint('💾 [UsePackingListView] User chose to save changes');
-              final navigator = Navigator.of(context);
+        CustomDialogAction(
+          label: 'Save',
+          isPrimary: true,
+          onPressed: () async {
+            debugPrint('💾 [UsePackingListView] User chose to save changes');
+            final navigator = Navigator.of(context);
 
-              // Save progress
-              final success = await notifier.saveProgress();
+            final success = await notifier.saveProgress();
 
-              if (!mounted) return;
+            if (!mounted) return;
 
-              navigator.pop(success); // Close dialog with save result
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+            navigator.pop(success);
+          },
+        ),
+      ],
     );
 
     return shouldPop ?? false;
