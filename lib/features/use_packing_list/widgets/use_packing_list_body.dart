@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaboodle_app/models/packing_item.dart';
 import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
+import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/shared/utils/format_utils.dart';
 import 'package:toastification/toastification.dart';
 import 'package:lottie/lottie.dart';
 
@@ -37,17 +39,6 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
         .read(usePackingItemsProvider(widget.packingListId).notifier)
         .toggleItemPacked(itemId);
     // Stats will be updated in build method via postFrameCallback
-  }
-
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return 'Good Morning';
-    } else if (hour < 17) {
-      return 'Good Afternoon';
-    } else {
-      return 'Good Evening';
-    }
   }
 
   Future<void> _handleSaveProgress() async {
@@ -136,6 +127,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final itemsAsync = ref.watch(usePackingItemsProvider(widget.packingListId));
+    final userAsync = ref.watch(userProvider);
 
     return Column(
       children: [
@@ -190,7 +182,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(
-                                    top: 32, left: 16, right: 16, bottom: 0),
+                                    top: 48, left: 16, right: 16, bottom: 0),
                                 child: Lottie.asset(
                                   'assets/lottie/temp_animation.json',
                                   fit: BoxFit.contain,
@@ -212,19 +204,25 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Hi ${_getGreeting()},',
+                            userAsync.when(
+                              data: (user) => user != null
+                                  ? 'Hi, ${FormatUtils.formatDisplayName(user.displayName, user.email)} 👋 '
+                                  : 'Hi, there!',
+                              loading: () => 'Hi,',
+                              error: (_, __) => 'Hi,',
+                            ),
                             style: theme.textTheme.titleLarge,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Pack Your Items',
+                            'Lets get started!',
                             style: theme.textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Check off items as you pack them for your trip',
+                            'Check off items as you pack them for your trip.',
                             style: theme.textTheme.bodyLarge?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
@@ -243,8 +241,6 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
                             items.map((item) => _buildItemTile(item)).toList(),
                       ),
                     ),
-
-                    const SizedBox(height: 100), // Bottom padding for button
                   ],
                 ),
               );
@@ -279,6 +275,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
           child: SafeArea(
+            top: false,
             child: itemsAsync.when(
               data: (items) {
                 if (items.isEmpty) return const SizedBox.shrink();
