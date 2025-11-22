@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:kaboodle_app/features/use_packing_list/widgets/use_packing_list_body.dart';
-import 'package:kaboodle_app/shared/widgets/custom_app_bar.dart';
 import 'package:kaboodle_app/models/packing_item.dart';
 import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 
@@ -21,12 +19,125 @@ class UsePackingListView extends ConsumerStatefulWidget {
 }
 
 class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
-  PackingListStats? _stats;
+  OverlayEntry? _overlayEntry;
+  final GlobalKey _menuButtonKey = GlobalKey();
 
   void _onStatsUpdated(PackingListStats stats) {
-    setState(() {
-      _stats = stats;
-    });
+    // Stats updated callback - can be used for progress bar in future
+  }
+
+  void _showMenu() {
+    final RenderBox? renderBox =
+        _menuButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final position = renderBox.localToGlobal(Offset.zero);
+    final buttonHeight = renderBox.size.height;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => GestureDetector(
+        onTap: _hideMenu,
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            Positioned(
+              top: position.dy + buttonHeight + 8,
+              right: 16,
+              child: GestureDetector(
+                onTap: () {},
+                child: Material(
+                  elevation: 8,
+                  borderRadius: BorderRadius.circular(8),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainer
+                      .withValues(alpha: 0.9),
+                  child: Container(
+                    width: 200,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildMenuItem(
+                          icon: Icons.check_box_rounded,
+                          label: 'Check All',
+                          onTap: () {},
+                        ),
+                        _buildMenuItem(
+                          icon: Icons.check_box_outline_blank_rounded,
+                          label: 'Uncheck All',
+                          onTap: () {},
+                        ),
+                        _buildMenuItem(
+                          icon: Icons.playlist_add_check,
+                          label: 'Check Remaining',
+                          onTap: () {},
+                        ),
+                        _buildMenuItem(
+                          icon: Icons.visibility_outlined,
+                          label: 'Unhide All',
+                          onTap: () {},
+                        ),
+                        const Divider(height: 1),
+                        _buildMenuItem(
+                          icon: Icons.refresh,
+                          label: 'Reset to Saved',
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _hideMenu() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.7),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _hideMenu();
+    super.dispose();
   }
 
   Future<bool> _onWillPop() async {
@@ -140,10 +251,9 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
                     ),
                     // Right floating button (options/menu)
                     FloatingActionButton(
+                      key: _menuButtonKey,
                       heroTag: 'options_button',
-                      onPressed: () {
-                        // TODO: Add options/menu functionality
-                      },
+                      onPressed: _showMenu,
                       backgroundColor: Theme.of(context).colorScheme.surface,
                       elevation: 2,
                       mini: true,
@@ -156,31 +266,6 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
                 ),
               ),
             ),
-            // Progress bar (commented out for later use)
-            // if (_stats != null)
-            //   Positioned(
-            //     top: 0,
-            //     left: 0,
-            //     right: 0,
-            //     child: SafeArea(
-            //       child: Padding(
-            //         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-            //         child: StepProgressIndicator(
-            //           totalSteps: _stats!.total > 0 ? _stats!.total : 1,
-            //           currentStep: _stats!.packed,
-            //           size: 8,
-            //           padding: 0,
-            //           selectedGradientColor: LinearGradient(
-            //             colors: [
-            //               Theme.of(context).colorScheme.secondary,
-            //               Theme.of(context).colorScheme.tertiary,
-            //             ],
-            //           ),
-            //           unselectedColor: Colors.grey[300]!,
-            //         ),
-            //       ),
-            //     ),
-            //   ),
           ],
         ),
       ),
