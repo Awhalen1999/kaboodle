@@ -125,6 +125,7 @@ class CustomDialogAction extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isPrimary;
   final bool isDestructive;
+  final bool isOutlined;
 
   const CustomDialogAction({
     super.key,
@@ -132,6 +133,7 @@ class CustomDialogAction extends StatelessWidget {
     required this.onPressed,
     this.isPrimary = false,
     this.isDestructive = false,
+    this.isOutlined = false,
   });
 
   @override
@@ -167,11 +169,36 @@ class CustomDialogAction extends StatelessWidget {
     if (isDestructive) {
       return SizedBox(
         width: double.infinity,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.error,
+            foregroundColor: colorScheme.onError,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            elevation: 0,
+          ),
+          child: Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onError,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (isOutlined) {
+      return SizedBox(
+        width: double.infinity,
         child: OutlinedButton(
           onPressed: onPressed,
           style: OutlinedButton.styleFrom(
-            foregroundColor: colorScheme.error,
-            side: BorderSide(color: colorScheme.error),
+            foregroundColor: colorScheme.onSurface,
+            side: BorderSide(color: colorScheme.outline),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -180,7 +207,7 @@ class CustomDialogAction extends StatelessWidget {
           child: Text(
             label,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.error,
+              color: colorScheme.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),

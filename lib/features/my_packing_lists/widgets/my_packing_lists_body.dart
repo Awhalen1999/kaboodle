@@ -7,6 +7,7 @@ import 'package:kaboodle_app/models/packing_list.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/features/my_packing_lists/widgets/filter_chip_button.dart';
+import 'package:kaboodle_app/shared/widgets/custom_dialog.dart';
 import 'package:toastification/toastification.dart';
 
 class MyPackingListsBody extends ConsumerStatefulWidget {
@@ -32,25 +33,22 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
   Future<void> _handleDeletePackingList(
       String packingListId, String packingListName) async {
     // Show confirmation dialog
-    final confirmed = await showDialog<bool>(
+    final confirmed = await CustomDialog.show<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Packing List'),
-        content: Text('Are you sure you want to delete "$packingListName"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFFE4A49),
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Packing List',
+      description: 'Are you sure you want to delete "$packingListName"?',
+      actions: [
+        CustomDialogAction(
+          label: 'Cancel',
+          isOutlined: true,
+          onPressed: () => Navigator.of(context).pop(false),
+        ),
+        CustomDialogAction(
+          label: 'Delete',
+          isDestructive: true,
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
+      ],
     );
 
     if (confirmed != true || !mounted) return;
@@ -102,9 +100,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
 
       case 'incomplete_lists':
         // Filter lists that haven't been completed (stepCompleted < 4)
-        return packingLists
-            .where((list) => list.stepCompleted < 4)
-            .toList();
+        return packingLists.where((list) => list.stepCompleted < 4).toList();
 
       case 'current_trips':
         // Filter trips that are currently happening (today is between start and end date)
@@ -115,9 +111,8 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
 
       case 'past_trips':
         // Filter trips that have ended (end date before today), sort by end date (most recent first)
-        final past = packingLists
-            .where((list) => list.endDate.isBefore(today))
-            .toList();
+        final past =
+            packingLists.where((list) => list.endDate.isBefore(today)).toList();
         past.sort((a, b) => b.endDate.compareTo(a.endDate));
         return past;
 
@@ -146,24 +141,21 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
         // Calculate filter counts
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
-        final upcomingCount = packingLists
-            .where((list) => list.startDate.isAfter(today))
-            .length;
-        final incompleteCount = packingLists
-            .where((list) => list.stepCompleted < 4)
-            .length;
+        final upcomingCount =
+            packingLists.where((list) => list.startDate.isAfter(today)).length;
+        final incompleteCount =
+            packingLists.where((list) => list.stepCompleted < 4).length;
         final currentCount = packingLists
             .where((list) =>
                 !list.startDate.isAfter(today) && !list.endDate.isBefore(today))
             .length;
-        final pastCount = packingLists
-            .where((list) => list.endDate.isBefore(today))
-            .length;
+        final pastCount =
+            packingLists.where((list) => list.endDate.isBefore(today)).length;
 
         return Column(
           children: [
-            _buildFilterRow(
-                packingLists.length, upcomingCount, incompleteCount, currentCount, pastCount),
+            _buildFilterRow(packingLists.length, upcomingCount, incompleteCount,
+                currentCount, pastCount),
             Expanded(
               child: filteredLists.isEmpty
                   ? _buildEmptyFilterState(context)
