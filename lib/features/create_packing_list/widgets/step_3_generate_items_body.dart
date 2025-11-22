@@ -6,6 +6,7 @@ import 'package:kaboodle_app/features/create_packing_list/widgets/checkbox_tile.
 import 'package:kaboodle_app/features/create_packing_list/widgets/edit_item_sheet.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/add_custom_item_sheet.dart';
 import 'package:kaboodle_app/shared/utils/icon_utils.dart';
+import 'package:kaboodle_app/shared/utils/country_utils.dart';
 import 'package:kaboodle_app/shared/constants/category_constants.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -51,10 +52,15 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     return null;
   }
 
-  // Helper to get destination
+  // Helper to get destination (full country name)
   String? get _destination {
     final dest = widget.formData['destination'] as String?;
-    return (dest != null && dest.isNotEmpty) ? dest : null;
+    if (dest != null && dest.isNotEmpty) {
+      // Get the full country name from the country code
+      final country = CountryUtils.getCountry(dest);
+      return country?.name ?? dest;
+    }
+    return null;
   }
 
   @override
