@@ -4,6 +4,8 @@ import 'package:kaboodle_app/models/packing_item.dart';
 import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/utils/format_utils.dart';
+import 'package:kaboodle_app/shared/constants/category_constants.dart';
+import 'package:kaboodle_app/features/use_packing_list/widgets/use_packing_list_item_tile.dart';
 import 'package:toastification/toastification.dart';
 import 'package:lottie/lottie.dart';
 
@@ -25,6 +27,9 @@ class UsePackingListBody extends ConsumerStatefulWidget {
 
 class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
   bool _isSaving = false;
+
+  // Track expansion state for each category
+  final Map<String, bool> _categoryExpanded = {};
 
   @override
   void initState() {
@@ -233,12 +238,11 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
 
                     const SizedBox(height: 16),
 
-                    // Checklist Section
+                    // Checklist Section with categorized items
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Column(
-                        children:
-                            items.map((item) => _buildItemTile(item)).toList(),
+                        children: _buildCategorizedItems(items),
                       ),
                     ),
                   ],
@@ -328,37 +332,157 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
     );
   }
 
-  Widget _buildItemTile(PackingItem item) {
+  /// Build categorized list of items
+  List<Widget> _buildCategorizedItems(List<PackingItem> items) {
+    if (items.isEmpty) {
+      return [];
+    }
+
+    // Group items by category
+    final Map<String, List<PackingItem>> categorizedItems = {};
+    for (var item in items) {
+      final category = item.category ?? 'Miscellaneous';
+      if (!categorizedItems.containsKey(category)) {
+        categorizedItems[category] = [];
+      }
+      categorizedItems[category]!.add(item);
+    }
+
+    // Sort categories using CategoryConstants
+    final sortedCategories =
+        CategoryConstants.sortCategories(categorizedItems.keys.toList());
+
+    // Build UI for each category in sorted order
+    final List<Widget> widgets = [];
+    for (var category in sortedCategories) {
+      widgets.add(_buildCategorySection(category, categorizedItems[category]!));
+      widgets.add(const SizedBox(height: 24));
+    }
+
+    return widgets;
+  }
+
+  /// Build a category section with its items
+  Widget _buildCategorySection(String category, List<PackingItem> items) {
+    // Initialize expansion state if not already set
+    _categoryExpanded[category] ??= true;
+    final isExpanded = _categoryExpanded[category]!;
+
+    // Calculate progress for this category
+    final totalItems = items.length;
+    final packedItems = items.where((item) => item.isPacked).length;
+    final progress = totalItems > 0 ? packedItems / totalItems : 0.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Category header with clickable arrow
+        Row(
+          children: [
+            // Clickable arrow icon
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _categoryExpanded[category] = !isExpanded;
+                });
+              },
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: AnimatedRotation(
+                  turns: isExpanded ? 0.25 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Category title
+            Expanded(
+              child: Text(
+                category.toUpperCase(),
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+              ),
+            ),
+          ],
+        ),
+        // Progress indicator below category title
+        const SizedBox(height: 8),
+        _buildCategoryProgressIndicator(progress, packedItems, totalItems),
+        // Collapsible items section
+        if (isExpanded) ...[
+          const SizedBox(height: 12),
+          ...items.map((item) => UsePackingListItemTile(
+                item: item,
+                onToggle: () => _toggleItemPacked(item.id),
+                onHide: () {
+                  debugPrint(
+                      '👁️ [UsePackingListBody] Hide item: ${item.name}');
+                },
+              )),
+        ],
+      ],
+    );
+  }
+
+  /// Build progress indicator for a category section
+  Widget _buildCategoryProgressIndicator(
+      double progress, int packedItems, int totalItems) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: CheckboxListTile(
-        value: item.isPacked,
-        onChanged: (_) => _toggleItemPacked(item.id),
-        title: Text(
-          item.name,
-          style: TextStyle(
-            decoration: item.isPacked
-                ? TextDecoration.lineThrough
-                : TextDecoration.none,
-            color: item.isPacked
-                ? colorScheme.onSurface.withValues(alpha: 0.6)
-                : colorScheme.onSurface,
-          ),
-        ),
-        subtitle: item.notes != null && item.notes!.isNotEmpty
-            ? Text(item.notes!)
-            : null,
-        secondary: item.quantity > 1
-            ? Chip(
-                label: Text('x${item.quantity}'),
-                padding: EdgeInsets.zero,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              )
-            : null,
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(
+        begin: 0,
+        end: progress,
       ),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return Stack(
+          children: [
+            // Background (unfilled portion)
+            Container(
+              height: 6,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            // Filled portion with gradient
+            FractionallySizedBox(
+              widthFactor: value,
+              child: Container(
+                height: 6,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      colorScheme.secondary,
+                      colorScheme.tertiary,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(3),
+                    bottomLeft: const Radius.circular(3),
+                    topRight:
+                        value == 1.0 ? const Radius.circular(3) : Radius.zero,
+                    bottomRight:
+                        value == 1.0 ? const Radius.circular(3) : Radius.zero,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
