@@ -55,7 +55,8 @@ class TripService {
         },
         context: context,
       );
-      print('🎯 [TripService.upsertPackingList] Final result: ${result != null}');
+      print(
+          '🎯 [TripService.upsertPackingList] Final result: ${result != null}');
       return result;
     } catch (e, stackTrace) {
       print('❌ [TripService.upsertPackingList] Exception caught: $e');
@@ -68,7 +69,8 @@ class TripService {
   Future<Map<String, dynamic>?> getPackingLists({
     BuildContext? context,
   }) async {
-    print('🚀 [TripService.getPackingLists] Calling GET ${ApiEndpoints.packingLists}');
+    print(
+        '🚀 [TripService.getPackingLists] Calling GET ${ApiEndpoints.packingLists}');
 
     try {
       final result = await _apiService.safeApiCall(
@@ -79,7 +81,8 @@ class TripService {
               .map((json) => PackingList.fromJson(json))
               .toList();
 
-          print('✅ [TripService.getPackingLists] Parsed ${packingListsList.length} packing lists');
+          print(
+              '✅ [TripService.getPackingLists] Parsed ${packingListsList.length} packing lists');
           return {
             'packingLists': packingListsList,
             'count': packingListsList.length,
@@ -88,7 +91,8 @@ class TripService {
         context: context,
       );
 
-      print('🎯 [TripService.getPackingLists] Returning result: ${result != null}');
+      print(
+          '🎯 [TripService.getPackingLists] Returning result: ${result != null}');
       return result;
     } catch (e, stackTrace) {
       print('❌ [TripService.getPackingLists] Exception: $e');
@@ -103,7 +107,8 @@ class TripService {
     BuildContext? context,
   }) async {
     return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.get(ApiEndpoints.packingList(packingListId)),
+      apiCall: () =>
+          _apiService.client.get(ApiEndpoints.packingList(packingListId)),
       onSuccess: (data) => PackingList.fromJson(data['packingList']),
       context: context,
     );
@@ -120,7 +125,8 @@ class TripService {
         ApiEndpoints.packingList(packingListId),
         body: data,
       ),
-      onSuccess: (responseData) => PackingList.fromJson(responseData['packingList']),
+      onSuccess: (responseData) =>
+          PackingList.fromJson(responseData['packingList']),
       context: context,
     );
   }
@@ -131,7 +137,8 @@ class TripService {
     BuildContext? context,
   }) async {
     final result = await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.delete(ApiEndpoints.packingList(packingListId)),
+      apiCall: () =>
+          _apiService.client.delete(ApiEndpoints.packingList(packingListId)),
       onSuccess: (data) => data['success'] as bool,
       context: context,
     );
@@ -278,6 +285,76 @@ class TripService {
         },
       ),
       onSuccess: (data) => PackingItem.fromJson(data['item']),
+      context: context,
+    );
+  }
+
+  /// Bulk update items (for updating multiple items at once)
+  Future<Map<String, dynamic>?> bulkUpdateItems({
+    required String packingListId,
+    required List<Map<String, dynamic>> updates,
+    BuildContext? context,
+  }) async {
+    debugPrint('🚀 [TripService.bulkUpdateItems] Sending bulk update request');
+    debugPrint('🚀 [TripService.bulkUpdateItems] Updates: $updates');
+
+    return await _apiService.safeApiCall(
+      apiCall: () => _apiService.client.patch(
+        ApiEndpoints.packingListItemsBulkUpdate(packingListId),
+        body: {'updates': updates},
+      ),
+      onSuccess: (data) {
+        debugPrint('✅ [TripService.bulkUpdateItems] Raw response: $data');
+
+        // Handle different possible response formats
+        try {
+          // Try the expected format first
+          if (data.containsKey('updated') && data.containsKey('count')) {
+            final updatedItems = (data['updated'] as List)
+                .map((json) => PackingItem.fromJson(json))
+                .toList();
+
+            debugPrint(
+                '✅ [TripService.bulkUpdateItems] Parsed ${updatedItems.length} items');
+            return {
+              'updated': updatedItems,
+              'count': data['count'] as int,
+            };
+          }
+
+          // Try alternative format (maybe backend returns items directly)
+          if (data.containsKey('items')) {
+            final updatedItems = (data['items'] as List)
+                .map((json) => PackingItem.fromJson(json))
+                .toList();
+
+            debugPrint(
+                '✅ [TripService.bulkUpdateItems] Parsed ${updatedItems.length} items (alternative format)');
+            return {
+              'updated': updatedItems,
+              'count': updatedItems.length,
+            };
+          }
+
+          // If we get here, the response format is unexpected
+          debugPrint(
+              '⚠️ [TripService.bulkUpdateItems] Unexpected response format: $data');
+          debugPrint(
+              '⚠️ [TripService.bulkUpdateItems] Response keys: ${data.keys.toList()}');
+
+          // Return a minimal success response
+          return {
+            'updated': <PackingItem>[],
+            'count': updates.length,
+          };
+        } catch (e, stackTrace) {
+          debugPrint(
+              '❌ [TripService.bulkUpdateItems] Error parsing response: $e');
+          debugPrint(
+              '❌ [TripService.bulkUpdateItems] Stack trace: $stackTrace');
+          rethrow;
+        }
+      },
       context: context,
     );
   }

@@ -7,6 +7,7 @@ import 'package:kaboodle_app/models/packing_list.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/features/my_packing_lists/widgets/filter_chip_button.dart';
+import 'package:kaboodle_app/shared/utils/color_tag_utils.dart';
 import 'package:kaboodle_app/shared/widgets/custom_dialog.dart';
 import 'package:toastification/toastification.dart';
 
@@ -332,14 +333,6 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Try a different filter',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
           ],
         ),
       ),
@@ -359,18 +352,9 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
         final startDate = _formatDate(packingList.startDate);
         final endDate = _formatDate(packingList.endDate);
 
-        // Generate color based on index
-        final colors = [
-          Colors.blue,
-          Colors.purple,
-          Colors.green,
-          Colors.orange,
-          Colors.red,
-          Colors.teal,
-          Colors.indigo,
-          Colors.pink,
-        ];
-        final accentColor = colors[index % colors.length];
+        // Get color from colorTag, fallback to index-based if not set
+        final accentColor =
+            ColorTagUtils.getColorFromTag(packingList.colorTag, index);
 
         return PackingListTile(
           tripName: packingList.name,

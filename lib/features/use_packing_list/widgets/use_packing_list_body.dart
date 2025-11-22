@@ -406,7 +406,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
               child: Text(
                 category.toUpperCase(),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
                     ),

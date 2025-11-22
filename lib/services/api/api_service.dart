@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
@@ -80,13 +81,28 @@ class ApiService {
     try {
       final response = await apiCall();
       final data = _handleResponse(response);
-      return onSuccess(data);
+      try {
+        return onSuccess(data);
+      } catch (e, stackTrace) {
+        // Error in onSuccess callback - log it for debugging
+        debugPrint('❌ [ApiService] Error in onSuccess callback: $e');
+        debugPrint('❌ [ApiService] Response data: $data');
+        debugPrint('❌ [ApiService] Stack trace: $stackTrace');
+        if (context != null && context.mounted) {
+          _showErrorToast(
+              context, 'Error processing response: ${e.toString()}');
+        }
+        return null;
+      }
     } on ApiException catch (e) {
+      debugPrint('❌ [ApiService] ApiException: ${e.message} (${e.statusCode})');
       if (context != null && context.mounted) {
         _showErrorToast(context, e.message);
       }
       return null;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('❌ [ApiService] Unexpected error: $e');
+      debugPrint('❌ [ApiService] Stack trace: $stackTrace');
       if (context != null && context.mounted) {
         _showErrorToast(context, 'An unexpected error occurred');
       }

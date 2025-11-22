@@ -135,34 +135,31 @@ class UsePackingItemsNotifier
           debugPrint(
               '🚀 [UsePackingItems] Saving ${_modifiedItemIds.length} modified items to API');
 
-          int successCount = 0;
-          int failureCount = 0;
-
-          // Update each modified item
-          for (final itemId in _modifiedItemIds) {
+          // Build bulk update payload
+          final updates = _modifiedItemIds.map((itemId) {
             final item = items.firstWhere((i) => i.id == itemId);
-
             debugPrint(
-                '📤 [UsePackingItems] Updating item "${item.name}" (${item.id}): isPacked=${item.isPacked}');
+                '📤 [UsePackingItems] Preparing update for item "${item.name}" (${item.id}): isPacked=${item.isPacked}');
+            return {
+              'itemId': item.id,
+              'isPacked': item.isPacked,
+            };
+          }).toList();
 
-            try {
-              await _tripService.updateItem(
-                itemId: item.id,
-                isPacked: item.isPacked,
-              );
-              successCount++;
-              debugPrint(
-                  '✅ [UsePackingItems] Successfully updated item ${item.id}');
-            } catch (e) {
-              failureCount++;
-              debugPrint(
-                  '❌ [UsePackingItems] Failed to update item ${item.id}: $e');
-              rethrow;
-            }
+          // Send single bulk update request
+          final result = await _tripService.bulkUpdateItems(
+            packingListId: arg,
+            updates: updates,
+          );
+
+          if (result == null) {
+            debugPrint('❌ [UsePackingItems] Bulk update returned null');
+            return false;
           }
 
+          final updatedCount = result['count'] as int;
           debugPrint(
-              '🎉 [UsePackingItems] Save complete: $successCount succeeded, $failureCount failed');
+              '🎉 [UsePackingItems] Bulk update complete: $updatedCount items updated');
 
           // Clear modified items after successful save
           _modifiedItemIds.clear();

@@ -11,9 +11,13 @@ class ApiEndpoints {
   // Packing Lists
   static const String packingLists = '/api/packing-lists';
   static String packingList(String id) => '/api/packing-lists/$id';
-  static String generateSuggestions(String packingListId) => '/api/packing-lists/$packingListId/generate-suggestions';
+  static String generateSuggestions(String packingListId) =>
+      '/api/packing-lists/$packingListId/generate-suggestions';
   static String packingListItems(String id) => '/api/packing-lists/$id/items';
-  static String packingListItemsBulk(String id) => '/api/packing-lists/$id/items/bulk';
+  static String packingListItemsBulk(String id) =>
+      '/api/packing-lists/$id/items/bulk';
+  static String packingListItemsBulkUpdate(String id) =>
+      '/api/packing-lists/$id/items/bulk-update';
   static String packingListReuse(String id) => '/api/packing-lists/$id/reuse';
   static String packingListClear(String id) => '/api/packing-lists/$id/clear';
 

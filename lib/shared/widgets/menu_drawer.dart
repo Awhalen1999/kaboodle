@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
+import 'package:kaboodle_app/shared/utils/color_tag_utils.dart';
 import 'package:kaboodle_app/shared/widgets/profile_tile.dart';
 import 'package:kaboodle_app/shared/widgets/packing_list_drawer_tile.dart';
 
@@ -83,18 +84,6 @@ class MenuDrawer extends ConsumerWidget {
                       );
                     }
 
-                    // Generate colors for each packing list
-                    final colors = [
-                      Colors.blue,
-                      Colors.purple,
-                      Colors.green,
-                      Colors.orange,
-                      Colors.red,
-                      Colors.teal,
-                      Colors.indigo,
-                      Colors.pink,
-                    ];
-
                     return ListView.separated(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 8),
@@ -103,7 +92,8 @@ class MenuDrawer extends ConsumerWidget {
                           const SizedBox(height: 8),
                       itemBuilder: (context, index) {
                         final packingList = packingLists[index];
-                        final accentColor = colors[index % colors.length];
+                        final accentColor = ColorTagUtils.getColorFromTag(
+                            packingList.colorTag, index);
 
                         return PackingListDrawerTile(
                           tripName: packingList.name,
