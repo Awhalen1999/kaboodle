@@ -171,7 +171,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
                           clipper: WaveClipper(),
                           child: Container(
                             width: double.infinity,
-                            height: 375,
+                            height: 350,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
@@ -190,7 +190,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(
-                                    top: 16, left: 16, right: 16, bottom: 25),
+                                    top: 32, left: 16, right: 16, bottom: 0),
                                 child: Lottie.asset(
                                   'assets/lottie/temp_animation.json',
                                   fit: BoxFit.contain,
@@ -202,6 +202,8 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
                         ),
                       ],
                     ),
+
+                    const SizedBox(height: 16),
 
                     // Header Content Section
                     Padding(
@@ -372,63 +374,63 @@ class WaveClipper extends CustomClipper<Path> {
 
     // Start from top left
     path.lineTo(0, 0);
-    path.lineTo(0, size.height - 75);
+    path.lineTo(0, size.height - 35);
 
     // First cloud bump (tall, climbing UP from left edge)
     path.cubicTo(
       size.width * 0.02,
-      size.height - 80,
-      size.width * 0.08,
-      size.height - 35,
-      size.width * 0.18,
       size.height - 40,
+      size.width * 0.08,
+      size.height - 5,
+      size.width * 0.18,
+      size.height - 10,
     );
 
     path.cubicTo(
       size.width * 0.25,
-      size.height - 44,
+      size.height - 14,
       size.width * 0.30,
-      size.height - 58,
+      size.height - 28,
       size.width * 0.38,
-      size.height - 52,
+      size.height - 22,
     );
 
     // Second cloud bump (medium rounded)
     path.cubicTo(
       size.width * 0.44,
-      size.height - 48,
+      size.height - 18,
       size.width * 0.50,
-      size.height - 68,
+      size.height - 38,
       size.width * 0.58,
-      size.height - 66,
+      size.height - 36,
     );
 
     path.cubicTo(
       size.width * 0.64,
-      size.height - 64,
+      size.height - 34,
       size.width * 0.68,
-      size.height - 54,
+      size.height - 24,
       size.width * 0.74,
-      size.height - 50,
+      size.height - 20,
     );
 
     // Third cloud bump (gentle rounded)
     path.cubicTo(
       size.width * 0.80,
-      size.height - 48,
+      size.height - 18,
       size.width * 0.86,
-      size.height - 62,
+      size.height - 32,
       size.width * 0.92,
-      size.height - 60,
+      size.height - 30,
     );
 
     path.cubicTo(
       size.width * 0.96,
-      size.height - 58,
+      size.height - 28,
       size.width * 0.99,
-      size.height - 52,
+      size.height - 22,
       size.width,
-      size.height - 50,
+      size.height - 20,
     );
 
     path.lineTo(size.width, 0);
