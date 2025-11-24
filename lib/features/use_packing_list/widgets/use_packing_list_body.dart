@@ -464,13 +464,8 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
     // Calculate total items for proportional width
     final totalItems = items.length;
 
-    return Container(
+    return SizedBox(
       height: 12,
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(8),
-      ),
       child: Row(
         children: sortedCategories.asMap().entries.map((entry) {
           final index = entry.key;
@@ -510,15 +505,21 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
       builder: (context, value, child) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: value,
-            child: Container(
-              decoration: BoxDecoration(
-                color: categoryColor,
-                borderRadius: BorderRadius.circular(6),
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: value,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: categoryColor,
+                  borderRadius: BorderRadius.circular(6),
+                ),
               ),
             ),
           ),
