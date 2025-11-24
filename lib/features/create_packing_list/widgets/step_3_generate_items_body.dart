@@ -374,7 +374,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
                 child: Icon(
                   Icons.add,
                   size: 20,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
