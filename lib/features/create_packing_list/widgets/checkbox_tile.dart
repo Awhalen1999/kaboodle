@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kaboodle_app/shared/constants/category_colors.dart';
 
 /// A clean, modern checkbox tile widget inspired by Notion/ClickUp
 ///
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 class CheckboxTile extends StatelessWidget {
   final IconData icon;
   final String itemName;
+  final String? category;
   final int quantity;
   final String note;
   final bool isSelected;
@@ -22,6 +24,7 @@ class CheckboxTile extends StatelessWidget {
     super.key,
     required this.icon,
     required this.itemName,
+    this.category,
     this.quantity = 1,
     this.note = '',
     required this.isSelected,
@@ -33,6 +36,11 @@ class CheckboxTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    // Get category color if available
+    final categoryColor = category != null
+        ? CategoryColors.getCategoryColorWithContext(category!, context)
+        : colorScheme.primary;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -71,18 +79,25 @@ class CheckboxTile extends StatelessWidget {
                             onChanged: (_) => onToggle(),
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
+                            fillColor: WidgetStateProperty.resolveWith((states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return colorScheme.onSurfaceVariant;
+                              }
+                              return null;
+                            }),
+                            checkColor: colorScheme.surface,
                           ),
                           const SizedBox(width: 8),
                           Container(
                             decoration: BoxDecoration(
-                              color: colorScheme.primary.withValues(alpha: 0.3),
+                              color: categoryColor.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             padding: const EdgeInsets.all(4),
                             child: Icon(
                               icon,
                               size: 22,
-                              color: colorScheme.primary,
+                              color: categoryColor,
                             ),
                           ),
                         ],

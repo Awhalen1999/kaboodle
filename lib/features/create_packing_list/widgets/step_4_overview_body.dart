@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
 import 'package:kaboodle_app/shared/utils/icon_utils.dart';
 import 'package:kaboodle_app/shared/utils/string_utils.dart';
+import 'package:kaboodle_app/shared/constants/category_colors.dart';
 
 class Step4OverviewBody extends StatelessWidget {
   final Map<String, dynamic> formData;
@@ -365,6 +366,7 @@ class Step4OverviewBody extends StatelessWidget {
           allItems.add({
             'name': suggestion.name,
             'icon': suggestion.icon,
+            'category': suggestion.category,
             'quantity': itemQuantities?[id] ?? suggestion.defaultQuantity,
             'note': itemNotes?[id] ?? '',
             'isCustom': false,
@@ -375,7 +377,9 @@ class Step4OverviewBody extends StatelessWidget {
 
     // Add custom items
     if (customItems != null) {
-      for (var categoryItems in customItems.values) {
+      for (var entry in customItems.entries) {
+        final category = entry.key;
+        final categoryItems = entry.value;
         for (var item in categoryItems) {
           final id = item['id'] as String;
           final isSelected = selectedItems[id] ?? false;
@@ -383,6 +387,7 @@ class Step4OverviewBody extends StatelessWidget {
             allItems.add({
               'name': item['name'],
               'icon': '',
+              'category': category,
               'quantity': itemQuantities?[id] ?? item['quantity'],
               'note': itemNotes?[id] ?? item['note'] ?? '',
               'isCustom': true,
@@ -407,6 +412,7 @@ class Step4OverviewBody extends StatelessWidget {
       children: allItems.map((item) {
         final name = item['name'] as String;
         final iconName = item['icon'] as String;
+        final category = item['category'] as String?;
         final quantity = item['quantity'] as int;
         final note = item['note'] as String;
         final isCustom = item['isCustom'] as bool;
@@ -417,6 +423,7 @@ class Step4OverviewBody extends StatelessWidget {
               ? Icons.bookmark_border_rounded
               : IconUtils.getIconData(iconName),
           itemName: name,
+          category: category,
           quantity: quantity,
           note: note,
         );
@@ -429,11 +436,17 @@ class Step4OverviewBody extends StatelessWidget {
     required BuildContext context,
     required IconData icon,
     required String itemName,
+    String? category,
     required int quantity,
     required String note,
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    // Get category color if available
+    final categoryColor = category != null
+        ? CategoryColors.getCategoryColorWithContext(category, context)
+        : colorScheme.primary;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -452,14 +465,14 @@ class Step4OverviewBody extends StatelessWidget {
             // Icon section
             Container(
               decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.3),
+                color: categoryColor.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               padding: const EdgeInsets.all(4),
               child: Icon(
                 icon,
                 size: 22,
-                color: colorScheme.primary,
+                color: categoryColor,
               ),
             ),
             const SizedBox(width: 12),

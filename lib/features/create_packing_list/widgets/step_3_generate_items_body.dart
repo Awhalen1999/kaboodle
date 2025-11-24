@@ -402,6 +402,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     return CheckboxTile(
       icon: IconUtils.getIconData(item.icon),
       itemName: item.name,
+      category: item.category,
       quantity: quantity,
       note: note,
       isSelected: isSelected,
@@ -487,6 +488,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     return CheckboxTile(
       icon: Icons.bookmark_border_rounded, // Custom item indicator icon
       itemName: name,
+      category: category,
       quantity: quantity,
       note: note,
       isSelected: isSelected,
