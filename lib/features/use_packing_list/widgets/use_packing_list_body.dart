@@ -5,6 +5,7 @@ import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/utils/format_utils.dart';
 import 'package:kaboodle_app/shared/constants/category_constants.dart';
+import 'package:kaboodle_app/shared/constants/category_colors.dart';
 import 'package:kaboodle_app/features/use_packing_list/widgets/use_packing_list_item_tile.dart';
 import 'package:toastification/toastification.dart';
 import 'package:lottie/lottie.dart';
@@ -189,7 +190,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
                                 padding: const EdgeInsets.only(
                                     top: 48, left: 16, right: 16, bottom: 0),
                                 child: Lottie.asset(
-                                  'assets/lottie/temp_animation.json',
+                                  'assets/lottie/laughing_cat.json',
                                   fit: BoxFit.contain,
                                   height: 220,
                                 ),
@@ -272,7 +273,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
             },
           ),
         ),
-        // Save Progress / Finish Button
+        // Overall Progress Bar and Save Progress / Finish Button
         Container(
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
@@ -289,38 +290,46 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
                     items.isNotEmpty && items.every((item) => item.isPacked);
                 final buttonText = allPacked ? 'Finish' : 'Save Progress';
 
-                return SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: theme.colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    onPressed: _isSaving ? null : _handleSaveProgress,
-                    child: _isSaving
-                        ? SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                theme.colorScheme.onPrimary,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            buttonText,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                return Column(
+                  children: [
+                    // Overall segmented progress bar
+                    _buildOverallProgressBar(items),
+                    const SizedBox(height: 16),
+                    // Save/Finish button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: theme.colorScheme.onPrimary,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                  ),
+                          elevation: 0,
+                        ),
+                        onPressed: _isSaving ? null : _handleSaveProgress,
+                        child: _isSaving
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    theme.colorScheme.onPrimary,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                buttonText,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
                 );
               },
               loading: () => const SizedBox.shrink(),
@@ -416,7 +425,8 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
         ),
         // Progress indicator below category title
         const SizedBox(height: 8),
-        _buildCategoryProgressIndicator(progress, packedItems, totalItems),
+        _buildCategoryProgressIndicator(
+            category, progress, packedItems, totalItems),
         // Collapsible items section
         if (isExpanded) ...[
           const SizedBox(height: 12),
@@ -433,11 +443,95 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
     );
   }
 
+  /// Build overall segmented progress bar showing all categories
+  Widget _buildOverallProgressBar(List<PackingItem> items) {
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    // Group items by category
+    final Map<String, List<PackingItem>> categorizedItems = {};
+    for (var item in items) {
+      final category = item.category ?? 'Miscellaneous';
+      if (!categorizedItems.containsKey(category)) {
+        categorizedItems[category] = [];
+      }
+      categorizedItems[category]!.add(item);
+    }
+
+    // Sort categories
+    final sortedCategories =
+        CategoryConstants.sortCategories(categorizedItems.keys.toList());
+
+    // Calculate total items for proportional width
+    final totalItems = items.length;
+
+    return Container(
+      height: 12,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: sortedCategories.asMap().entries.map((entry) {
+          final index = entry.key;
+          final category = entry.value;
+          final categoryItems = categorizedItems[category]!;
+          final categoryItemCount = categoryItems.length;
+          final packedCount =
+              categoryItems.where((item) => item.isPacked).length;
+          final categoryProgress =
+              categoryItemCount > 0 ? packedCount / categoryItemCount : 0.0;
+
+          // Calculate proportional width
+          final widthFraction = categoryItemCount / totalItems;
+
+          return Expanded(
+            flex: (widthFraction * 1000)
+                .round(), // Use flex for proportional sizing
+            child: Padding(
+              padding: EdgeInsets.only(
+                right: index < sortedCategories.length - 1 ? 4.0 : 0,
+              ),
+              child: _buildSegment(category, categoryProgress),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// Build a single segment for the overall progress bar
+  Widget _buildSegment(String category, double progress) {
+    final categoryColor =
+        CategoryColors.getCategoryColorWithContext(category, context);
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: progress),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: value,
+            child: Container(
+              decoration: BoxDecoration(
+                color: categoryColor,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   /// Build progress indicator for a category section
   Widget _buildCategoryProgressIndicator(
-      double progress, int packedItems, int totalItems) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+      String category, double progress, int packedItems, int totalItems) {
+    final categoryColor =
+        CategoryColors.getCategoryColorWithContext(category, context);
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(
@@ -453,22 +547,17 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
             Container(
               height: 6,
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
+                color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
-            // Filled portion with gradient
+            // Filled portion with category color
             FractionallySizedBox(
               widthFactor: value,
               child: Container(
                 height: 6,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      colorScheme.secondary,
-                      colorScheme.tertiary,
-                    ],
-                  ),
+                  color: categoryColor,
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(3),
                     bottomLeft: const Radius.circular(3),
