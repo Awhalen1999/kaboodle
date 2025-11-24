@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 
+// Original purple color scheme (saved for reference):
+// primary: Color(0xFF48224b)
+// secondary: Color(0xFF59365e)
+// tertiary: Color(0xFFa95db2)
+// primaryFixedDim: Color(0xFFf8efff)
+
 ThemeData darkMode = ThemeData(
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
-    primary: Color(0xFF48224b),
+    primary: Color(0xFFFF7F50),
     onPrimary: Colors.white,
     surface: Color.fromARGB(255, 28, 28, 28),
     onSurface: Colors.white,
     onSurfaceVariant: const Color.fromARGB(255, 180, 180, 180),
-    secondary: Color(0xFF59365e),
+    secondary: Color(0xFFFFA07A),
     onSecondary: Colors.white,
-    tertiary: Color(0xFFa95db2),
+    tertiary: Color(0xFFFFB347),
     onTertiary: Colors.white,
-    primaryFixedDim: Color(0xFFf8efff),
+    primaryFixedDim: Color(0xFFFFE5D4),
     onPrimaryFixedVariant: Colors.black,
     inverseSurface: Color(0xFFf8efff),
     onInverseSurface: Colors.black,

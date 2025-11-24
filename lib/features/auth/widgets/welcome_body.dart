@@ -20,7 +20,7 @@ class WelcomeBody extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               child: Lottie.asset(
-                'assets/lottie/temp_animation.json',
+                'assets/lottie/sleeping_cat.json',
                 fit: BoxFit.contain,
               ),
             ),
