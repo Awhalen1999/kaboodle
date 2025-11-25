@@ -62,6 +62,7 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
                           icon: Icons.check_box_rounded,
                           label: 'Check All',
                           onTap: () {
+                            _hideMenu();
                             ref
                                 .read(usePackingItemsProvider(
                                         widget.packingListId)
@@ -73,6 +74,7 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
                           icon: Icons.check_box_outline_blank_rounded,
                           label: 'Uncheck All',
                           onTap: () {
+                            _hideMenu();
                             ref
                                 .read(usePackingItemsProvider(
                                         widget.packingListId)
@@ -84,6 +86,7 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
                           icon: Icons.visibility_outlined,
                           label: 'Unhide All',
                           onTap: () {
+                            _hideMenu();
                             debugPrint(
                                 '👁️ [UsePackingListView] Unhide All clicked');
                           },
@@ -93,8 +96,12 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
                           icon: Icons.refresh,
                           label: 'Reset to Saved',
                           onTap: () {
-                            ref.invalidate(
-                                usePackingItemsProvider(widget.packingListId));
+                            _hideMenu();
+                            ref
+                                .read(usePackingItemsProvider(
+                                        widget.packingListId)
+                                    .notifier)
+                                .refresh();
                           },
                         ),
                       ],
@@ -184,7 +191,10 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
           onPressed: () {
             debugPrint(
                 '🗑️ [UsePackingListView] User chose to discard changes');
-            ref.invalidate(usePackingItemsProvider(widget.packingListId));
+            // Restore provider state to original (before any local changes)
+            ref
+                .read(usePackingItemsProvider(widget.packingListId).notifier)
+                .discardChanges();
             Navigator.of(context).pop(true);
           },
         ),

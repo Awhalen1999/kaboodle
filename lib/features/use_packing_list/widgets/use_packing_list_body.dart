@@ -262,8 +262,10 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        ref.invalidate(
-                            usePackingItemsProvider(widget.packingListId));
+                        ref
+                            .read(usePackingItemsProvider(widget.packingListId)
+                                .notifier)
+                            .refresh();
                       },
                       child: const Text('Retry'),
                     ),
