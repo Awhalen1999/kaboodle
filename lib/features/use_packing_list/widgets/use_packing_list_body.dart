@@ -507,7 +507,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
       builder: (context, value, child) {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.grey[300],
+            color: Theme.of(context).colorScheme.surfaceTint,
             borderRadius: BorderRadius.circular(6),
           ),
           child: ClipRRect(
@@ -548,7 +548,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
             Container(
               height: 6,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Theme.of(context).colorScheme.surfaceTint,
                 borderRadius: BorderRadius.circular(3),
               ),
             ),

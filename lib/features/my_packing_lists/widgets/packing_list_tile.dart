@@ -105,13 +105,15 @@ class PackingListTile extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          if (description != null && description!.isNotEmpty) ...[
+                          if (description != null &&
+                              description!.isNotEmpty) ...[
                             const SizedBox(height: 4),
                             Text(
                               description!,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: stepCompleted < 4
-                                    ? colorScheme.onSurface.withValues(alpha: 0.4)
+                                    ? colorScheme.onSurface
+                                        .withValues(alpha: 0.4)
                                     : colorScheme.onSurface
                                         .withValues(alpha: 0.6),
                               ),
@@ -133,7 +135,8 @@ class PackingListTile extends StatelessWidget {
                                   label: _formatDateRange(),
                                 ),
                               // Location chip
-                              if (destination != null && destination!.isNotEmpty)
+                              if (destination != null &&
+                                  destination!.isNotEmpty)
                                 _buildLocationChip(context, destination!),
                               // Incomplete badge
                               if (stepCompleted < 4)
@@ -141,7 +144,7 @@ class PackingListTile extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.15),
+                                    color: Colors.amber.withValues(alpha: 0.25),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Row(
@@ -187,7 +190,7 @@ class PackingListTile extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest,
+                    color: colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Icon(
@@ -211,7 +214,7 @@ class PackingListTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
+        color: colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -244,7 +247,7 @@ class PackingListTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
+        color: colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
