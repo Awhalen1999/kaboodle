@@ -76,7 +76,11 @@ class UsePackingListItemTile extends StatelessWidget {
                             onChanged: (_) => onToggle(),
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
-                            fillColor: WidgetStateProperty.resolveWith((states) {
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            fillColor:
+                                WidgetStateProperty.resolveWith((states) {
                               if (states.contains(WidgetState.selected)) {
                                 return colorScheme.onSurfaceVariant;
                               }
