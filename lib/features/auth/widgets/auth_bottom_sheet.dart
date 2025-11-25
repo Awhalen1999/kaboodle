@@ -274,21 +274,23 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                   const SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
+                    child: InkWell(
+                      onTap: () {
                         // TODO: Implement forgot password
                         debugPrint('Forgot password clicked');
                       },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: Text(
-                        'Forgot password?',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 14,
+                      borderRadius: BorderRadius.circular(4),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
+                        ),
+                        child: Text(
+                          'Forgot password?',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ),
@@ -321,7 +323,7 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                     Expanded(
                       child: Divider(
                         thickness: 1,
-                        color: Colors.grey[300],
+                        color: Theme.of(context).colorScheme.outline,
                       ),
                     ),
                     Padding(
@@ -329,14 +331,16 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                       child: Text(
                         'or',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[600],
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                       ),
                     ),
                     Expanded(
                       child: Divider(
                         thickness: 1,
-                        color: Colors.grey[300],
+                        color: Theme.of(context).colorScheme.outline,
                       ),
                     ),
                   ],
@@ -347,10 +351,9 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                   onPressed: _handleGoogleAuth,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
                     elevation: 0,
                     side: BorderSide(
-                      color: Colors.grey[300]!,
+                      color: Theme.of(context).colorScheme.outline,
                       width: 1,
                     ),
                     shape: RoundedRectangleBorder(
@@ -388,7 +391,6 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                   onPressed: _handleAppleAuth,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -425,38 +427,45 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                 ),
                 const SizedBox(height: 16),
                 // Toggle between login and signup
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: TextButton.styleFrom(
+                InkWell(
+                  onTap: () => Navigator.of(context).pop(),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: const Size(double.infinity, 48),
-                  ),
-                  child: Text.rich(
-                    TextSpan(
-                      text: widget.isSignUp
-                          ? 'Already have an account? '
-                          : "Don't have an account? ",
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
-                      children: [
+                    child: Center(
+                      child: Text.rich(
                         TextSpan(
-                          text: widget.isSignUp ? 'Login' : 'Sign up',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                decoration: TextDecoration.underline,
-                                decorationColor:
-                                    Theme.of(context).colorScheme.onSurface,
-                              ),
+                          text: widget.isSignUp
+                              ? 'Already have an account? '
+                              : "Don't have an account? ",
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                          children: [
+                            TextSpan(
+                              text: widget.isSignUp ? 'Login' : 'Sign up',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
                 // Add bottom padding for safe area
+                // todo: investigate if this is still needed
                 SizedBox(height: MediaQuery.of(context).padding.bottom),
               ],
             ),

@@ -14,8 +14,6 @@ class WelcomeBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Lottie animation
-          // Expanded fills remaining space and pushes content down
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -87,7 +85,7 @@ class WelcomeBody extends StatelessWidget {
               textAlign: TextAlign.center,
               text: TextSpan(
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                 children: [
                   const TextSpan(
@@ -105,12 +103,13 @@ class WelcomeBody extends StatelessWidget {
                       ..onTap = () {
                         // TODO: Navigate to Terms of Service page
                         // context.push('/terms-of-service');
+                        debugPrint('Terms of Service clicked');
                       },
                   ),
                   TextSpan(
                     text: ' and ',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                   TextSpan(
@@ -125,6 +124,7 @@ class WelcomeBody extends StatelessWidget {
                       ..onTap = () {
                         // TODO: Navigate to Privacy Policy page
                         // context.push('/privacy-policy');
+                        debugPrint('Privacy Policy clicked');
                       },
                   ),
                   const TextSpan(text: '.'),
