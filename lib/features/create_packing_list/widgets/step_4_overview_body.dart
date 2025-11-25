@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
 import 'package:kaboodle_app/shared/utils/icon_utils.dart';
 import 'package:kaboodle_app/shared/utils/string_utils.dart';
-import 'package:kaboodle_app/shared/constants/category_colors.dart';
+import 'package:kaboodle_app/theme/expanded_palette.dart';
 
 class Step4OverviewBody extends StatelessWidget {
   final Map<String, dynamic> formData;
@@ -445,7 +445,7 @@ class Step4OverviewBody extends StatelessWidget {
 
     // Get category color if available
     final categoryColor = category != null
-        ? CategoryColors.getCategoryColorWithContext(category, context)
+        ? ExpandedPalette.getCategoryColorWithContext(category, context)
         : colorScheme.primary;
 
     return Container(

@@ -5,7 +5,7 @@ import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/utils/format_utils.dart';
 import 'package:kaboodle_app/shared/constants/category_constants.dart';
-import 'package:kaboodle_app/shared/constants/category_colors.dart';
+import 'package:kaboodle_app/theme/expanded_palette.dart';
 import 'package:kaboodle_app/features/use_packing_list/widgets/use_packing_list_item_tile.dart';
 import 'package:toastification/toastification.dart';
 import 'package:lottie/lottie.dart';
@@ -498,7 +498,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
   /// Build a single segment for the overall progress bar
   Widget _buildSegment(String category, double progress) {
     final categoryColor =
-        CategoryColors.getCategoryColorWithContext(category, context);
+        ExpandedPalette.getCategoryColorWithContext(category, context);
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: progress),
@@ -532,7 +532,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
   Widget _buildCategoryProgressIndicator(
       String category, double progress, int packedItems, int totalItems) {
     final categoryColor =
-        CategoryColors.getCategoryColorWithContext(category, context);
+        ExpandedPalette.getCategoryColorWithContext(category, context);
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(

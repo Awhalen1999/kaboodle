@@ -26,6 +26,7 @@ ThemeData lightMode = ThemeData(
     outline: Color.fromARGB(255, 238, 238, 238),
     outlineVariant: Color.fromARGB(255, 189, 189, 189),
     shadow: Color.fromARGB(15, 0, 0, 0),
+    surfaceTint: Color.fromARGB(255, 225, 225, 225),
   ),
   textTheme: ThemeData.light().textTheme.copyWith(
         headlineLarge: TextStyle(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kaboodle_app/models/packing_item.dart';
 import 'package:kaboodle_app/shared/utils/icon_utils.dart';
-import 'package:kaboodle_app/shared/constants/category_colors.dart';
+import 'package:kaboodle_app/theme/expanded_palette.dart';
 
 /// A clean, modern checkbox tile widget for the use packing list feature
 ///
@@ -36,7 +36,7 @@ class UsePackingListItemTile extends StatelessWidget {
 
     // Get category color
     final categoryColor = item.category != null
-        ? CategoryColors.getCategoryColorWithContext(item.category!, context)
+        ? ExpandedPalette.getCategoryColorWithContext(item.category!, context)
         : colorScheme.primary;
 
     return Container(

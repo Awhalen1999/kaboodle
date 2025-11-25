@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kaboodle_app/shared/constants/category_colors.dart';
+import 'package:kaboodle_app/theme/expanded_palette.dart';
 
 /// A clean, modern checkbox tile widget inspired by Notion/ClickUp
 ///
@@ -39,7 +39,7 @@ class CheckboxTile extends StatelessWidget {
 
     // Get category color if available
     final categoryColor = category != null
-        ? CategoryColors.getCategoryColorWithContext(category!, context)
+        ? ExpandedPalette.getCategoryColorWithContext(category!, context)
         : colorScheme.primary;
 
     return Container(

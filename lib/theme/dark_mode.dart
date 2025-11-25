@@ -26,6 +26,7 @@ ThemeData darkMode = ThemeData(
     outline: Color.fromARGB(255, 60, 60, 60),
     outlineVariant: Color.fromARGB(255, 100, 100, 100),
     shadow: Color.fromARGB(15, 0, 0, 0),
+    surfaceTint: Color.fromARGB(255, 40, 40, 40),
   ),
   textTheme: ThemeData.dark().textTheme.copyWith(
         headlineLarge: TextStyle(
