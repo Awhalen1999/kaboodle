@@ -1,14 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 import '../api/endpoints.dart';
 import '../../models/packing_list.dart';
 import '../../models/packing_item.dart';
 
+/// Service for packing list and item operations
 class TripService {
   final ApiService _apiService = ApiService();
 
+  // Packing Lists
+
   /// Upsert a packing list (create if no ID, update if ID provided)
-  /// Returns PackingList on success, null on error
   Future<PackingList?> upsertPackingList({
     String? id,
     required String name,
@@ -25,10 +28,10 @@ class TripService {
     int? stepCompleted,
     BuildContext? context,
   }) async {
-    final requestBody = {
+    final body = {
       if (id != null) 'id': id,
       'name': name,
-      'startDate': startDate.toIso8601String().split('T')[0], // YYYY-MM-DD
+      'startDate': startDate.toIso8601String().split('T')[0],
       'endDate': endDate.toIso8601String().split('T')[0],
       if (description != null) 'description': description,
       if (destination != null) 'destination': destination,
@@ -41,64 +44,33 @@ class TripService {
       if (stepCompleted != null) 'stepCompleted': stepCompleted,
     };
 
-    print('🚀 [TripService.upsertPackingList] Request body: $requestBody');
-
-    try {
-      final result = await _apiService.safeApiCall(
-        apiCall: () => _apiService.client.post(
-          ApiEndpoints.packingLists,
-          body: requestBody,
-        ),
-        onSuccess: (data) {
-          print('✅ [TripService.upsertPackingList] Success response: $data');
-          return PackingList.fromJson(data['packingList']);
-        },
-        context: context,
-      );
-      print(
-          '🎯 [TripService.upsertPackingList] Final result: ${result != null}');
-      return result;
-    } catch (e, stackTrace) {
-      print('❌ [TripService.upsertPackingList] Exception caught: $e');
-      print('❌ [TripService.upsertPackingList] Stack trace: $stackTrace');
-      rethrow;
-    }
+    return await _apiService.safeApiCall(
+      apiCall: () =>
+          _apiService.client.post(ApiEndpoints.packingLists, body: body),
+      onSuccess: (data) => PackingList.fromJson(data['packingList']),
+      context: context,
+    );
   }
 
   /// Get all packing lists for the current user
-  Future<Map<String, dynamic>?> getPackingLists({
-    BuildContext? context,
-  }) async {
-    print(
+  Future<Map<String, dynamic>?> getPackingLists({BuildContext? context}) async {
+    debugPrint(
         '🚀 [TripService.getPackingLists] Calling GET ${ApiEndpoints.packingLists}');
 
-    try {
-      final result = await _apiService.safeApiCall(
-        apiCall: () => _apiService.client.get(ApiEndpoints.packingLists),
-        onSuccess: (data) {
-          print('✅ [TripService.getPackingLists] Raw response: $data');
-          final packingListsList = (data['packingLists'] as List)
-              .map((json) => PackingList.fromJson(json))
-              .toList();
-
-          print(
-              '✅ [TripService.getPackingLists] Parsed ${packingListsList.length} packing lists');
-          return {
-            'packingLists': packingListsList,
-            'count': packingListsList.length,
-          };
-        },
-        context: context,
-      );
-
-      print(
-          '🎯 [TripService.getPackingLists] Returning result: ${result != null}');
-      return result;
-    } catch (e, stackTrace) {
-      print('❌ [TripService.getPackingLists] Exception: $e');
-      print('❌ [TripService.getPackingLists] Stack trace: $stackTrace');
-      rethrow;
-    }
+    return await _apiService.safeApiCall(
+      apiCall: () => _apiService.client.get(ApiEndpoints.packingLists),
+      onSuccess: (data) {
+        debugPrint('✅ [TripService.getPackingLists] Raw response: $data');
+        final packingLists = (data['packingLists'] as List)
+            .map((json) => PackingList.fromJson(json))
+            .toList();
+        debugPrint(
+            '✅ [TripService.getPackingLists] Parsed ${packingLists.length} packing lists');
+        debugPrint('🎯 [TripService.getPackingLists] Returning result: true');
+        return {'packingLists': packingLists, 'count': packingLists.length};
+      },
+      context: context,
+    );
   }
 
   /// Get a single packing list by ID
@@ -114,23 +86,6 @@ class TripService {
     );
   }
 
-  /// Update a packing list
-  Future<PackingList?> updatePackingList({
-    required String packingListId,
-    required Map<String, dynamic> data,
-    BuildContext? context,
-  }) async {
-    return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.patch(
-        ApiEndpoints.packingList(packingListId),
-        body: data,
-      ),
-      onSuccess: (responseData) =>
-          PackingList.fromJson(responseData['packingList']),
-      context: context,
-    );
-  }
-
   /// Delete a packing list
   Future<bool> deletePackingList({
     required String packingListId,
@@ -142,7 +97,6 @@ class TripService {
       onSuccess: (data) => data['success'] as bool,
       context: context,
     );
-
     return result ?? false;
   }
 
@@ -152,9 +106,8 @@ class TripService {
     BuildContext? context,
   }) async {
     return await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.post(
-        ApiEndpoints.generateSuggestions(packingListId),
-      ),
+      apiCall: () => _apiService.client
+          .post(ApiEndpoints.generateSuggestions(packingListId)),
       onSuccess: (data) => data['suggestions'] as List,
       context: context,
     );
@@ -176,21 +129,7 @@ class TripService {
     );
   }
 
-  /// Clear packing list (delete all items)
-  Future<Map<String, dynamic>?> clearPackingList({
-    required String packingListId,
-    BuildContext? context,
-  }) async {
-    return await _apiService.safeApiCall(
-      apiCall: () =>
-          _apiService.client.post(ApiEndpoints.packingListClear(packingListId)),
-      onSuccess: (data) => {
-        'success': data['success'] as bool,
-        'itemsDeleted': data['itemsDeleted'] as int,
-      },
-      context: context,
-    );
-  }
+  // Packing List Items
 
   /// Get all items in a packing list
   Future<Map<String, dynamic>?> getPackingListItems({
@@ -204,7 +143,6 @@ class TripService {
         final items = (data['items'] as List)
             .map((json) => PackingItem.fromJson(json))
             .toList();
-
         return {
           'items': items,
           'stats': PackingListStats.fromJson(data['stats']),
@@ -253,15 +191,13 @@ class TripService {
         final items = (data['added'] as List)
             .map((json) => PackingItem.fromJson(json))
             .toList();
-
-        return {
-          'added': items,
-          'count': data['count'] as int,
-        };
+        return {'added': items, 'count': data['count'] as int};
       },
       context: context,
     );
   }
+
+  // Items
 
   /// Update an item
   Future<PackingItem?> updateItem({
@@ -289,94 +225,45 @@ class TripService {
     );
   }
 
-  /// Bulk update items (for updating multiple items at once)
+  /// Bulk update items (e.g., toggle isPacked for multiple items)
   Future<Map<String, dynamic>?> bulkUpdateItems({
     required String packingListId,
     required List<Map<String, dynamic>> updates,
     BuildContext? context,
   }) async {
-    debugPrint('🚀 [TripService.bulkUpdateItems] Sending bulk update request');
-    debugPrint('🚀 [TripService.bulkUpdateItems] Updates: $updates');
-
     return await _apiService.safeApiCall(
       apiCall: () => _apiService.client.patch(
         ApiEndpoints.packingListItemsBulkUpdate(packingListId),
         body: {'updates': updates},
       ),
       onSuccess: (data) {
-        debugPrint('✅ [TripService.bulkUpdateItems] Raw response: $data');
-
-        // Handle different possible response formats
-        try {
-          // Try the expected format first
-          if (data.containsKey('updated') && data.containsKey('count')) {
-            final updatedItems = (data['updated'] as List)
-                .map((json) => PackingItem.fromJson(json))
-                .toList();
-
-            debugPrint(
-                '✅ [TripService.bulkUpdateItems] Parsed ${updatedItems.length} items');
-            return {
-              'updated': updatedItems,
-              'count': data['count'] as int,
-            };
-          }
-
-          // Try alternative format (maybe backend returns items directly)
-          if (data.containsKey('items')) {
-            final updatedItems = (data['items'] as List)
-                .map((json) => PackingItem.fromJson(json))
-                .toList();
-
-            debugPrint(
-                '✅ [TripService.bulkUpdateItems] Parsed ${updatedItems.length} items (alternative format)');
-            return {
-              'updated': updatedItems,
-              'count': updatedItems.length,
-            };
-          }
-
-          // If we get here, the response format is unexpected
-          debugPrint(
-              '⚠️ [TripService.bulkUpdateItems] Unexpected response format: $data');
-          debugPrint(
-              '⚠️ [TripService.bulkUpdateItems] Response keys: ${data.keys.toList()}');
-
-          // Return a minimal success response
-          return {
-            'updated': <PackingItem>[],
-            'count': updates.length,
-          };
-        } catch (e, stackTrace) {
-          debugPrint(
-              '❌ [TripService.bulkUpdateItems] Error parsing response: $e');
-          debugPrint(
-              '❌ [TripService.bulkUpdateItems] Stack trace: $stackTrace');
-          rethrow;
+        // Handle expected format
+        if (data.containsKey('updated') && data.containsKey('count')) {
+          final items = (data['updated'] as List)
+              .map((json) => PackingItem.fromJson(json))
+              .toList();
+          return {'updated': items, 'count': data['count'] as int};
         }
+
+        // Handle alternative format
+        if (data.containsKey('items')) {
+          final items = (data['items'] as List)
+              .map((json) => PackingItem.fromJson(json))
+              .toList();
+          return {'updated': items, 'count': items.length};
+        }
+
+        // Fallback
+        return {'updated': <PackingItem>[], 'count': updates.length};
       },
       context: context,
     );
   }
 
-  /// Delete an item
-  Future<bool> deleteItem({
-    required String itemId,
-    BuildContext? context,
-  }) async {
-    final result = await _apiService.safeApiCall(
-      apiCall: () => _apiService.client.delete(ApiEndpoints.item(itemId)),
-      onSuccess: (data) => data['success'] as bool,
-      context: context,
-    );
-
-    return result ?? false;
-  }
+  // Utility
 
   /// Get available categories
-  Future<List<String>?> getCategories({
-    BuildContext? context,
-  }) async {
+  Future<List<String>?> getCategories({BuildContext? context}) async {
     return await _apiService.safeApiCall(
       apiCall: () => _apiService.client.get(ApiEndpoints.categories),
       onSuccess: (data) => List<String>.from(data['categories'] as List),
@@ -385,9 +272,7 @@ class TripService {
   }
 
   /// Get available tags
-  Future<Map<String, List<String>>?> getTags({
-    BuildContext? context,
-  }) async {
+  Future<Map<String, List<String>>?> getTags({BuildContext? context}) async {
     return await _apiService.safeApiCall(
       apiCall: () => _apiService.client.get(ApiEndpoints.tags),
       onSuccess: (data) => {
@@ -406,7 +291,7 @@ class TripService {
     try {
       final response = await _apiService.client.getPublic(ApiEndpoints.health);
       return response.statusCode == 200;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
