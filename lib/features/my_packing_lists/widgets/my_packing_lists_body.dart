@@ -324,7 +324,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.filter_list_off,
+              Icons.filter_list_off_rounded,
               size: 80,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
