@@ -683,7 +683,6 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
               size: 8,
               padding: 4,
               selectedColor: Theme.of(context).colorScheme.primary,
-              // todo: use theme color here instead of hardcoded color
               unselectedColor: Theme.of(context).colorScheme.surfaceTint,
               roundedEdges: const Radius.circular(4),
             ),
