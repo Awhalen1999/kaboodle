@@ -1,67 +1,90 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/services/user/user_service.dart';
 
 /// Notifier for managing user state using AsyncNotifier pattern
+///
+/// Handles:
+/// - Loading user profile from API on initialization
+/// - Refreshing user data (e.g., after login)
+/// - Clearing user data (e.g., on logout)
+/// - Updating user profile
 class UserNotifier extends AsyncNotifier<User?> {
   final UserService _userService = UserService();
 
   @override
   Future<User?> build() async {
-    print('📦 [UserProvider] build() called - initializing user data');
+    debugPrint('📦 [UserProvider] build() called - initializing user data');
 
     // Check if user is authenticated before making API call
     final authUser = auth.FirebaseAuth.instance.currentUser;
     if (authUser == null) {
-      print('⚠️ [UserProvider] No authenticated user, returning null');
+      debugPrint('⚠️ [UserProvider] No authenticated user, returning null');
       return null;
     }
 
-    print('🔄 [UserProvider] Loading user profile from API...');
+    debugPrint('🔄 [UserProvider] Loading user profile from API...');
     try {
       final user = await _userService.getUserProfile();
       if (user != null) {
-        print(
+        debugPrint(
             '✅ [UserProvider] User profile loaded: ${user.displayName ?? user.email}');
       } else {
-        print('❌ [UserProvider] Failed to load user profile (null returned)');
+        debugPrint(
+            '❌ [UserProvider] Failed to load user profile (null returned)');
       }
       return user;
     } catch (e, stackTrace) {
-      print('❌ [UserProvider] Error loading user profile: $e');
-      print('📍 [UserProvider] Stack trace: $stackTrace');
+      debugPrint('❌ [UserProvider] Error loading user profile: $e');
+      debugPrint('📍 [UserProvider] Stack trace: $stackTrace');
       rethrow;
     }
   }
 
   /// Refresh user profile (force reload)
+  ///
+  /// Sets loading state first, then fetches fresh data from API.
+  /// Use this after login to ensure user sees a loading indicator.
   Future<void> refresh() async {
-    print('🔄 [UserProvider] refresh() called - forcing reload');
+    debugPrint('🔄 [UserProvider] refresh() called - forcing reload');
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final authUser = auth.FirebaseAuth.instance.currentUser;
       if (authUser == null) {
-        print('⚠️ [UserProvider] No authenticated user during refresh');
+        debugPrint('⚠️ [UserProvider] No authenticated user during refresh');
         return null;
       }
-      print('🔄 [UserProvider] Refreshing user profile from API...');
+      debugPrint('🔄 [UserProvider] Refreshing user profile from API...');
       final user = await _userService.getUserProfile();
       if (user != null) {
-        print(
+        debugPrint(
             '✅ [UserProvider] User profile refreshed: ${user.displayName ?? user.email}');
       }
       return user;
     });
   }
 
+  /// Clear user state (used on logout to prevent stale data)
+  ///
+  /// Sets state to null immediately without triggering a rebuild/fetch.
+  /// Call this BEFORE signing out to prevent race conditions.
+  void clear() {
+    debugPrint('🧹 [UserProvider] clear() called - clearing user data');
+    state = const AsyncValue.data(null);
+  }
+
   /// Update user profile
+  ///
+  /// Returns true if update was successful, false otherwise.
+  /// Restores previous state on failure.
   Future<bool> updateUserProfile({
     String? displayName,
     String? photoUrl,
     String? country,
   }) async {
-    print('📝 [UserProvider] updateUserProfile() called');
+    debugPrint('📝 [UserProvider] updateUserProfile() called');
     final previousState = state;
 
     // Show loading state
@@ -75,19 +98,17 @@ class UserNotifier extends AsyncNotifier<User?> {
       );
 
       if (updatedUser != null) {
-        print('✅ [UserProvider] User profile updated successfully');
-        // Update state with new user data
+        debugPrint('✅ [UserProvider] User profile updated successfully');
         state = AsyncValue.data(updatedUser);
         return true;
       } else {
-        print('❌ [UserProvider] Failed to update user profile (null returned)');
-        // Restore previous state on failure
+        debugPrint(
+            '❌ [UserProvider] Failed to update user profile (null returned)');
         state = previousState;
         return false;
       }
     } catch (e, stackTrace) {
-      print('❌ [UserProvider] Error updating user profile: $e');
-      // Restore previous state and show error
+      debugPrint('❌ [UserProvider] Error updating user profile: $e');
       state = AsyncValue.error(e, stackTrace);
       return false;
     }

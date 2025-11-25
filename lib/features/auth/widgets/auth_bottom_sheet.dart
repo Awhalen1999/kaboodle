@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/shared/widgets/standard_text_field.dart';
 import 'package:toastification/toastification.dart';
 
-class AuthBottomSheet extends StatefulWidget {
+class AuthBottomSheet extends ConsumerStatefulWidget {
   final bool isSignUp;
 
   const AuthBottomSheet({
@@ -13,10 +14,10 @@ class AuthBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<AuthBottomSheet> createState() => _AuthBottomSheetState();
+  ConsumerState<AuthBottomSheet> createState() => _AuthBottomSheetState();
 }
 
-class _AuthBottomSheetState extends State<AuthBottomSheet> {
+class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -27,7 +28,7 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
   Future<void> _handleGoogleAuth() async {
     // Google Sign-In works for both signup and login
     // If user doesn't exist, Firebase creates account automatically
-    await AuthService().signInWithGoogle(context: context);
+    await AuthService().signInWithGoogle(context: context, ref: ref);
 
     // Close sheet on success (AuthService navigates away)
     if (mounted) {
@@ -89,6 +90,7 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
         email: email,
         password: password,
         context: context,
+        ref: ref,
       );
 
       // Close sheet on success (AuthService navigates away)
@@ -102,6 +104,7 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
         email: email,
         password: password,
         context: context,
+        ref: ref,
       );
 
       // Close sheet on success (AuthService navigates away)

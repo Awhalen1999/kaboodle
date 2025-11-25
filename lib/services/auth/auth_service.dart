@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:go_router/go_router.dart';
@@ -7,174 +8,177 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 
+/// Service for handling authentication operations
+///
+/// Handles:
+/// - Email/password signup and signin
+/// - Google Sign-In
+/// - Sign out with proper provider state management
+/// - Firebase token management
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  // Get current user
+  /// Get current Firebase user
   User? getCurrentUser() {
     return _auth.currentUser;
   }
 
-  // Check if user is authenticated
+  /// Check if user is authenticated
   bool isAuthenticated() {
     return _auth.currentUser != null;
   }
 
-  // Get Firebase ID token for API requests
+  /// Get Firebase ID token for API requests
   Future<String?> getIdToken({bool forceRefresh = false}) async {
     final user = _auth.currentUser;
     if (user == null) return null;
     return await user.getIdToken(forceRefresh);
   }
 
+  /// Show error toast notification
+  void _showErrorToast(BuildContext context, String message) {
+    if (!context.mounted) return;
+    toastification.show(
+      context: context,
+      type: ToastificationType.error,
+      style: ToastificationStyle.flat,
+      autoCloseDuration: const Duration(seconds: 3),
+      title: Text(message),
+    );
+  }
+
+  /// Refresh providers after successful authentication
+  void _refreshProvidersAfterAuth(WidgetRef ref) {
+    ref.read(userProvider.notifier).refresh();
+    ref.read(packingListsProvider.notifier).refresh();
+  }
+
+  /// Clear providers before signing out
+  void _clearProvidersBeforeSignout(WidgetRef ref) {
+    ref.read(packingListsProvider.notifier).clear();
+    ref.read(userProvider.notifier).clear();
+  }
+
+  /// Sign up with email and password
   Future<void> signup({
     required String email,
     required String password,
     required BuildContext context,
+    required WidgetRef ref,
   }) async {
     try {
-      // Perform async signup
+      debugPrint('📝 [AuthService] Starting signup...');
+
       await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // After successful signup, check if the context is still valid before redirecting
+      debugPrint('✅ [AuthService] Signup successful, refreshing providers...');
+      _refreshProvidersAfterAuth(ref);
+
       if (!context.mounted) return;
       context.go('/my-packing-lists');
     } on FirebaseAuthException catch (e) {
-      String message = '';
-      switch (e.code) {
-        case 'weak-password':
-          message = 'The password provided is too weak.';
-          break;
-        case 'email-already-in-use':
-          message = 'An account already exists with that email.';
-          break;
-        case 'invalid-email':
-          message = 'The email address is invalid.';
-          break;
-        case 'operation-not-allowed':
-          message = 'Email/password accounts are not enabled.';
-          break;
-        default:
-          message = e.message ?? 'An error occurred during sign up.';
-      }
-
-      // Ensure context is valid before showing toast
-      if (context.mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text(message),
-        );
-      }
+      final message = switch (e.code) {
+        'weak-password' => 'The password provided is too weak.',
+        'email-already-in-use' => 'An account already exists with that email.',
+        'invalid-email' => 'The email address is invalid.',
+        'operation-not-allowed' => 'Email/password accounts are not enabled.',
+        _ => e.message ?? 'An error occurred during sign up.',
+      };
+      _showErrorToast(context, message);
     } catch (e) {
-      // Handle other exceptions
-      if (context.mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text('An unexpected error occurred: ${e.toString()}'),
-        );
-      }
+      _showErrorToast(context, 'An unexpected error occurred: ${e.toString()}');
     }
   }
 
+  /// Sign in with email and password
   Future<void> signin({
     required String email,
     required String password,
     required BuildContext context,
+    required WidgetRef ref,
   }) async {
     try {
-      // Perform async signin
+      debugPrint('🔑 [AuthService] Starting signin...');
+
       await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Check if context is valid before redirecting
+      debugPrint('✅ [AuthService] Signin successful, refreshing providers...');
+      _refreshProvidersAfterAuth(ref);
+
       if (!context.mounted) return;
       context.go('/my-packing-lists');
     } on FirebaseAuthException catch (e) {
-      String message = '';
-      switch (e.code) {
-        case 'invalid-email':
-          message = 'The email address is invalid.';
-          break;
-        case 'user-disabled':
-          message = 'This account has been disabled.';
-          break;
-        case 'user-not-found':
-          message = 'No user found for that email.';
-          break;
-        case 'wrong-password':
-        case 'invalid-credential':
-          message = 'Wrong password provided for that user.';
-          break;
-        case 'too-many-requests':
-          message = 'Too many failed attempts. Please try again later.';
-          break;
-        default:
-          message = e.message ?? 'An error occurred during sign in.';
-      }
-
-      // Ensure context is valid before showing toast
-      if (context.mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text(message),
-        );
-      }
+      final message = switch (e.code) {
+        'invalid-email' => 'The email address is invalid.',
+        'user-disabled' => 'This account has been disabled.',
+        'user-not-found' => 'No user found for that email.',
+        'wrong-password' ||
+        'invalid-credential' =>
+          'Wrong password provided for that user.',
+        'too-many-requests' =>
+          'Too many failed attempts. Please try again later.',
+        _ => e.message ?? 'An error occurred during sign in.',
+      };
+      _showErrorToast(context, message);
     } catch (e) {
-      // Handle other exceptions
-      if (context.mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text('An unexpected error occurred: ${e.toString()}'),
-        );
-      }
+      _showErrorToast(context, 'An unexpected error occurred: ${e.toString()}');
     }
   }
 
+  /// Sign out from Firebase and Google
+  ///
+  /// Clears provider state BEFORE signing out to prevent race conditions.
   Future<void> signout({
     required BuildContext context,
     required WidgetRef ref,
   }) async {
-    // Perform async signout first
-    await _auth.signOut();
-    await _googleSignIn.signOut();
+    try {
+      debugPrint('🚪 [AuthService] Starting signout...');
 
-    // Invalidate providers after signout to clear state and prevent data sharing across accounts
-    // This order prevents the providers from trying to load data while user is still authenticated
-    ref.invalidate(packingListsProvider);
-    ref.invalidate(userProvider);
+      // Step 1: Clear provider state BEFORE signing out
+      // This prevents race conditions where providers rebuild with stale auth
+      debugPrint('🧹 [AuthService] Clearing provider state...');
+      _clearProvidersBeforeSignout(ref);
 
-    // Redirect immediately after signout
-    if (!context.mounted) return;
-    context.go('/welcome');
+      // Step 2: Perform async signout
+      debugPrint('🔐 [AuthService] Signing out from Firebase & Google...');
+      await _auth.signOut();
+      await _googleSignIn.signOut();
+
+      debugPrint('✅ [AuthService] Signout complete');
+
+      // Step 3: Redirect to welcome page
+      if (!context.mounted) return;
+      context.go('/welcome');
+    } catch (e) {
+      debugPrint('❌ [AuthService] Error during signout: $e');
+      // Still try to redirect even if signout fails
+      if (context.mounted) {
+        context.go('/welcome');
+      }
+    }
   }
 
+  /// Sign in with Google
   Future<void> signInWithGoogle({
     required BuildContext context,
+    required WidgetRef ref,
   }) async {
     try {
+      debugPrint('🔑 [AuthService] Starting Google signin...');
+
       // Trigger the Google Sign In flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        // User canceled the sign-in
+        debugPrint('⚠️ [AuthService] Google signin cancelled by user');
         return;
       }
 
@@ -191,47 +195,23 @@ class AuthService {
       // Sign in to Firebase with the Google credential
       await _auth.signInWithCredential(credential);
 
-      // Check if context is valid before redirecting
+      debugPrint(
+          '✅ [AuthService] Google signin successful, refreshing providers...');
+      _refreshProvidersAfterAuth(ref);
+
       if (!context.mounted) return;
       context.go('/my-packing-lists');
     } on FirebaseAuthException catch (e) {
-      String message = '';
-      switch (e.code) {
-        case 'account-exists-with-different-credential':
-          message =
-              'An account already exists with a different sign-in method.';
-          break;
-        case 'invalid-credential':
-          message = 'The credential is invalid.';
-          break;
-        case 'operation-not-allowed':
-          message = 'Google sign-in is not enabled.';
-          break;
-        default:
-          message = e.message ?? 'An error occurred during Google sign in.';
-      }
-
-      // Ensure context is valid before showing toast
-      if (context.mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text(message),
-        );
-      }
+      final message = switch (e.code) {
+        'account-exists-with-different-credential' =>
+          'An account already exists with a different sign-in method.',
+        'invalid-credential' => 'The credential is invalid.',
+        'operation-not-allowed' => 'Google sign-in is not enabled.',
+        _ => e.message ?? 'An error occurred during Google sign in.',
+      };
+      _showErrorToast(context, message);
     } catch (e) {
-      // Handle other exceptions
-      if (context.mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text('An unexpected error occurred: ${e.toString()}'),
-        );
-      }
+      _showErrorToast(context, 'An unexpected error occurred: ${e.toString()}');
     }
   }
 }
