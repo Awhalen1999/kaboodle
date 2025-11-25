@@ -29,7 +29,7 @@ class ProfileAvatar extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
-        color: backgroundColor ?? Colors.grey[300],
+        color: backgroundColor ?? Theme.of(context).colorScheme.outline,
       ),
       clipBehavior: Clip.antiAlias,
       child: photoUrl != null
@@ -40,14 +40,16 @@ class ProfileAvatar extends StatelessWidget {
                 return Icon(
                   fallbackIcon,
                   size: fallbackIconSize,
-                  color: fallbackIconColor ?? Colors.grey[600],
+                  color: fallbackIconColor ??
+                      Theme.of(context).colorScheme.onSurfaceVariant,
                 );
               },
             )
           : Icon(
               fallbackIcon,
               size: fallbackIconSize,
-              color: fallbackIconColor ?? Colors.grey[600],
+              color: fallbackIconColor ??
+                  Theme.of(context).colorScheme.onSurfaceVariant,
             ),
     );
   }

@@ -92,7 +92,7 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
               Icon(
                 Icons.error_outline,
                 size: 64,
-                color: Colors.grey[400],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: 16),
               Text(
@@ -102,7 +102,8 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
               const SizedBox(height: 8),
               Text(
                 error.toString(),
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -134,7 +135,10 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300]!.withValues(alpha: 0.5),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.5),
                       shape: BoxShape.circle,
                     ),
                     child: Material(
@@ -163,7 +167,7 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
             child: Text(
               user.email,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
           ),
@@ -176,7 +180,7 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
               Text(
                 'Display Name',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
               ),
@@ -196,7 +200,7 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
               Text(
                 'Country',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
               ),
@@ -224,7 +228,7 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.grey[300]!,
+                            color: Theme.of(context).colorScheme.outline,
                           ),
                         ),
                       ),
@@ -274,13 +278,15 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
                                 .textTheme
                                 .bodyMedium
                                 ?.copyWith(
-                                  color: Colors.grey[400],
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                 ),
                           ),
                         ),
                       Icon(
                         Icons.arrow_drop_down,
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ],
                   ),
@@ -302,13 +308,13 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     side: BorderSide(
-                      color: Colors.grey[300]!,
+                      color: Theme.of(context).colorScheme.outline,
                     ),
                   ),
                   child: Text(
                     'Cancel',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[700],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                 ),

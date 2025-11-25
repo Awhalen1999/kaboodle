@@ -46,7 +46,7 @@ class ProfileTile extends ConsumerWidget {
               height: 40,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: Colors.grey[300],
+                color: Theme.of(context).colorScheme.outline,
               ),
               clipBehavior: Clip.antiAlias,
               child: user?.photoUrl != null
@@ -57,14 +57,14 @@ class ProfileTile extends ConsumerWidget {
                         return Icon(
                           Icons.person,
                           size: 24,
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         );
                       },
                     )
                   : Icon(
                       Icons.person,
                       size: 24,
-                      color: Colors.grey[600],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
             ),
             trailing: const Icon(Icons.chevron_right_rounded),
@@ -106,12 +106,12 @@ class ProfileTile extends ConsumerWidget {
               height: 40,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: Colors.grey[300],
+                color: Theme.of(context).colorScheme.outline,
               ),
               child: Icon(
                 Icons.person,
                 size: 24,
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             trailing: const Icon(Icons.chevron_right_rounded),
@@ -144,7 +144,7 @@ class _ProfileTileSkeleton extends StatelessWidget {
             height: 14,
             width: 120,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: Theme.of(context).colorScheme.outline,
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -156,7 +156,7 @@ class _ProfileTileSkeleton extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Colors.grey[300],
+          color: Theme.of(context).colorScheme.outline,
         ),
       ),
       trailing: const Icon(Icons.chevron_right_rounded),

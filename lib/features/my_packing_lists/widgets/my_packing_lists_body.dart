@@ -180,7 +180,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               Icon(
                 Icons.error_outline,
                 size: 64,
-                color: Colors.grey[400],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: 16),
               Text(
@@ -190,7 +190,9 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               const SizedBox(height: 8),
               Text(
                 error.toString(),
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -291,7 +293,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
             Icon(
               Icons.luggage_outlined,
               size: 100,
-              color: Colors.grey[400],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 24),
             Text(
@@ -305,7 +307,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               'Start packing by creating\nyour first trip',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
           ],
@@ -324,7 +326,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
             Icon(
               Icons.filter_list_off,
               size: 80,
-              color: Colors.grey[400],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 24),
             Text(

@@ -76,7 +76,9 @@ class MenuDrawer extends ConsumerWidget {
                           child: Text(
                             'Nothing here yet',
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                               fontSize: 14,
                             ),
                           ),
@@ -137,7 +139,8 @@ class MenuDrawer extends ConsumerWidget {
                         child: Text(
                           'Error loading trips',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 14,
                           ),
                         ),

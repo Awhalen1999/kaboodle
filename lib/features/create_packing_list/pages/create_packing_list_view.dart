@@ -755,7 +755,7 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 side: BorderSide(
-                                  color: Colors.grey[300]!,
+                                  color: Theme.of(context).colorScheme.outline,
                                 ),
                               ),
                               child: Text(
@@ -764,7 +764,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
                                     .textTheme
                                     .bodyMedium
                                     ?.copyWith(
-                                      color: Colors.grey[700],
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                     ),
                               ),
                             ),

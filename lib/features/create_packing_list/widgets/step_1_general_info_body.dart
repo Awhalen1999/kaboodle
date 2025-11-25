@@ -40,7 +40,8 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
     // Initialize country from formData if available
     if (widget.formData['destination'] != null &&
         widget.formData['destination']!.isNotEmpty) {
-      _selectedCountry = CountryUtils.getCountry(widget.formData['destination']!);
+      _selectedCountry =
+          CountryUtils.getCountry(widget.formData['destination']!);
     }
 
     // Initialize dates from formData if available
@@ -288,7 +289,7 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.grey[300]!,
+                            color: Theme.of(context).colorScheme.outline,
                           ),
                         ),
                       ),
@@ -330,7 +331,7 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                         ),
                       Icon(
                         Icons.arrow_drop_down,
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ],
                   ),
@@ -514,7 +515,9 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                               ?.copyWith(
                                 color: _selectedDates.isEmpty ||
                                         _selectedDates[0] == null
-                                    ? Colors.grey[400]
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant
                                     : Theme.of(context).colorScheme.onSurface,
                               ),
                         ),
