@@ -45,14 +45,13 @@ class CheckboxTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: isSelected
-            ? colorScheme.surfaceContainerHighest
-            : colorScheme.surface,
+        color:
+            isSelected ? colorScheme.surfaceContainerHigh : colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected
-              ? colorScheme.onSurface.withValues(alpha: 0.2)
-              : colorScheme.outline.withValues(alpha: 0.2),
+              ? colorScheme.outlineVariant
+              : colorScheme.outline.withValues(alpha: 0.5),
           width: 1,
         ),
       ),

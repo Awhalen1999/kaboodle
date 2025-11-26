@@ -23,12 +23,12 @@ class SvgOptionTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? Theme.of(context).colorScheme.surfaceContainerHighest
+              ? Theme.of(context).colorScheme.surfaceContainerHigh
               : Theme.of(context).colorScheme.surface,
           border: Border.all(
             color: isSelected
-                ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)
-                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                ? Theme.of(context).colorScheme.outlineVariant
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.75),
             width: 1,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -44,7 +44,8 @@ class SvgOptionTile extends StatelessWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.w500 : FontWeight.normal,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
             ),

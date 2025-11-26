@@ -43,13 +43,13 @@ class UsePackingListItemTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: item.isPacked
-            ? colorScheme.surfaceContainerHighest
+            ? colorScheme.surfaceContainerHigh
             : colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: item.isPacked
-              ? colorScheme.onSurface.withValues(alpha: 0.2)
-              : colorScheme.outline.withValues(alpha: 0.2),
+              ? colorScheme.outlineVariant
+              : colorScheme.outline.withValues(alpha: 0.75),
           width: 1,
         ),
       ),
