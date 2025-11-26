@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
 import 'package:kaboodle_app/shared/utils/icon_utils.dart';
 import 'package:kaboodle_app/shared/utils/string_utils.dart';
 import 'package:kaboodle_app/theme/expanded_palette.dart';
+import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
+import 'package:kaboodle_app/models/item_template.dart';
+import 'package:kaboodle_app/services/trip/trip_service.dart';
 
-class Step4OverviewBody extends StatelessWidget {
+class Step4OverviewBody extends ConsumerStatefulWidget {
   final Map<String, dynamic> formData;
   final Function(int step)? onEditStep;
 
@@ -14,6 +18,58 @@ class Step4OverviewBody extends StatelessWidget {
     required this.formData,
     this.onEditStep,
   });
+
+  @override
+  ConsumerState<Step4OverviewBody> createState() => _Step4OverviewBodyState();
+}
+
+class _Step4OverviewBodyState extends ConsumerState<Step4OverviewBody> {
+  List<ItemTemplate>? _suggestions;
+  final TripService _tripService = TripService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Load suggestions if we need to load items from API
+    _loadSuggestionsIfNeeded();
+  }
+
+  Future<void> _loadSuggestionsIfNeeded() async {
+    // Only load suggestions if we don't have items in formData
+    final hasItemsInFormData = widget.formData['selectedItems'] != null &&
+        (widget.formData['selectedItems'] as Map).isNotEmpty;
+
+    if (!hasItemsInFormData) {
+      final packingListId = widget.formData['packingListId'] as String?;
+      if (packingListId != null) {
+        try {
+          final suggestionsResult = await _tripService.generateSuggestions(
+            packingListId: packingListId,
+            context: context,
+          );
+
+          if (suggestionsResult != null && mounted) {
+            setState(() {
+              _suggestions = suggestionsResult
+                  .map((json) =>
+                      ItemTemplate.fromJson(json as Map<String, dynamic>))
+                  .toList();
+            });
+          }
+        } catch (e) {
+          debugPrint('⚠️ [Step4] Error loading suggestions: $e');
+        }
+      }
+    } else {
+      // Use suggestions from formData if available
+      final suggestions = widget.formData['suggestions'] as List?;
+      if (suggestions != null) {
+        setState(() {
+          _suggestions = suggestions.cast<ItemTemplate>();
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +101,7 @@ class Step4OverviewBody extends StatelessWidget {
           _buildSectionContainer(
             context: context,
             title: 'General Info',
-            onEdit: () => onEditStep?.call(0),
+            onEdit: () => widget.onEditStep?.call(0),
             child: _buildStep1Content(context),
           ),
           const SizedBox(height: 16),
@@ -54,7 +110,7 @@ class Step4OverviewBody extends StatelessWidget {
           _buildSectionContainer(
             context: context,
             title: 'Trip Details',
-            onEdit: () => onEditStep?.call(1),
+            onEdit: () => widget.onEditStep?.call(1),
             child: _buildStep2Content(context),
           ),
           const SizedBox(height: 16),
@@ -63,7 +119,7 @@ class Step4OverviewBody extends StatelessWidget {
           _buildSectionContainer(
             context: context,
             title: 'Packing Items',
-            onEdit: () => onEditStep?.call(2),
+            onEdit: () => widget.onEditStep?.call(2),
             child: _buildStep3Content(context),
           ),
           const SizedBox(height: 24),
@@ -159,11 +215,11 @@ class Step4OverviewBody extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final name = formData['name'] as String?;
-    final startDate = formData['startDate'] as DateTime?;
-    final endDate = formData['endDate'] as DateTime?;
-    final destination = formData['destination'] as String?;
-    final description = formData['description'] as String?;
+    final name = widget.formData['name'] as String?;
+    final startDate = widget.formData['startDate'] as DateTime?;
+    final endDate = widget.formData['endDate'] as DateTime?;
+    final destination = widget.formData['destination'] as String?;
+    final description = widget.formData['description'] as String?;
 
     // Build lists for labels and values
     final List<String> labels = [];
@@ -248,11 +304,11 @@ class Step4OverviewBody extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final gender = formData['gender'] as String?;
-    final weather = formData['weather'] as List?;
-    final purpose = formData['purpose'] as String?;
-    final accommodations = formData['accommodations'] as String?;
-    final activities = formData['activities'] as List?;
+    final gender = widget.formData['gender'] as String?;
+    final weather = widget.formData['weather'] as List?;
+    final purpose = widget.formData['purpose'] as String?;
+    final accommodations = widget.formData['accommodations'] as String?;
+    final activities = widget.formData['activities'] as List?;
 
     // Show message if no details added
     if ((gender == null || gender.isEmpty) &&
@@ -337,13 +393,25 @@ class Step4OverviewBody extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final selectedItems = formData['selectedItems'] as Map<String, bool>?;
-    final itemQuantities = formData['itemQuantities'] as Map<String, int>?;
-    final itemNotes = formData['itemNotes'] as Map<String, String>?;
-    final customItems =
-        formData['customItems'] as Map<String, List<Map<String, dynamic>>>?;
-    final suggestions = formData['suggestions'] as List?;
+    final selectedItems =
+        widget.formData['selectedItems'] as Map<String, bool>?;
+    final itemQuantities =
+        widget.formData['itemQuantities'] as Map<String, int>?;
+    final itemNotes = widget.formData['itemNotes'] as Map<String, String>?;
+    final customItems = widget.formData['customItems']
+        as Map<String, List<Map<String, dynamic>>>?;
+    final packingListId = widget.formData['packingListId'] as String?;
 
+    // Check if we have items in formData
+    final hasItemsInFormData =
+        selectedItems != null && selectedItems.isNotEmpty;
+
+    // If we don't have items in formData, try to load from provider
+    if (!hasItemsInFormData && packingListId != null) {
+      return _buildItemsFromProvider(context, packingListId);
+    }
+
+    // If we have items in formData, use them
     if (selectedItems == null || selectedItems.isEmpty) {
       return Text(
         'No items selected',
@@ -358,8 +426,8 @@ class Step4OverviewBody extends StatelessWidget {
     final List<Map<String, dynamic>> allItems = [];
 
     // Add template items (from suggestions)
-    if (suggestions != null) {
-      for (var suggestion in suggestions) {
+    if (_suggestions != null) {
+      for (var suggestion in _suggestions!) {
         final id = suggestion.id;
         final isSelected = selectedItems[id] ?? false;
         if (isSelected) {
@@ -428,6 +496,101 @@ class Step4OverviewBody extends StatelessWidget {
           note: note,
         );
       }).toList(),
+    );
+  }
+
+  /// Build items from provider when formData doesn't have them
+  Widget _buildItemsFromProvider(BuildContext context, String packingListId) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final itemsAsync = ref.watch(usePackingItemsProvider(packingListId));
+
+    return itemsAsync.when(
+      data: (items) {
+        if (items.isEmpty) {
+          return Text(
+            'No items selected',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+              fontStyle: FontStyle.italic,
+            ),
+          );
+        }
+
+        // Transform PackingItems into the format expected by _buildItemTile
+        final List<Map<String, dynamic>> allItems = [];
+
+        for (var item in items) {
+          String iconName = '';
+          IconData icon = Icons.category;
+
+          if (item.isCustom) {
+            icon = Icons.bookmark_border_rounded;
+          } else {
+            // Try to match with suggestions to get icon
+            if (_suggestions != null) {
+              try {
+                final matchingSuggestion = _suggestions!.firstWhere(
+                  (s) => s.name.toLowerCase() == item.name.toLowerCase(),
+                );
+                iconName = matchingSuggestion.icon;
+                icon = IconUtils.getIconData(iconName);
+              } catch (e) {
+                // No matching suggestion found, use category icon as fallback
+                if (item.category != null) {
+                  icon = IconUtils.getIconData(item.category!);
+                }
+              }
+            } else if (item.category != null) {
+              // Fallback to category icon
+              icon = IconUtils.getIconData(item.category!);
+            }
+          }
+
+          allItems.add({
+            'name': item.name,
+            'icon': iconName,
+            'category': item.category,
+            'quantity': item.quantity,
+            'note': item.notes ?? '',
+            'isCustom': item.isCustom,
+            'iconData': icon,
+          });
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: allItems.map((item) {
+            return _buildItemTile(
+              context: context,
+              icon: item['iconData'] as IconData,
+              itemName: item['name'] as String,
+              category: item['category'] as String?,
+              quantity: item['quantity'] as int,
+              note: item['note'] as String,
+            );
+          }).toList(),
+        );
+      },
+      loading: () => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: CircularProgressIndicator(
+            color: colorScheme.primary,
+          ),
+        ),
+      ),
+      error: (error, stackTrace) {
+        debugPrint('❌ [Step4] Error loading items: $error');
+        return Text(
+          'Error loading items',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.error,
+            fontStyle: FontStyle.italic,
+          ),
+        );
+      },
     );
   }
 
