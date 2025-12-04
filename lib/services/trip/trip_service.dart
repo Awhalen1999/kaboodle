@@ -26,6 +26,7 @@ class TripService {
     String? accommodations,
     List<String>? activities,
     int? stepCompleted,
+    bool? isCompleted,
     BuildContext? context,
   }) async {
     final body = {
@@ -42,6 +43,7 @@ class TripService {
       if (accommodations != null) 'accommodations': accommodations,
       if (activities != null && activities.isNotEmpty) 'activities': activities,
       if (stepCompleted != null) 'stepCompleted': stepCompleted,
+      if (isCompleted != null) 'isCompleted': isCompleted,
     };
 
     return await _apiService.safeApiCall(

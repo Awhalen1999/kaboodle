@@ -10,6 +10,7 @@ class PackingListTile extends StatelessWidget {
   final String? destination;
   final Color accentColor;
   final int stepCompleted;
+  final bool isCompleted;
   final VoidCallback onTap;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
@@ -24,6 +25,7 @@ class PackingListTile extends StatelessWidget {
     this.destination,
     required this.accentColor,
     required this.stepCompleted,
+    this.isCompleted = false,
     required this.onTap,
     this.onDelete,
     this.onEdit,
@@ -138,8 +140,38 @@ class PackingListTile extends StatelessWidget {
                               if (destination != null &&
                                   destination!.isNotEmpty)
                                 _buildLocationChip(context, destination!),
+                              // Completion badge
+                              if (isCompleted)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle_outline,
+                                        size: 12,
+                                        color: Colors.green.shade700,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Complete',
+                                        style:
+                                            theme.textTheme.bodySmall?.copyWith(
+                                          fontSize: 11,
+                                          color: Colors.green.shade700,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
                               // Incomplete badge
-                              if (stepCompleted < 4)
+                              else if (stepCompleted < 4)
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),

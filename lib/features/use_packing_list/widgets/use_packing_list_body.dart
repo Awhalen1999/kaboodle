@@ -7,6 +7,7 @@ import 'package:kaboodle_app/shared/utils/format_utils.dart';
 import 'package:kaboodle_app/shared/constants/category_constants.dart';
 import 'package:kaboodle_app/theme/expanded_palette.dart';
 import 'package:kaboodle_app/features/use_packing_list/widgets/use_packing_list_item_tile.dart';
+import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:toastification/toastification.dart';
 import 'package:lottie/lottie.dart';
 
@@ -74,6 +75,35 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
 
       if (success) {
         debugPrint('✅ [UsePackingListBody] Save successful');
+
+        // If all items are packed, mark the packing list as complete
+        if (allPacked) {
+          debugPrint('🎯 [UsePackingListBody] Marking packing list as complete');
+          final tripService = TripService();
+          final packingList = await tripService.getPackingList(
+            packingListId: widget.packingListId,
+          );
+
+          if (packingList != null && mounted) {
+            await tripService.upsertPackingList(
+              id: widget.packingListId,
+              name: packingList.name,
+              startDate: packingList.startDate,
+              endDate: packingList.endDate,
+              description: packingList.description,
+              destination: packingList.destination,
+              colorTag: packingList.colorTag,
+              gender: packingList.gender,
+              weather: packingList.weather,
+              purpose: packingList.purpose,
+              accommodations: packingList.accommodations,
+              activities: packingList.activities,
+              isCompleted: true,
+            );
+          }
+        }
+
+        if (!mounted) return;
 
         toastification.show(
           context: context,

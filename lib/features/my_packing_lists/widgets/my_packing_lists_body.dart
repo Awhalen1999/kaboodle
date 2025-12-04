@@ -366,6 +366,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           destination: packingList.destination,
           accentColor: accentColor,
           stepCompleted: packingList.stepCompleted,
+          isCompleted: packingList.isCompleted,
           onTap: () {
             if (packingList.stepCompleted < 4) {
               // List is incomplete - continue creation
