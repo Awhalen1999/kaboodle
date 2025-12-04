@@ -39,9 +39,13 @@ class PackingListTile extends StatelessWidget {
       builder: (BuildContext context) {
         return PackingListOptionsSheet(
           stepCompleted: stepCompleted,
+          isCompleted: isCompleted,
           onEdit: onEdit,
           onShare: onShare,
           onDelete: onDelete,
+          onSetNewTripDate: () {
+            debugPrint('🗓️ Set New Trip Date clicked');
+          },
         );
       },
     );

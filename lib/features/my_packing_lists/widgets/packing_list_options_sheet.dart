@@ -5,16 +5,20 @@ import 'package:flutter/material.dart';
 /// Clean, modern UI matching the create packing list feature styling
 class PackingListOptionsSheet extends StatelessWidget {
   final int stepCompleted;
+  final bool isCompleted;
   final VoidCallback? onEdit;
   final VoidCallback? onShare;
   final VoidCallback? onDelete;
+  final VoidCallback? onSetNewTripDate;
 
   const PackingListOptionsSheet({
     super.key,
     required this.stepCompleted,
+    this.isCompleted = false,
     this.onEdit,
     this.onShare,
     this.onDelete,
+    this.onSetNewTripDate,
   });
 
   @override
@@ -50,6 +54,45 @@ class PackingListOptionsSheet extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Set New Trip Date option (only for completed lists)
+            if (stepCompleted >= 4 && isCompleted && onSetNewTripDate != null)
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  onSetNewTripDate!();
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 16,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.calendar_month_rounded,
+                          size: 24,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Set New Trip Date',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
             // Edit/Continue Building option
             if (onEdit != null)
