@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:kaboodle_app/features/my_packing_lists/widgets/packing_list_tile.dart';
 import 'package:kaboodle_app/models/packing_list.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
@@ -81,6 +82,79 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           style: ToastificationStyle.flat,
           autoCloseDuration: const Duration(seconds: 3),
           title: Text('Failed to delete: ${e.toString()}'),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleSetNewTripDate(PackingList packingList) async {
+    // Show date range picker with current dates as initial values
+    final results = await showCalendarDatePicker2Dialog(
+      context: context,
+      config: CalendarDatePicker2WithActionButtonsConfig(
+        calendarType: CalendarDatePicker2Type.range,
+        firstDate: DateTime.now(),
+        lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+        selectedDayHighlightColor: Theme.of(context).colorScheme.primary,
+        selectedRangeHighlightColor:
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+        cancelButtonTextStyle: Theme.of(context).textTheme.bodyMedium,
+        okButtonTextStyle: Theme.of(context).textTheme.bodyMedium,
+        cancelButton: const Text('Cancel'),
+        okButton: const Text('Save'),
+      ),
+      dialogSize: const Size(325, 400),
+      value: [packingList.startDate, packingList.endDate],
+      borderRadius: BorderRadius.circular(15),
+    );
+
+    if (results == null || results.isEmpty || results[0] == null) {
+      return;
+    }
+
+    if (!mounted) return;
+
+    try {
+      // Update the packing list with new dates
+      await _tripService.upsertPackingList(
+        id: packingList.id,
+        name: packingList.name,
+        startDate: results[0]!,
+        endDate: results.length > 1 && results[1] != null
+            ? results[1]!
+            : results[0]!,
+        description: packingList.description,
+        destination: packingList.destination,
+        colorTag: packingList.colorTag,
+        gender: packingList.gender,
+        weather: packingList.weather,
+        purpose: packingList.purpose,
+        accommodations: packingList.accommodations,
+        activities: packingList.activities,
+        context: mounted ? context : null,
+      );
+
+      if (mounted) {
+        // Refresh the list
+        ref.read(packingListsProvider.notifier).refresh();
+
+        // Show success message
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: const Text('Trip dates updated'),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: Text('Failed to update dates: ${e.toString()}'),
         );
       }
     }
@@ -401,6 +475,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               : null,
           onDelete: () =>
               _handleDeletePackingList(packingList.id, packingList.name),
+          onSetNewTripDate: () => _handleSetNewTripDate(packingList),
         );
       },
     );
