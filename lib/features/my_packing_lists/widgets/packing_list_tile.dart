@@ -146,16 +146,17 @@ class PackingListTile extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withValues(alpha: 0.2),
+                                    color: Colors.lightGreen
+                                        .withValues(alpha: 0.25),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
-                                        Icons.check_circle_outline,
+                                        Icons.check_rounded,
                                         size: 12,
-                                        color: Colors.green.shade700,
+                                        color: colorScheme.onSurfaceVariant,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
@@ -163,7 +164,7 @@ class PackingListTile extends StatelessWidget {
                                         style:
                                             theme.textTheme.bodySmall?.copyWith(
                                           fontSize: 11,
-                                          color: Colors.green.shade700,
+                                          color: colorScheme.onSurfaceVariant,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
