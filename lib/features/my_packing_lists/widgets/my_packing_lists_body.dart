@@ -476,6 +476,11 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           onDelete: () =>
               _handleDeletePackingList(packingList.id, packingList.name),
           onSetNewTripDate: () => _handleSetNewTripDate(packingList),
+          onResetProgress: packingList.stepCompleted >= 4
+              ? () {
+                  debugPrint('🔄 Reset Progress for: ${packingList.name}');
+                }
+              : null,
         );
       },
     );

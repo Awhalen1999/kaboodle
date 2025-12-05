@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Bottom sheet for packing list options (edit/continue building, share, and delete)
@@ -10,6 +11,7 @@ class PackingListOptionsSheet extends StatelessWidget {
   final VoidCallback? onShare;
   final VoidCallback? onDelete;
   final VoidCallback? onSetNewTripDate;
+  final VoidCallback? onResetProgress;
 
   const PackingListOptionsSheet({
     super.key,
@@ -19,6 +21,7 @@ class PackingListOptionsSheet extends StatelessWidget {
     this.onShare,
     this.onDelete,
     this.onSetNewTripDate,
+    this.onResetProgress,
   });
 
   @override
@@ -85,6 +88,46 @@ class PackingListOptionsSheet extends StatelessWidget {
                       const SizedBox(width: 16),
                       Text(
                         'Set New Trip Date',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // Reset Progress option (only for completed lists)
+            if (stepCompleted >= 4 && onResetProgress != null)
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  debugPrint('🔄 Reset Progress clicked');
+                  onResetProgress!();
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 16,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.refresh_rounded,
+                          size: 24,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Reset Progress',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: colorScheme.onSurface,
                         ),

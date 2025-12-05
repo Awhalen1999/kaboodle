@@ -16,6 +16,7 @@ class PackingListTile extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onShare;
   final VoidCallback? onSetNewTripDate;
+  final VoidCallback? onResetProgress;
 
   const PackingListTile({
     super.key,
@@ -32,6 +33,7 @@ class PackingListTile extends StatelessWidget {
     this.onEdit,
     this.onShare,
     this.onSetNewTripDate,
+    this.onResetProgress,
   });
 
   void _showActionSheet(BuildContext context) {
@@ -46,6 +48,7 @@ class PackingListTile extends StatelessWidget {
           onShare: onShare,
           onDelete: onDelete,
           onSetNewTripDate: onSetNewTripDate,
+          onResetProgress: onResetProgress,
         );
       },
     );
