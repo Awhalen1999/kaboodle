@@ -178,44 +178,44 @@ class PackingListOptionsSheet extends StatelessWidget {
                 ),
               ),
 
-            // Share option
-            if (onShare != null)
-              InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                  onShare!();
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 16,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.link_rounded,
-                          size: 24,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Text(
-                        'Share List',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            // Share option (commented out for future implementation)
+            // if (onShare != null)
+            //   InkWell(
+            //     onTap: () {
+            //       Navigator.pop(context);
+            //       onShare!();
+            //     },
+            //     borderRadius: BorderRadius.circular(8),
+            //     child: Padding(
+            //       padding: const EdgeInsets.symmetric(
+            //         horizontal: 4,
+            //         vertical: 16,
+            //       ),
+            //       child: Row(
+            //         children: [
+            //           Container(
+            //             decoration: BoxDecoration(
+            //               color: colorScheme.primary.withValues(alpha: 0.2),
+            //               borderRadius: BorderRadius.circular(8),
+            //             ),
+            //             padding: const EdgeInsets.all(4),
+            //             child: Icon(
+            //               Icons.link_rounded,
+            //               size: 24,
+            //               color: colorScheme.onSurface,
+            //             ),
+            //           ),
+            //           const SizedBox(width: 16),
+            //           Text(
+            //             'Share List',
+            //             style: theme.textTheme.bodyLarge?.copyWith(
+            //               color: colorScheme.onSurface,
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
 
             // Delete option
             if (onDelete != null)
