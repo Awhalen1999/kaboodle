@@ -10,6 +10,18 @@ maybe add separate "save" and "save and reset" buttons on the date picker
 
 make reusable loading with sleepy cat
 
-hide pfp upload maybe add new 
+account deletion settings button
+
+clear local providers button just in case
+
+setup feedback board
+
+help and support opens email to me
+
+setup apple auth
+
+
+
+
 
 
