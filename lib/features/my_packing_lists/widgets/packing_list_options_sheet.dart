@@ -127,7 +127,7 @@ class PackingListOptionsSheet extends StatelessWidget {
                       ),
                       const SizedBox(width: 16),
                       Text(
-                        'Reset Progress',
+                        'Reset Packing Progress',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: colorScheme.onSurface,
                         ),

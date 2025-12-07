@@ -1,6 +1,6 @@
 build splash screen for ios and andriod
 
-setup forgot password with firebase
+setup custom email on firebase
 
 add link to TOS
 
@@ -20,7 +20,11 @@ help and support opens email to me
 
 setup apple auth
 
-** reword reset button
+setup email verification 
+
+toast use theme
+
+
 
 
 
