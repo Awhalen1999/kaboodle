@@ -272,6 +272,17 @@ class ProfileBody extends ConsumerWidget {
                   showDivider: false,
                   showChevron: false,
                 ),
+                const SizedBox(height: 16),
+                SettingsTile(
+                  icon: Icons.delete_forever_rounded,
+                  iconColor: Colors.red,
+                  text: 'Delete Account',
+                  onTap: () {
+                    // Delete account action - to be implemented
+                  },
+                  showDivider: false,
+                  showChevron: false,
+                ),
               ],
             ),
             const SizedBox(height: 32),
