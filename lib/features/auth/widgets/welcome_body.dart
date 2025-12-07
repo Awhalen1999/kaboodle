@@ -18,12 +18,12 @@ class WelcomeBody extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               child: Lottie.asset(
-                'assets/lottie/sleeping_cat.json',
+                'assets/lottie/main_cat.json',
                 fit: BoxFit.contain,
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
           Text('Kaboodle', style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 16),
           Text(
