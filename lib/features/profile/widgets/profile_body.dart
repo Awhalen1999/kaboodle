@@ -200,7 +200,7 @@ class ProfileBody extends ConsumerWidget {
                     ),
                     SettingsTile(
                       icon: Icons.info,
-                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconColor: Colors.blueAccent,
                       text: 'Help & Support',
                       onTap: () {
                         // Light mode action
