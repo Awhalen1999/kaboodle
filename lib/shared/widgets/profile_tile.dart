@@ -46,26 +46,16 @@ class ProfileTile extends ConsumerWidget {
               height: 40,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.outline,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.2),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: user?.photoUrl != null
-                  ? Image.network(
-                      user!.photoUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Icons.person,
-                          size: 24,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        );
-                      },
-                    )
-                  : Icon(
-                      Icons.person,
-                      size: 24,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+              child: Icon(
+                Icons.person_rounded,
+                size: 24,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () {
@@ -106,12 +96,15 @@ class ProfileTile extends ConsumerWidget {
               height: 40,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.outline,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.2),
               ),
               child: Icon(
                 Icons.person,
                 size: 24,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             trailing: const Icon(Icons.chevron_right_rounded),
@@ -156,7 +149,12 @@ class _ProfileTileSkeleton extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).colorScheme.outline,
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+        ),
+        child: Icon(
+          Icons.person,
+          size: 24,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
       trailing: const Icon(Icons.chevron_right_rounded),
