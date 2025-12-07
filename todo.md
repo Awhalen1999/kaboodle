@@ -1,10 +1,8 @@
-build splash screen for ios and andriod
-
 setup custom email on firebase
 
 add link to TOS
 
-replace step progress package
+replace step progress package on create process use custom progress like the packing progress
 
 maybe add separate "save" and "save and reset" buttons on the date picker
 
