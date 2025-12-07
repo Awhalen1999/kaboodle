@@ -103,7 +103,7 @@ class ProfileBody extends ConsumerWidget {
               ),
               child: Center(
                 child: Transform.scale(
-                  scale: 1.4,
+                  scale: 1.35,
                   child: Lottie.asset(
                     'assets/lottie/sleeping_cat.json',
                     fit: BoxFit.contain,
