@@ -12,6 +12,7 @@ import 'package:kaboodle_app/providers/user_provider.dart';
 ///
 /// Handles:
 /// - Email/password signup and signin
+/// - Password reset via email
 /// - Google Sign-In
 /// - Sign out with proper provider state management
 /// - Firebase token management
@@ -42,6 +43,18 @@ class AuthService {
     toastification.show(
       context: context,
       type: ToastificationType.error,
+      style: ToastificationStyle.flat,
+      autoCloseDuration: const Duration(seconds: 3),
+      title: Text(message),
+    );
+  }
+
+  /// Show success toast notification
+  void _showSuccessToast(BuildContext context, String message) {
+    if (!context.mounted) return;
+    toastification.show(
+      context: context,
+      type: ToastificationType.success,
       style: ToastificationStyle.flat,
       autoCloseDuration: const Duration(seconds: 3),
       title: Text(message),
@@ -163,6 +176,34 @@ class AuthService {
       if (context.mounted) {
         context.go('/welcome');
       }
+    }
+  }
+
+  /// Send password reset email
+  Future<void> sendPasswordReset({
+    required String email,
+    required BuildContext context,
+  }) async {
+    try {
+      debugPrint('📧 [AuthService] Sending password reset email...');
+
+      await _auth.sendPasswordResetEmail(email: email);
+
+      debugPrint('✅ [AuthService] Password reset email sent successfully');
+      _showSuccessToast(
+        context,
+        'Password reset email sent. Please check your inbox.',
+      );
+    } on FirebaseAuthException catch (e) {
+      final message = switch (e.code) {
+        'invalid-email' => 'The email address is invalid.',
+        'user-not-found' => 'No account found with that email address.',
+        'too-many-requests' => 'Too many requests. Please try again later.',
+        _ => e.message ?? 'An error occurred while sending the reset email.',
+      };
+      _showErrorToast(context, message);
+    } catch (e) {
+      _showErrorToast(context, 'An unexpected error occurred: ${e.toString()}');
     }
   }
 

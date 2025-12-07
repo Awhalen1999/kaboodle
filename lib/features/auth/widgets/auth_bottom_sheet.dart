@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/shared/widgets/standard_text_field.dart';
+import 'package:kaboodle_app/shared/widgets/custom_dialog.dart';
 import 'package:toastification/toastification.dart';
 
 class AuthBottomSheet extends ConsumerStatefulWidget {
@@ -38,6 +39,69 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
 
   void _handleAppleAuth() {
     debugPrint('Apple ${widget.isSignUp ? "Sign up" : "Login"} clicked');
+  }
+
+  Future<void> _handleForgotPassword() async {
+    final emailController = TextEditingController();
+
+    if (!mounted) return;
+
+    final result = await CustomDialog.show<bool>(
+      context: context,
+      title: 'Reset Password',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Enter your email address and we\'ll send you a link to reset your password.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tip: Check your spam or junk folder if you don\'t see the email.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant
+                      .withValues(alpha: 0.7),
+                  fontStyle: FontStyle.italic,
+                ),
+          ),
+          const SizedBox(height: 16),
+          StandardTextField(
+            controller: emailController,
+            hintText: 'Email Address',
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
+          ),
+        ],
+      ),
+      actions: [
+        CustomDialogAction(
+          label: 'Cancel',
+          isOutlined: true,
+          onPressed: () => Navigator.of(context).pop(false),
+        ),
+        CustomDialogAction(
+          label: 'Send',
+          isPrimary: true,
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
+      ],
+    );
+
+    if (result == true && emailController.text.trim().isNotEmpty) {
+      final email = emailController.text.trim();
+      await AuthService().sendPasswordReset(
+        email: email,
+        context: context,
+      );
+    }
+
+    emailController.dispose();
   }
 
   Future<void> _handleEmailAuth() async {
@@ -278,10 +342,7 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: InkWell(
-                      onTap: () {
-                        // TODO: Implement forgot password
-                        debugPrint('Forgot password clicked');
-                      },
+                      onTap: _handleForgotPassword,
                       borderRadius: BorderRadius.circular(4),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
