@@ -108,11 +108,12 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
         throw Exception('API returned failure');
       }
 
-      // Refresh the packing items provider to fetch fresh data
-      // This sets state to loading immediately, preventing flash of old data
+      // Refresh both providers to fetch fresh data from backend
+      // This ensures UI stays in sync with backend state
       await ref
           .read(usePackingItemsProvider(packingList.id).notifier)
           .refresh();
+      ref.read(packingListsProvider.notifier).refresh();
 
       if (mounted) {
         toastification.show(
