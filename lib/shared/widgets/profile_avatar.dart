@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 // Reusable profile avatar widget
 // Displays user photo or fallback icon
+// not being used in the app now keeping in case we support profile avatars in the future
 class ProfileAvatar extends StatelessWidget {
   final String? photoUrl;
   final double size;

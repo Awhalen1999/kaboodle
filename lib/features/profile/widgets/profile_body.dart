@@ -8,7 +8,7 @@ import 'package:kaboodle_app/shared/constants/theme_constants.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
 import 'package:kaboodle_app/shared/utils/format_utils.dart';
-import 'package:kaboodle_app/shared/widgets/profile_avatar.dart';
+import 'package:lottie/lottie.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
 import 'package:kaboodle_app/features/profile/widgets/theme_switch.dart';
 
@@ -93,11 +93,25 @@ class ProfileBody extends ConsumerWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            // Profile avatar
-            ProfileAvatar(
-              photoUrl: user.photoUrl,
-              size: 100,
-              borderRadius: 16,
+            // Sleeping cat animation
+            Container(
+              width: double.infinity,
+              height: 180,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Transform.scale(
+                  scale: 1.4,
+                  child: Lottie.asset(
+                    'assets/lottie/sleeping_cat.json',
+                    fit: BoxFit.contain,
+                    width: double.infinity,
+                    height: 180,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
 
