@@ -6,6 +6,7 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:kaboodle_app/features/my_packing_lists/widgets/packing_list_tile.dart';
 import 'package:kaboodle_app/models/packing_list.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
+import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/features/my_packing_lists/widgets/filter_chip_button.dart';
 import 'package:kaboodle_app/shared/utils/color_tag_utils.dart';
@@ -82,6 +83,56 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           style: ToastificationStyle.flat,
           autoCloseDuration: const Duration(seconds: 3),
           title: Text('Failed to delete: ${e.toString()}'),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleResetProgress(PackingList packingList) async {
+    if (!mounted) return;
+
+    try {
+      final result = await _tripService.reusePackingList(
+        packingListId: packingList.id,
+        context: context,
+      );
+
+      if (result == null || !mounted) {
+        throw Exception('Failed to reset packing list');
+      }
+
+      final success = result['success'] as bool? ?? false;
+      final itemsReset = result['itemsReset'] as int? ?? 0;
+
+      if (!success) {
+        throw Exception('API returned failure');
+      }
+
+      // Refresh the packing items provider to fetch fresh data
+      // This sets state to loading immediately, preventing flash of old data
+      await ref
+          .read(usePackingItemsProvider(packingList.id).notifier)
+          .refresh();
+
+      if (mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: Text('Progress reset'),
+          description: Text('$itemsReset items reset to unpacked'),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 3),
+          title: Text('Failed to reset progress'),
+          description: Text(e.toString()),
         );
       }
     }
@@ -477,9 +528,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               _handleDeletePackingList(packingList.id, packingList.name),
           onSetNewTripDate: () => _handleSetNewTripDate(packingList),
           onResetProgress: packingList.stepCompleted >= 4
-              ? () {
-                  debugPrint('🔄 Reset Progress for: ${packingList.name}');
-                }
+              ? () => _handleResetProgress(packingList)
               : null,
         );
       },
