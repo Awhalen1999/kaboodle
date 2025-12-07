@@ -20,6 +20,8 @@ help and support opens email to me
 
 setup apple auth
 
+** reword reset button
+
 
 
 
