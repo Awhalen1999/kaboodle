@@ -5,6 +5,7 @@ import 'package:toastification/toastification.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 
@@ -73,6 +74,20 @@ class AuthService {
     ref.read(userProvider.notifier).clear();
   }
 
+  /// Identify RevenueCat user with Firebase user ID
+  Future<void> _identifyRevenueCatUser() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      try {
+        await Purchases.logIn(user.uid);
+        debugPrint('✅ [AuthService] RevenueCat user identified: ${user.uid}');
+      } catch (e) {
+        debugPrint('⚠️ [AuthService] Failed to identify RevenueCat user: $e');
+        // Don't throw - this shouldn't block authentication
+      }
+    }
+  }
+
   /// Sign up with email and password
   Future<void> signup({
     required String email,
@@ -87,6 +102,9 @@ class AuthService {
         email: email,
         password: password,
       );
+
+      // Identify RevenueCat user with Firebase user ID
+      await _identifyRevenueCatUser();
 
       debugPrint('✅ [AuthService] Signup successful, refreshing providers...');
       _refreshProvidersAfterAuth(ref);
@@ -121,6 +139,9 @@ class AuthService {
         email: email,
         password: password,
       );
+
+      // Identify RevenueCat user with Firebase user ID
+      await _identifyRevenueCatUser();
 
       debugPrint('✅ [AuthService] Signin successful, refreshing providers...');
       _refreshProvidersAfterAuth(ref);
@@ -164,6 +185,15 @@ class AuthService {
       debugPrint('🔐 [AuthService] Signing out from Firebase & Google...');
       await _auth.signOut();
       await _googleSignIn.signOut();
+
+      // Sign out from RevenueCat
+      try {
+        await Purchases.logOut();
+        debugPrint('✅ [AuthService] RevenueCat user logged out');
+      } catch (e) {
+        debugPrint('⚠️ [AuthService] Failed to log out RevenueCat user: $e');
+        // Don't throw - this shouldn't block signout
+      }
 
       debugPrint('✅ [AuthService] Signout complete');
 
@@ -235,6 +265,9 @@ class AuthService {
 
       // Sign in to Firebase with the Google credential
       await _auth.signInWithCredential(credential);
+
+      // Identify RevenueCat user with Firebase user ID
+      await _identifyRevenueCatUser();
 
       debugPrint(
           '✅ [AuthService] Google signin successful, refreshing providers...');

@@ -8,6 +8,9 @@ import 'package:kaboodle_app/theme/light_mode.dart';
 import 'package:kaboodle_app/theme/dark_mode.dart';
 import 'package:kaboodle_app/services/theme/theme_service.dart';
 import 'package:kaboodle_app/providers/theme_provider.dart';
+import 'package:kaboodle_app/services/subscription/revenue_cat/initalize.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +24,22 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Initialize RevenueCat
+  await initializeRevenueCat();
+
+  // Identify RevenueCat user if already logged in
+  final firebaseUser = FirebaseAuth.instance.currentUser;
+  if (firebaseUser != null) {
+    try {
+      await Purchases.logIn(firebaseUser.uid);
+      debugPrint(
+          '✅ [main] RevenueCat user identified on startup: ${firebaseUser.uid}');
+    } catch (e) {
+      debugPrint('⚠️ [main] Failed to identify RevenueCat user on startup: $e');
+      // Don't throw - this shouldn't block app startup
+    }
+  }
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -30,7 +49,8 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Use select to only rebuild when themeMode changes, not on every theme state change
-    final themeMode = ref.watch(themeProvider.select((state) => state.themeMode));
+    final themeMode =
+        ref.watch(themeProvider.select((state) => state.themeMode));
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
