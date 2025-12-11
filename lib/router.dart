@@ -6,6 +6,7 @@ import 'package:kaboodle_app/features/profile/pages/profile_view.dart';
 import 'package:kaboodle_app/features/profile_edit/pages/profile_edit_view.dart';
 import 'package:kaboodle_app/features/create_packing_list/pages/create_packing_list_view.dart';
 import 'package:kaboodle_app/features/use_packing_list/pages/use_packing_list_view.dart';
+import 'package:kaboodle_app/features/subscription/pages/paywall_view.dart';
 
 // GoRouter configuration
 final router = GoRouter(
@@ -56,6 +57,10 @@ final router = GoRouter(
           packingListName: name,
         );
       },
+    ),
+    GoRoute(
+      path: '/paywall',
+      builder: (context, state) => const PaywallView(),
     ),
   ],
 );

@@ -85,7 +85,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
           );
 
           if (packingList != null && mounted) {
-            await tripService.upsertPackingList(
+            final updateResult = await tripService.upsertPackingList(
               id: widget.packingListId,
               name: packingList.name,
               startDate: packingList.startDate,
@@ -100,6 +100,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
               activities: packingList.activities,
               isCompleted: true,
             );
+            debugPrint('📦 [UsePackingListBody] Mark complete result: ${updateResult.success}');
           }
         }
 

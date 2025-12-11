@@ -168,7 +168,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
 
     try {
       // Update the packing list with new dates
-      await _tripService.upsertPackingList(
+      final result = await _tripService.upsertPackingList(
         id: packingList.id,
         name: packingList.name,
         startDate: results[0]!,
@@ -186,7 +186,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
         context: mounted ? context : null,
       );
 
-      if (mounted) {
+      if (result.success && mounted) {
         // Refresh the list
         ref.read(packingListsProvider.notifier).refresh();
 

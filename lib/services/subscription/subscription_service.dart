@@ -1,1 +1,192 @@
-// subscription service
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:kaboodle_app/services/api/api_client.dart';
+import 'package:kaboodle_app/services/api/endpoints.dart';
+
+/// Response from can-create endpoint
+class CanCreateListResult {
+  final bool canCreate;
+  final int listCount;
+  final int maxFreeLists;
+  final bool hasSubscription;
+  final String? reason;
+  final String? message;
+
+  CanCreateListResult({
+    required this.canCreate,
+    required this.listCount,
+    required this.maxFreeLists,
+    required this.hasSubscription,
+    this.reason,
+    this.message,
+  });
+
+  factory CanCreateListResult.fromJson(Map<String, dynamic> json) {
+    return CanCreateListResult(
+      canCreate: json['canCreate'] as bool,
+      listCount: json['listCount'] as int,
+      maxFreeLists: json['maxFreeLists'] as int,
+      hasSubscription: json['hasSubscription'] as bool,
+      reason: json['reason'] as String?,
+      message: json['message'] as String?,
+    );
+  }
+}
+
+/// Response from subscription status endpoint
+class SubscriptionStatus {
+  final String status;
+  final String tier;
+  final bool isActive;
+  final DateTime? expiresAt;
+  final DateTime? startedAt;
+  final DateTime? cancelledAt;
+  final int listCount;
+  final int maxFreeLists;
+  final bool canCreateList;
+
+  SubscriptionStatus({
+    required this.status,
+    required this.tier,
+    required this.isActive,
+    this.expiresAt,
+    this.startedAt,
+    this.cancelledAt,
+    required this.listCount,
+    required this.maxFreeLists,
+    required this.canCreateList,
+  });
+
+  factory SubscriptionStatus.fromJson(Map<String, dynamic> json) {
+    final subscription = json['subscription'] as Map<String, dynamic>;
+    final usage = json['usage'] as Map<String, dynamic>;
+
+    return SubscriptionStatus(
+      status: subscription['status'] as String,
+      tier: subscription['tier'] as String,
+      isActive: subscription['isActive'] as bool,
+      expiresAt: subscription['expiresAt'] != null
+          ? DateTime.parse(subscription['expiresAt'] as String)
+          : null,
+      startedAt: subscription['startedAt'] != null
+          ? DateTime.parse(subscription['startedAt'] as String)
+          : null,
+      cancelledAt: subscription['cancelledAt'] != null
+          ? DateTime.parse(subscription['cancelledAt'] as String)
+          : null,
+      listCount: usage['listCount'] as int,
+      maxFreeLists: usage['maxFreeLists'] as int,
+      canCreateList: usage['canCreateList'] as bool,
+    );
+  }
+
+  bool get isPro => tier == 'pro' && isActive;
+}
+
+/// Service for subscription-related operations
+class SubscriptionService {
+  final ApiClient _client = ApiClient();
+
+  /// Check if user can create a new list
+  /// Returns result with canCreate flag and relevant info
+  Future<CanCreateListResult?> canCreateList() async {
+    try {
+      debugPrint('🔍 [SubscriptionService] Checking can create list...');
+      final response = await _client.get(ApiEndpoints.canCreateList);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final result = CanCreateListResult.fromJson(data);
+        debugPrint(
+            '✅ [SubscriptionService] Can create: ${result.canCreate}, lists: ${result.listCount}/${result.maxFreeLists}');
+        return result;
+      }
+
+      debugPrint(
+          '❌ [SubscriptionService] Failed to check: ${response.statusCode}');
+      return null;
+    } catch (e) {
+      debugPrint('❌ [SubscriptionService] Error checking can create: $e');
+      return null;
+    }
+  }
+
+  /// Get full subscription status for UI display
+  Future<SubscriptionStatus?> getSubscriptionStatus() async {
+    try {
+      debugPrint('🔍 [SubscriptionService] Getting subscription status...');
+      final response = await _client.get(ApiEndpoints.subscriptionStatus);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final status = SubscriptionStatus.fromJson(data);
+        debugPrint(
+            '✅ [SubscriptionService] Status: ${status.tier} (${status.status})');
+        return status;
+      }
+
+      debugPrint(
+          '❌ [SubscriptionService] Failed to get status: ${response.statusCode}');
+      return null;
+    } catch (e) {
+      debugPrint('❌ [SubscriptionService] Error getting status: $e');
+      return null;
+    }
+  }
+
+  /// Check if user has active subscription (via RevenueCat SDK)
+  Future<bool> hasActiveSubscription() async {
+    try {
+      final customerInfo = await Purchases.getCustomerInfo();
+      return customerInfo.entitlements.active.containsKey('Kaboodle Pro');
+    } catch (e) {
+      debugPrint('❌ [SubscriptionService] Error checking entitlement: $e');
+      return false;
+    }
+  }
+
+  /// Navigate to paywall screen
+  void showPaywall(BuildContext context) {
+    context.push('/paywall');
+  }
+
+  /// Restore previous purchases
+  Future<bool> restorePurchases() async {
+    try {
+      debugPrint('🔄 [SubscriptionService] Restoring purchases...');
+      await Purchases.restorePurchases();
+      debugPrint('✅ [SubscriptionService] Purchases restored');
+      return true;
+    } catch (e) {
+      debugPrint('❌ [SubscriptionService] Error restoring purchases: $e');
+      return false;
+    }
+  }
+
+  /// Get available packages for purchase
+  Future<List<Package>> getPackages() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      return offerings.current?.availablePackages ?? [];
+    } catch (e) {
+      debugPrint('❌ [SubscriptionService] Error getting packages: $e');
+      return [];
+    }
+  }
+
+  /// Purchase a package
+  Future<bool> purchasePackage(Package package) async {
+    try {
+      debugPrint('💳 [SubscriptionService] Purchasing ${package.identifier}...');
+      await Purchases.purchasePackage(package);
+      debugPrint('✅ [SubscriptionService] Purchase successful');
+      return true;
+    } catch (e) {
+      debugPrint('❌ [SubscriptionService] Purchase failed: $e');
+      return false;
+    }
+  }
+}

@@ -6,11 +6,13 @@ import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/providers/theme_provider.dart';
 import 'package:kaboodle_app/shared/constants/theme_constants.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
+import 'package:kaboodle_app/services/subscription/subscription_service.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
 import 'package:kaboodle_app/shared/utils/format_utils.dart';
 import 'package:lottie/lottie.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
 import 'package:kaboodle_app/features/profile/widgets/theme_switch.dart';
+import 'package:toastification/toastification.dart';
 
 class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
@@ -211,15 +213,7 @@ class ProfileBody extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                SettingsTile(
-                  icon: Icons.credit_card,
-                  iconColor: Colors.amber,
-                  text: 'Manage Subscription',
-                  onTap: () {
-                    // Manage subscription action
-                  },
-                  showDivider: false,
-                ),
+                _SubscriptionTile(),
                 const SizedBox(height: 16),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -299,6 +293,129 @@ class ProfileBody extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Subscription tile that loads status and shows appropriate action
+class _SubscriptionTile extends StatefulWidget {
+  @override
+  State<_SubscriptionTile> createState() => _SubscriptionTileState();
+}
+
+class _SubscriptionTileState extends State<_SubscriptionTile> {
+  final SubscriptionService _subscriptionService = SubscriptionService();
+  SubscriptionStatus? _status;
+  bool _isLoading = true;
+  bool _isRestoring = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStatus();
+  }
+
+  Future<void> _loadStatus() async {
+    final status = await _subscriptionService.getSubscriptionStatus();
+    if (mounted) {
+      setState(() {
+        _status = status;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _handleRestore() async {
+    setState(() => _isRestoring = true);
+
+    final success = await _subscriptionService.restorePurchases();
+
+    if (mounted) {
+      setState(() => _isRestoring = false);
+
+      if (success) {
+        final hasSubscription =
+            await _subscriptionService.hasActiveSubscription();
+        if (hasSubscription) {
+          toastification.show(
+            context: context,
+            type: ToastificationType.success,
+            style: ToastificationStyle.flat,
+            autoCloseDuration: const Duration(seconds: 3),
+            title: const Text('Purchases restored!'),
+          );
+          _loadStatus();
+        } else {
+          toastification.show(
+            context: context,
+            type: ToastificationType.info,
+            style: ToastificationStyle.flat,
+            autoCloseDuration: const Duration(seconds: 3),
+            title: const Text('No previous purchases found.'),
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return SettingsTile(
+        icon: Icons.credit_card,
+        iconColor: Colors.amber,
+        text: 'Subscription',
+        mode: 'Loading...',
+        onTap: () {},
+        showDivider: false,
+      );
+    }
+
+    final isPro = _status?.isPro ?? false;
+    final listCount = _status?.listCount ?? 0;
+    final maxFreeLists = _status?.maxFreeLists ?? 2;
+
+    return Column(
+      children: [
+        SettingsTile(
+          icon: Icons.credit_card,
+          iconColor: isPro ? Colors.amber : Colors.grey,
+          text: 'Subscription',
+          mode: isPro ? 'Pro' : 'Free ($listCount/$maxFreeLists lists)',
+          onTap: () {
+            if (!isPro) {
+              _subscriptionService.showPaywall(context);
+            }
+          },
+          showDivider: false,
+        ),
+        if (!isPro) ...[
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: _isRestoring ? null : _handleRestore,
+                child: _isRestoring
+                    ? const SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        'Restore Purchases',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

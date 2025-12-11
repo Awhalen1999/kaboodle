@@ -1,9 +1,25 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../api/api_service.dart';
 import '../api/endpoints.dart';
 import '../../models/packing_list.dart';
 import '../../models/packing_item.dart';
+
+/// Result from upsert operation
+class UpsertResult {
+  final PackingList? packingList;
+  final bool subscriptionRequired;
+  final String? message;
+
+  UpsertResult({
+    this.packingList,
+    this.subscriptionRequired = false,
+    this.message,
+  });
+
+  bool get success => packingList != null;
+}
 
 /// Service for packing list and item operations
 class TripService {
@@ -12,7 +28,8 @@ class TripService {
   // Packing Lists
 
   /// Upsert a packing list (create if no ID, update if ID provided)
-  Future<PackingList?> upsertPackingList({
+  /// Returns UpsertResult with subscriptionRequired flag if user hits limit
+  Future<UpsertResult> upsertPackingList({
     String? id,
     required String name,
     required DateTime startDate,
@@ -46,12 +63,39 @@ class TripService {
       if (isCompleted != null) 'isCompleted': isCompleted,
     };
 
-    return await _apiService.safeApiCall(
-      apiCall: () =>
-          _apiService.client.post(ApiEndpoints.packingLists, body: body),
-      onSuccess: (data) => PackingList.fromJson(data['packingList']),
-      context: context,
-    );
+    try {
+      final response =
+          await _apiService.client.post(ApiEndpoints.packingLists, body: body);
+
+      // Check for subscription required (403)
+      if (response.statusCode == 403) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == 'subscription_required') {
+          debugPrint(
+              '🔒 [TripService] Subscription required: ${data['message']}');
+          return UpsertResult(
+            subscriptionRequired: true,
+            message: data['message'] as String?,
+          );
+        }
+      }
+
+      // Handle success
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final data = jsonDecode(response.body);
+        return UpsertResult(
+          packingList: PackingList.fromJson(data['packingList']),
+        );
+      }
+
+      // Handle other errors
+      debugPrint(
+          '❌ [TripService] Upsert failed: ${response.statusCode} ${response.body}');
+      return UpsertResult();
+    } catch (e) {
+      debugPrint('❌ [TripService] Upsert error: $e');
+      return UpsertResult();
+    }
   }
 
   /// Get all packing lists for the current user

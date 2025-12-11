@@ -30,6 +30,10 @@ class ApiEndpoints {
   // User
   static const String userProfile = '/api/user-profile';
 
+  // Subscription
+  static const String canCreateList = '/api/packing-lists/can-create';
+  static const String subscriptionStatus = '/api/subscription/status';
+
   // Utility
   static const String categories = '/api/categories';
   static const String tags = '/api/tags';

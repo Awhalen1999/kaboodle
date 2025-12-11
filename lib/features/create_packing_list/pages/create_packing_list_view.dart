@@ -8,6 +8,7 @@ import 'package:kaboodle_app/features/create_packing_list/widgets/step_2_details
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_3_generate_items_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_4_overview_body.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
+import 'package:kaboodle_app/services/subscription/subscription_service.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 
 class CreatePackingListView extends ConsumerStatefulWidget {
@@ -240,19 +241,26 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         context: context,
       );
 
-      if (result != null && mounted) {
+      // Handle subscription required (user hit free limit)
+      if (result.subscriptionRequired && mounted) {
+        SubscriptionService().showPaywall(context);
+        return false;
+      }
+
+      if (result.success && mounted) {
+        final packingList = result.packingList!;
         setState(() {
-          _formData['packingListId'] = result.id;
-          _formData['currentStepCompleted'] = result.stepCompleted;
+          _formData['packingListId'] = packingList.id;
+          _formData['currentStepCompleted'] = packingList.stepCompleted;
         });
 
         if (isNewList) {
-          ref.read(packingListsProvider.notifier).addPackingList(result);
+          ref.read(packingListsProvider.notifier).addPackingList(packingList);
         } else {
-          ref.read(packingListsProvider.notifier).updatePackingList(result);
+          ref.read(packingListsProvider.notifier).updatePackingList(packingList);
         }
         debugPrint(
-            '✅ Step $stepNumber saved (progress: ${result.stepCompleted}/4)');
+            '✅ Step $stepNumber saved (progress: ${packingList.stepCompleted}/4)');
         return true;
       } else {
         _showErrorToast('Failed to save trip details');
@@ -542,8 +550,8 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
           context: context,
         );
 
-        if (result != null && mounted) {
-          ref.read(packingListsProvider.notifier).updatePackingList(result);
+        if (result.success && mounted) {
+          ref.read(packingListsProvider.notifier).updatePackingList(result.packingList!);
           debugPrint('✅ Packing list complete!');
         } else {
           _showErrorToast('Failed to complete packing list');
