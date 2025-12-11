@@ -36,8 +36,9 @@ class ProfileBody extends ConsumerWidget {
       data: (user) {
         if (user == null) {
           print('⚠️ [ProfileBody] User data is null');
+          // todo: maybe show that we are logging out maybe handle error here
           return const Center(
-            child: Text('No user data available'),
+            child: CircularProgressIndicator(),
           );
         }
 
