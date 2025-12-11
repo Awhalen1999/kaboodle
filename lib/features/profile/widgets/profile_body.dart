@@ -12,7 +12,6 @@ import 'package:kaboodle_app/shared/utils/format_utils.dart';
 import 'package:lottie/lottie.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
 import 'package:kaboodle_app/features/profile/widgets/theme_switch.dart';
-import 'package:toastification/toastification.dart';
 
 class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
@@ -307,7 +306,6 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
   final SubscriptionService _subscriptionService = SubscriptionService();
   SubscriptionStatus? _status;
   bool _isLoading = true;
-  bool _isRestoring = false;
 
   @override
   void initState() {
@@ -325,47 +323,14 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
     }
   }
 
-  Future<void> _handleRestore() async {
-    setState(() => _isRestoring = true);
-
-    final success = await _subscriptionService.restorePurchases();
-
-    if (mounted) {
-      setState(() => _isRestoring = false);
-
-      if (success) {
-        final hasSubscription =
-            await _subscriptionService.hasActiveSubscription();
-        if (hasSubscription) {
-          toastification.show(
-            context: context,
-            type: ToastificationType.success,
-            style: ToastificationStyle.flat,
-            autoCloseDuration: const Duration(seconds: 3),
-            title: const Text('Purchases restored!'),
-          );
-          _loadStatus();
-        } else {
-          toastification.show(
-            context: context,
-            type: ToastificationType.info,
-            style: ToastificationStyle.flat,
-            autoCloseDuration: const Duration(seconds: 3),
-            title: const Text('No previous purchases found.'),
-          );
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return SettingsTile(
         icon: Icons.credit_card,
-        iconColor: Colors.amber,
+        iconColor: Theme.of(context).colorScheme.outlineVariant,
         text: 'Subscription',
-        mode: 'Loading...',
+        mode: '',
         onTap: () {},
         showDivider: false,
       );
@@ -375,47 +340,15 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
     final listCount = _status?.listCount ?? 0;
     final maxFreeLists = _status?.maxFreeLists ?? 2;
 
-    return Column(
-      children: [
-        SettingsTile(
-          icon: Icons.credit_card,
-          iconColor: isPro ? Colors.amber : Colors.grey,
-          text: 'Subscription',
-          mode: isPro ? 'Pro' : 'Free ($listCount/$maxFreeLists lists)',
-          onTap: () {
-            if (!isPro) {
-              _subscriptionService.showPaywall(context);
-            }
-          },
-          showDivider: false,
-        ),
-        if (!isPro) ...[
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed: _isRestoring ? null : _handleRestore,
-                child: _isRestoring
-                    ? const SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(
-                        'Restore Purchases',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                      ),
-              ),
-            ),
-          ),
-        ],
-      ],
+    return SettingsTile(
+      icon: Icons.credit_card,
+      iconColor: isPro ? Colors.amber : Colors.grey,
+      text: 'Subscription',
+      mode: isPro ? 'Pro' : 'Free ($listCount/$maxFreeLists lists)',
+      onTap: () {
+        _subscriptionService.showPaywall(context);
+      },
+      showDivider: false,
     );
   }
 }
