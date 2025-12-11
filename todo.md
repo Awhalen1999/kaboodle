@@ -19,3 +19,9 @@ setup email verification
 toast use theme
 
 implement delete account
+
+add app bar icon to open paywall or show status (which opens manage subscription screen)
+
+build manage subscription screen
+
+update paywall
