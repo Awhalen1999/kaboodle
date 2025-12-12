@@ -92,27 +92,15 @@ class ProfileBody extends ConsumerWidget {
   Widget _buildProfileContent(BuildContext context, WidgetRef ref, User user) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           children: [
             // Sleeping cat animation
-            Container(
-              width: double.infinity,
-              height: 180,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Center(
-                child: Transform.scale(
-                  scale: 1.30,
-                  child: Lottie.asset(
-                    'assets/lottie/sleeping_cat.json',
-                    fit: BoxFit.contain,
-                    width: double.infinity,
-                    height: 180,
-                  ),
-                ),
+            SizedBox(
+              height: 220,
+              child: Lottie.asset(
+                'assets/lottie/sleeping_cat.json',
+                fit: BoxFit.contain,
               ),
             ),
             const SizedBox(height: 16),
@@ -290,6 +278,7 @@ class ProfileBody extends ConsumerWidget {
                     ),
               ),
             ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
