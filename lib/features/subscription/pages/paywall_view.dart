@@ -64,6 +64,8 @@ class _PaywallViewState extends State<PaywallView> {
       if (success) {
         _showSuccessToast('Welcome to Kaboodle Pro!');
         context.pop();
+      } else {
+        _showErrorToast('Purchase failed. Please try again.');
       }
     }
   }
