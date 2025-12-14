@@ -4,6 +4,13 @@ class User {
   final String? displayName;
   final String? photoUrl;
   final String? country;
+  // Subscription fields
+  final String
+      subscriptionStatus; // 'free' | 'active' | 'expired' | 'cancelled'
+  final String subscriptionTier; // 'free' | 'pro'
+  final DateTime? subscriptionExpiresAt;
+  final DateTime? subscriptionStartedAt;
+  final DateTime? subscriptionCancelledAt;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -13,9 +20,20 @@ class User {
     this.displayName,
     this.photoUrl,
     this.country,
+    this.subscriptionStatus = 'free',
+    this.subscriptionTier = 'free',
+    this.subscriptionExpiresAt,
+    this.subscriptionStartedAt,
+    this.subscriptionCancelledAt,
     required this.createdAt,
     required this.updatedAt,
   });
+
+  /// Check if user has an active pro subscription
+  bool get isPro => subscriptionTier == 'pro' && subscriptionStatus == 'active';
+
+  /// Check if subscription is active
+  bool get hasActiveSubscription => subscriptionStatus == 'active';
 
   /// Create User from JSON
   factory User.fromJson(Map<String, dynamic> json) {
@@ -25,6 +43,17 @@ class User {
       displayName: json['displayName'] as String?,
       photoUrl: json['photoUrl'] as String?,
       country: json['country'] as String?,
+      subscriptionStatus: json['subscriptionStatus'] as String? ?? 'free',
+      subscriptionTier: json['subscriptionTier'] as String? ?? 'free',
+      subscriptionExpiresAt: json['subscriptionExpiresAt'] != null
+          ? DateTime.parse(json['subscriptionExpiresAt'] as String)
+          : null,
+      subscriptionStartedAt: json['subscriptionStartedAt'] != null
+          ? DateTime.parse(json['subscriptionStartedAt'] as String)
+          : null,
+      subscriptionCancelledAt: json['subscriptionCancelledAt'] != null
+          ? DateTime.parse(json['subscriptionCancelledAt'] as String)
+          : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -38,6 +67,11 @@ class User {
       'displayName': displayName,
       'photoUrl': photoUrl,
       'country': country,
+      'subscriptionStatus': subscriptionStatus,
+      'subscriptionTier': subscriptionTier,
+      'subscriptionExpiresAt': subscriptionExpiresAt?.toIso8601String(),
+      'subscriptionStartedAt': subscriptionStartedAt?.toIso8601String(),
+      'subscriptionCancelledAt': subscriptionCancelledAt?.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -50,6 +84,11 @@ class User {
     String? displayName,
     String? photoUrl,
     String? country,
+    String? subscriptionStatus,
+    String? subscriptionTier,
+    DateTime? subscriptionExpiresAt,
+    DateTime? subscriptionStartedAt,
+    DateTime? subscriptionCancelledAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -59,6 +98,14 @@ class User {
       displayName: displayName ?? this.displayName,
       photoUrl: photoUrl ?? this.photoUrl,
       country: country ?? this.country,
+      subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
+      subscriptionTier: subscriptionTier ?? this.subscriptionTier,
+      subscriptionExpiresAt:
+          subscriptionExpiresAt ?? this.subscriptionExpiresAt,
+      subscriptionStartedAt:
+          subscriptionStartedAt ?? this.subscriptionStartedAt,
+      subscriptionCancelledAt:
+          subscriptionCancelledAt ?? this.subscriptionCancelledAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
