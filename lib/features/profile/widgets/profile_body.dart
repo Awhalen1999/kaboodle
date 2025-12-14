@@ -336,7 +336,13 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
       text: 'Subscription',
       mode: isPro ? 'Pro' : 'Free ($listCount/$maxFreeLists lists)',
       onTap: () {
-        _subscriptionService.showPaywall(context);
+        if (isPro) {
+          // Navigate to manage subscription for Pro users
+          context.push('/manage-subscription');
+        } else {
+          // Show paywall for free users
+          _subscriptionService.showPaywall(context);
+        }
       },
       showDivider: false,
     );

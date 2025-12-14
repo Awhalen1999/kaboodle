@@ -107,6 +107,7 @@ flutter:
   assets:
     - assets/svg/
     - assets/lottie/
+    - assets/images/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
