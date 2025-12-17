@@ -20,8 +20,4 @@ toast use theme
 
 implement delete account
 
-add app bar icon to open paywall or show status (which opens manage subscription screen)
-
-build manage subscription screen
-
 hide items on checklist packing process
