@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:toastification/toastification.dart';
 import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/providers/theme_provider.dart';
@@ -192,8 +194,28 @@ class ProfileBody extends ConsumerWidget {
                       icon: Icons.info,
                       iconColor: Colors.blueAccent,
                       text: 'Help & Support',
-                      onTap: () {
-                        // Light mode action
+                      onTap: () async {
+                        final email = 'awhalendev@kaboodle.now';
+                        final subject = 'Kaboodle App - Help & Support';
+                        final uri = Uri(
+                          scheme: 'mailto',
+                          path: email,
+                          query: 'subject=${Uri.encodeComponent(subject)}',
+                        );
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri);
+                        } else {
+                          if (context.mounted) {
+                            toastification.show(
+                              context: context,
+                              type: ToastificationType.info,
+                              style: ToastificationStyle.flat,
+                              autoCloseDuration: const Duration(seconds: 4),
+                              title: Text('Unable to open email'),
+                              description: Text('Please contact $email'),
+                            );
+                          }
+                        }
                       },
                       isGrouped: true,
                       showDivider: false,

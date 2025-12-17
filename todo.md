@@ -10,7 +10,7 @@ make reusable loading with sleepy cat
 
 setup feedback board
 
-help and support opens email to me
+test help and support opens email
 
 setup apple auth
 
