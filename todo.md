@@ -1,23 +1,17 @@
-setup custom email on firebase
+MVP:
+- add link to TOS
+- setup feedback board
+- test help and support opens email
+- setup apple auth
+- toast use theme
+- implement delete account
 
-add link to TOS
 
-replace step progress package on create process use custom progress like the packing progress
+OTHER:
 
-maybe add separate "save" and "save and reset" buttons on the date picker
+- setup custom email on firebase
+- replace step progress package on create process use custom progress like the packing progress
+- maybe add separate "save" and "save and reset" buttons on the date picker 
+- make reusable loading with sleepy cat
+- setup email verification (look into other apps for this)
 
-make reusable loading with sleepy cat
-
-setup feedback board
-
-test help and support opens email
-
-setup apple auth
-
-setup email verification
-
-toast use theme
-
-implement delete account
-
-finish list = refetch lists
