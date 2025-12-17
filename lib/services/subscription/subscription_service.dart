@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:kaboodle_app/services/api/api_client.dart';
 import 'package:kaboodle_app/services/api/endpoints.dart';
 
@@ -180,12 +182,57 @@ class SubscriptionService {
   /// Purchase a package
   Future<bool> purchasePackage(Package package) async {
     try {
-      debugPrint('💳 [SubscriptionService] Purchasing ${package.identifier}...');
+      debugPrint(
+          '💳 [SubscriptionService] Purchasing ${package.identifier}...');
       await Purchases.purchasePackage(package);
       debugPrint('✅ [SubscriptionService] Purchase successful');
       return true;
     } catch (e) {
       debugPrint('❌ [SubscriptionService] Purchase failed: $e');
+      return false;
+    }
+  }
+
+  /// Open subscription management page in native store
+  /// RevenueCat doesn't provide direct cancellation - users must cancel via App Store/Play Store
+  Future<bool> openSubscriptionManagement() async {
+    try {
+      debugPrint('🔗 [SubscriptionService] Opening subscription management...');
+
+      // Try to get management URL from RevenueCat CustomerInfo
+      final customerInfo = await Purchases.getCustomerInfo();
+      final managementURL = customerInfo.managementURL;
+
+      Uri url;
+      if (managementURL != null && managementURL.isNotEmpty) {
+        url = Uri.parse(managementURL);
+      } else {
+        // Fallback to platform-specific URLs
+        if (Platform.isIOS) {
+          // iOS App Store subscription management
+          url = Uri.parse('https://apps.apple.com/account/subscriptions');
+        } else if (Platform.isAndroid) {
+          // Android Google Play subscription management
+          // This opens the general subscriptions page - users can find their app there
+          url =
+              Uri.parse('https://play.google.com/store/account/subscriptions');
+        } else {
+          debugPrint('❌ [SubscriptionService] Unsupported platform');
+          return false;
+        }
+      }
+
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+        debugPrint('✅ [SubscriptionService] Opened subscription management');
+        return true;
+      } else {
+        debugPrint('❌ [SubscriptionService] Cannot launch URL: $url');
+        return false;
+      }
+    } catch (e) {
+      debugPrint(
+          '❌ [SubscriptionService] Error opening subscription management: $e');
       return false;
     }
   }

@@ -56,10 +56,19 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
     }
   }
 
-  void _handleCancelSubscription() {
+  Future<void> _handleCancelSubscription() async {
     debugPrint('🔄 [ManageSubscription] Cancel subscription tapped');
-    // TODO: Implement cancel subscription flow
-    _showInfoToast('Cancel subscription - coming soon');
+
+    final success = await _subscriptionService.openSubscriptionManagement();
+
+    if (mounted) {
+      if (success) {
+        _showInfoToast('Opening subscription management...');
+      } else {
+        _showErrorToast(
+            'Failed to open subscription management. Please visit your App Store or Play Store settings.');
+      }
+    }
   }
 
   void _showSuccessToast(String message) {
