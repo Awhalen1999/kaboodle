@@ -78,7 +78,8 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
 
         // If all items are packed, mark the packing list as complete
         if (allPacked) {
-          debugPrint('🎯 [UsePackingListBody] Marking packing list as complete');
+          debugPrint(
+              '🎯 [UsePackingListBody] Marking packing list as complete');
           final tripService = TripService();
           final packingList = await tripService.getPackingList(
             packingListId: widget.packingListId,
@@ -100,7 +101,8 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
               activities: packingList.activities,
               isCompleted: true,
             );
-            debugPrint('📦 [UsePackingListBody] Mark complete result: ${updateResult.success}');
+            debugPrint(
+                '📦 [UsePackingListBody] Mark complete result: ${updateResult.success}');
           }
         }
 
@@ -466,10 +468,6 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
           ...items.map((item) => UsePackingListItemTile(
                 item: item,
                 onToggle: () => _toggleItemPacked(item.id),
-                onHide: () {
-                  debugPrint(
-                      '👁️ [UsePackingListBody] Hide item: ${item.name}');
-                },
               )),
         ],
       ],

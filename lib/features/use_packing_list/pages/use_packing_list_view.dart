@@ -82,15 +82,6 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
                                 .uncheckAllItems();
                           },
                         ),
-                        _buildMenuItem(
-                          icon: Icons.visibility_outlined,
-                          label: 'Unhide All',
-                          onTap: () {
-                            _hideMenu();
-                            debugPrint(
-                                '👁️ [UsePackingListView] Unhide All clicked');
-                          },
-                        ),
                         const Divider(height: 1),
                         _buildMenuItem(
                           icon: Icons.refresh,
