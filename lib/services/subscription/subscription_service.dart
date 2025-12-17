@@ -39,10 +39,10 @@ class CanCreateListResult {
 }
 
 /// Response from subscription status endpoint
+/// Uses entitlements as single source of truth from RevenueCat
 class SubscriptionStatus {
-  final String status;
-  final String tier;
-  final bool isActive;
+  final List<String> entitlements;
+  final bool isPro;
   final DateTime? expiresAt;
   final DateTime? startedAt;
   final DateTime? cancelledAt;
@@ -51,9 +51,8 @@ class SubscriptionStatus {
   final bool canCreateList;
 
   SubscriptionStatus({
-    required this.status,
-    required this.tier,
-    required this.isActive,
+    required this.entitlements,
+    required this.isPro,
     this.expiresAt,
     this.startedAt,
     this.cancelledAt,
@@ -67,9 +66,11 @@ class SubscriptionStatus {
     final usage = json['usage'] as Map<String, dynamic>;
 
     return SubscriptionStatus(
-      status: subscription['status'] as String,
-      tier: subscription['tier'] as String,
-      isActive: subscription['isActive'] as bool,
+      entitlements: (subscription['entitlements'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      isPro: subscription['isPro'] as bool? ?? false,
       expiresAt: subscription['expiresAt'] != null
           ? DateTime.parse(subscription['expiresAt'] as String)
           : null,
@@ -85,7 +86,8 @@ class SubscriptionStatus {
     );
   }
 
-  bool get isPro => tier == 'pro' && isActive;
+  /// Check if subscription is cancelled but still active
+  bool get isCancelledButActive => isPro && cancelledAt != null;
 }
 
 /// Service for subscription-related operations
@@ -126,7 +128,7 @@ class SubscriptionService {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         final status = SubscriptionStatus.fromJson(data);
         debugPrint(
-            '✅ [SubscriptionService] Status: ${status.tier} (${status.status})');
+            '✅ [SubscriptionService] isPro: ${status.isPro}, entitlements: ${status.entitlements}');
         return status;
       }
 

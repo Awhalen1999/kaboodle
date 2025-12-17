@@ -4,10 +4,9 @@ class User {
   final String? displayName;
   final String? photoUrl;
   final String? country;
-  // Subscription fields
-  final String
-      subscriptionStatus; // 'free' | 'active' | 'expired' | 'cancelled'
-  final String subscriptionTier; // 'free' | 'pro'
+  // Subscription fields - using entitlements as source of truth
+  final List<String> entitlements;
+  final bool isPro;
   final DateTime? subscriptionExpiresAt;
   final DateTime? subscriptionStartedAt;
   final DateTime? subscriptionCancelledAt;
@@ -20,8 +19,8 @@ class User {
     this.displayName,
     this.photoUrl,
     this.country,
-    this.subscriptionStatus = 'free',
-    this.subscriptionTier = 'free',
+    this.entitlements = const [],
+    this.isPro = false,
     this.subscriptionExpiresAt,
     this.subscriptionStartedAt,
     this.subscriptionCancelledAt,
@@ -30,10 +29,10 @@ class User {
   });
 
   /// Check if user has an active pro subscription
-  bool get isPro => subscriptionTier == 'pro' && subscriptionStatus == 'active';
+  bool get hasActiveSubscription => isPro;
 
-  /// Check if subscription is active
-  bool get hasActiveSubscription => subscriptionStatus == 'active';
+  /// Check if subscription is cancelled but still active
+  bool get isCancelledButActive => isPro && subscriptionCancelledAt != null;
 
   /// Create User from JSON
   factory User.fromJson(Map<String, dynamic> json) {
@@ -43,8 +42,11 @@ class User {
       displayName: json['displayName'] as String?,
       photoUrl: json['photoUrl'] as String?,
       country: json['country'] as String?,
-      subscriptionStatus: json['subscriptionStatus'] as String? ?? 'free',
-      subscriptionTier: json['subscriptionTier'] as String? ?? 'free',
+      entitlements: (json['entitlements'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      isPro: json['isPro'] as bool? ?? false,
       subscriptionExpiresAt: json['subscriptionExpiresAt'] != null
           ? DateTime.parse(json['subscriptionExpiresAt'] as String)
           : null,
@@ -67,8 +69,8 @@ class User {
       'displayName': displayName,
       'photoUrl': photoUrl,
       'country': country,
-      'subscriptionStatus': subscriptionStatus,
-      'subscriptionTier': subscriptionTier,
+      'entitlements': entitlements,
+      'isPro': isPro,
       'subscriptionExpiresAt': subscriptionExpiresAt?.toIso8601String(),
       'subscriptionStartedAt': subscriptionStartedAt?.toIso8601String(),
       'subscriptionCancelledAt': subscriptionCancelledAt?.toIso8601String(),
@@ -84,8 +86,8 @@ class User {
     String? displayName,
     String? photoUrl,
     String? country,
-    String? subscriptionStatus,
-    String? subscriptionTier,
+    List<String>? entitlements,
+    bool? isPro,
     DateTime? subscriptionExpiresAt,
     DateTime? subscriptionStartedAt,
     DateTime? subscriptionCancelledAt,
@@ -98,8 +100,8 @@ class User {
       displayName: displayName ?? this.displayName,
       photoUrl: photoUrl ?? this.photoUrl,
       country: country ?? this.country,
-      subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
-      subscriptionTier: subscriptionTier ?? this.subscriptionTier,
+      entitlements: entitlements ?? this.entitlements,
+      isPro: isPro ?? this.isPro,
       subscriptionExpiresAt:
           subscriptionExpiresAt ?? this.subscriptionExpiresAt,
       subscriptionStartedAt:

@@ -110,35 +110,37 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
   }
 
   String _getStatusDisplayText(SubscriptionStatus status) {
-    if (status.cancelledAt != null) {
+    // Cancelled but still active (until period ends)
+    if (status.isPro && status.cancelledAt != null) {
       return 'Cancelled';
     }
-    switch (status.status) {
-      case 'active':
-        return 'Active';
-      case 'expired':
-        return 'Expired';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
-        return 'Free';
+    // Active Pro subscription
+    if (status.isPro) {
+      return 'Active';
     }
+    // Expired (was cancelled and period ended)
+    if (!status.isPro && status.cancelledAt != null) {
+      return 'Expired';
+    }
+    // Free user
+    return 'Free';
   }
 
   Color _getStatusColor(SubscriptionStatus status, ColorScheme colorScheme) {
-    if (status.cancelledAt != null) {
+    // Cancelled but still active
+    if (status.isPro && status.cancelledAt != null) {
       return Colors.orange;
     }
-    switch (status.status) {
-      case 'active':
-        return Colors.green;
-      case 'expired':
-        return colorScheme.error;
-      case 'cancelled':
-        return Colors.orange;
-      default:
-        return colorScheme.onSurfaceVariant;
+    // Active Pro subscription
+    if (status.isPro) {
+      return Colors.green;
     }
+    // Expired
+    if (!status.isPro && status.cancelledAt != null) {
+      return colorScheme.error;
+    }
+    // Free user
+    return colorScheme.onSurfaceVariant;
   }
 
   @override
@@ -306,7 +308,7 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  status.tier == 'pro' ? 'Premium Subscription' : 'Free Plan',
+                  status.isPro ? 'Premium Subscription' : 'Free Plan',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
