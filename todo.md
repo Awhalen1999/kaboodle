@@ -20,4 +20,4 @@ toast use theme
 
 implement delete account
 
-hide items on checklist packing process
+finish list = refetch lists
