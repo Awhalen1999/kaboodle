@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaboodle_app/models/packing_item.dart';
+import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/utils/format_utils.dart';
@@ -103,6 +104,13 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
             );
             debugPrint(
                 '📦 [UsePackingListBody] Mark complete result: ${updateResult.success}');
+
+            // Refresh the packing lists provider so the main page shows the complete tag
+            if (updateResult.success) {
+              ref.read(packingListsProvider.notifier).refresh();
+              debugPrint(
+                  '🔄 [UsePackingListBody] Refreshed packing lists provider');
+            }
           }
         }
 
