@@ -37,8 +37,13 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
     }
   }
 
-  void _handleAppleAuth() {
-    debugPrint('Apple ${widget.isSignUp ? "Sign up" : "Login"} clicked');
+  Future<void> _handleAppleAuth() async {
+    await AuthService().signInWithApple(context: context, ref: ref);
+
+    // Close sheet on success (AuthService navigates away)
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _handleForgotPassword() async {

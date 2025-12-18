@@ -1,8 +1,13 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
@@ -271,6 +276,84 @@ class AuthService {
       };
       _showErrorToast(context, message);
     } catch (e) {
+      _showErrorToast(context, 'An unexpected error occurred: ${e.toString()}');
+    }
+  }
+
+  /// Generates a cryptographically secure random nonce for Apple Sign In
+  String _generateNonce([int length = 32]) {
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(
+      length,
+      (_) => charset[random.nextInt(charset.length)],
+    ).join();
+  }
+
+  /// Returns the SHA256 hash of [input] for Apple Sign In nonce
+  String _sha256ofString(String input) {
+    final bytes = utf8.encode(input);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
+  /// Sign in with Apple
+  Future<void> signInWithApple({
+    required BuildContext context,
+    required WidgetRef ref,
+  }) async {
+    try {
+      debugPrint('🍎 [AuthService] Starting Apple signin...');
+
+      // Generate nonce for security
+      final rawNonce = _generateNonce();
+      final nonce = _sha256ofString(rawNonce);
+
+      // Request Apple credentials
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: nonce,
+      );
+
+      // Create Firebase credential from Apple credential
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: appleCredential.identityToken,
+        rawNonce: rawNonce,
+      );
+
+      // Sign in to Firebase with the Apple credential
+      await _auth.signInWithCredential(oauthCredential);
+
+      // Identify RevenueCat user with Firebase user ID
+      await _identifyRevenueCatUser();
+
+      debugPrint(
+          '✅ [AuthService] Apple signin successful, refreshing providers...');
+      _refreshProvidersAfterAuth(ref);
+
+      if (!context.mounted) return;
+      context.go('/my-packing-lists');
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        debugPrint('⚠️ [AuthService] Apple signin cancelled by user');
+        return; // User cancelled, no toast needed
+      }
+      _showErrorToast(context, 'Apple sign in failed. Please try again.');
+    } on FirebaseAuthException catch (e) {
+      final message = switch (e.code) {
+        'account-exists-with-different-credential' =>
+          'An account already exists with a different sign-in method.',
+        'invalid-credential' => 'The credential is invalid.',
+        'operation-not-allowed' => 'Apple sign-in is not enabled.',
+        _ => e.message ?? 'An error occurred during Apple sign in.',
+      };
+      _showErrorToast(context, message);
+    } catch (e) {
+      debugPrint('❌ [AuthService] Apple signin error: $e');
       _showErrorToast(context, 'An unexpected error occurred: ${e.toString()}');
     }
   }
