@@ -10,8 +10,8 @@ import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/features/my_packing_lists/widgets/filter_chip_button.dart';
 import 'package:kaboodle_app/shared/utils/color_tag_utils.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 import 'package:kaboodle_app/shared/widgets/custom_dialog.dart';
-import 'package:toastification/toastification.dart';
 
 class MyPackingListsBody extends ConsumerStatefulWidget {
   final String? initialTab;
@@ -67,23 +67,11 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
         ref.read(packingListsProvider.notifier).refresh();
 
         // Show success message
-        toastification.show(
-          context: context,
-          type: ToastificationType.success,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text('Deleted "$packingListName"'),
-        );
+        AppToast.success(context, 'Deleted "$packingListName"');
       }
     } catch (e) {
       if (mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text('Failed to delete: ${e.toString()}'),
-        );
+        AppToast.error(context, 'Failed to delete list');
       }
     }
   }
@@ -116,25 +104,11 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
       ref.read(packingListsProvider.notifier).refresh();
 
       if (mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.success,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text('Progress reset'),
-          description: Text('$itemsReset items reset to unpacked'),
-        );
+        AppToast.success(context, '$itemsReset items reset to unpacked');
       }
     } catch (e) {
       if (mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text('Failed to reset progress'),
-          description: Text(e.toString()),
-        );
+        AppToast.error(context, 'Failed to reset progress');
       }
     }
   }
@@ -191,23 +165,11 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
         ref.read(packingListsProvider.notifier).refresh();
 
         // Show success message
-        toastification.show(
-          context: context,
-          type: ToastificationType.success,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: const Text('Trip dates updated'),
-        );
+        AppToast.success(context, 'Trip dates updated');
       }
     } catch (e) {
       if (mounted) {
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: Text('Failed to update dates: ${e.toString()}'),
-        );
+        AppToast.error(context, 'Failed to update dates');
       }
     }
   }

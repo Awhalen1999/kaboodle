@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
 import 'package:kaboodle_app/shared/widgets/standard_text_field.dart';
 import 'package:kaboodle_app/shared/widgets/custom_dialog.dart';
-import 'package:toastification/toastification.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
 class AuthBottomSheet extends ConsumerStatefulWidget {
   final bool isSignUp;
@@ -111,13 +111,7 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
 
     if (email.isEmpty || password.isEmpty) {
       if (!mounted) return;
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 3),
-        title: const Text('Please fill in all fields'),
-      );
+      AppToast.error(context, 'Please fill in all fields');
       return;
     }
 
@@ -127,25 +121,13 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
 
       if (confirmPassword.isEmpty) {
         if (!mounted) return;
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: const Text('Please confirm your password'),
-        );
+        AppToast.error(context, 'Please confirm your password');
         return;
       }
 
       if (password != confirmPassword) {
         if (!mounted) return;
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 3),
-          title: const Text('Passwords do not match'),
-        );
+        AppToast.error(context, 'Passwords do not match');
         return;
       }
 

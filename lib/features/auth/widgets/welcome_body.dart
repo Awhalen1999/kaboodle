@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:toastification/toastification.dart';
 import 'package:kaboodle_app/features/auth/widgets/auth_bottom_sheet.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -110,14 +110,7 @@ class WelcomeBody extends StatelessWidget {
                               mode: LaunchMode.externalApplication);
                         } else {
                           if (context.mounted) {
-                            toastification.show(
-                              context: context,
-                              type: ToastificationType.error,
-                              style: ToastificationStyle.flat,
-                              autoCloseDuration: const Duration(seconds: 4),
-                              title: const Text('Unable to open link'),
-                              description: const Text('Please try again later'),
-                            );
+                            AppToast.error(context, 'Unable to open link');
                           }
                         }
                       },
@@ -145,14 +138,7 @@ class WelcomeBody extends StatelessWidget {
                               mode: LaunchMode.externalApplication);
                         } else {
                           if (context.mounted) {
-                            toastification.show(
-                              context: context,
-                              type: ToastificationType.error,
-                              style: ToastificationStyle.flat,
-                              autoCloseDuration: const Duration(seconds: 4),
-                              title: const Text('Unable to open link'),
-                              description: const Text('Please try again later'),
-                            );
+                            AppToast.error(context, 'Unable to open link');
                           }
                         }
                       },

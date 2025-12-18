@@ -1,13 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
 /// Service for handling authentication operations
 ///
@@ -40,26 +40,12 @@ class AuthService {
 
   /// Show error toast notification
   void _showErrorToast(BuildContext context, String message) {
-    if (!context.mounted) return;
-    toastification.show(
-      context: context,
-      type: ToastificationType.error,
-      style: ToastificationStyle.flat,
-      autoCloseDuration: const Duration(seconds: 3),
-      title: Text(message),
-    );
+    AppToast.error(context, message);
   }
 
   /// Show success toast notification
   void _showSuccessToast(BuildContext context, String message) {
-    if (!context.mounted) return;
-    toastification.show(
-      context: context,
-      type: ToastificationType.success,
-      style: ToastificationStyle.flat,
-      autoCloseDuration: const Duration(seconds: 3),
-      title: Text(message),
-    );
+    AppToast.success(context, message);
   }
 
   /// Refresh providers after successful authentication

@@ -5,6 +5,7 @@ import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/widgets/standard_text_field.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
 class ProfileEditBody extends ConsumerStatefulWidget {
   const ProfileEditBody({super.key});
@@ -49,12 +50,17 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
           country: _selectedCountry?.countryCode,
         );
 
+    if (!mounted) return;
+
     setState(() {
       _isSaving = false;
     });
 
-    if (success && mounted) {
+    if (success) {
+      AppToast.success(context, 'Profile updated');
       Navigator.of(context).pop();
+    } else {
+      AppToast.error(context, 'Failed to update profile');
     }
   }
 

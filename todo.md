@@ -1,5 +1,4 @@
 MVP:
-- add link to TOS
 - setup feedback board
 - test help and support opens email
 - setup apple auth

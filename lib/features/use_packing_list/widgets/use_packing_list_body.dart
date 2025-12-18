@@ -5,11 +5,11 @@ import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/utils/format_utils.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 import 'package:kaboodle_app/shared/constants/category_constants.dart';
 import 'package:kaboodle_app/theme/expanded_palette.dart';
 import 'package:kaboodle_app/features/use_packing_list/widgets/use_packing_list_item_tile.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
-import 'package:toastification/toastification.dart';
 import 'package:lottie/lottie.dart';
 
 class UsePackingListBody extends ConsumerStatefulWidget {
@@ -116,16 +116,9 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
 
         if (!mounted) return;
 
-        toastification.show(
-          context: context,
-          type: ToastificationType.success,
-          style: ToastificationStyle.minimal,
-          title: Text(allPacked ? 'Packing complete! 🎉' : 'Progress saved'),
-          description: allPacked
-              ? const Text('All items packed and saved')
-              : const Text('Your packing progress has been saved'),
-          autoCloseDuration: const Duration(seconds: 3),
-          alignment: Alignment.topCenter,
+        AppToast.success(
+          context,
+          allPacked ? 'Packing complete! 🎉' : 'Progress saved',
         );
 
         if (allPacked) {
@@ -159,15 +152,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
   }
 
   void _showErrorToast(String message) {
-    toastification.show(
-      context: context,
-      type: ToastificationType.error,
-      style: ToastificationStyle.minimal,
-      title: const Text('Error'),
-      description: Text(message),
-      autoCloseDuration: const Duration(seconds: 4),
-      alignment: Alignment.topCenter,
-    );
+    AppToast.error(context, message);
   }
 
   @override

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
 import 'package:kaboodle_app/models/item_template.dart';
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/checkbox_tile.dart';
@@ -7,6 +6,7 @@ import 'package:kaboodle_app/features/create_packing_list/widgets/edit_item_shee
 import 'package:kaboodle_app/features/create_packing_list/widgets/add_custom_item_sheet.dart';
 import 'package:kaboodle_app/shared/utils/icon_utils.dart';
 import 'package:kaboodle_app/shared/utils/country_utils.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 import 'package:kaboodle_app/shared/constants/category_constants.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -72,16 +72,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
   /// Show error toast notification
   void _showErrorToast(String message) {
     if (!mounted) return;
-
-    toastification.show(
-      context: context,
-      type: ToastificationType.error,
-      style: ToastificationStyle.minimal,
-      title: const Text('Error'),
-      description: Text(message),
-      autoCloseDuration: const Duration(seconds: 3),
-      alignment: Alignment.bottomCenter,
-    );
+    AppToast.error(context, message);
   }
 
   /// Notify parent of data changes (selected items and custom items)

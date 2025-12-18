@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:toastification/toastification.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 import 'api_client.dart';
 
 /// High-level API service with error handling and toast notifications
@@ -71,16 +71,7 @@ class ApiService {
 
   void _showErrorToast(BuildContext? context, String message) {
     if (context == null || !context.mounted) return;
-
-    toastification.show(
-      context: context,
-      type: ToastificationType.error,
-      style: ToastificationStyle.minimal,
-      title: const Text('Error'),
-      description: Text(message),
-      autoCloseDuration: const Duration(seconds: 3),
-      alignment: Alignment.bottomCenter,
-    );
+    AppToast.error(context, message);
   }
 }
 

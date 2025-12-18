@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
-import 'package:toastification/toastification.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_1_general_info_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_2_details_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_3_generate_items_body.dart';
@@ -10,6 +9,7 @@ import 'package:kaboodle_app/features/create_packing_list/widgets/step_4_overvie
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/services/subscription/subscription_service.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
 class CreatePackingListView extends ConsumerStatefulWidget {
   final String? packingListId;
@@ -130,16 +130,7 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
   /// Show error toast notification
   void _showErrorToast(String message) {
     if (!mounted) return;
-
-    toastification.show(
-      context: context,
-      type: ToastificationType.error,
-      style: ToastificationStyle.minimal,
-      title: const Text('Error'),
-      description: Text(message),
-      autoCloseDuration: const Duration(seconds: 3),
-      alignment: Alignment.bottomCenter,
-    );
+    AppToast.error(context, message);
   }
 
   /// Revalidate current step (used when returning to a step)
@@ -257,7 +248,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         if (isNewList) {
           ref.read(packingListsProvider.notifier).addPackingList(packingList);
         } else {
-          ref.read(packingListsProvider.notifier).updatePackingList(packingList);
+          ref
+              .read(packingListsProvider.notifier)
+              .updatePackingList(packingList);
         }
         debugPrint(
             '✅ Step $stepNumber saved (progress: ${packingList.stepCompleted}/4)');
@@ -551,7 +544,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         );
 
         if (result.success && mounted) {
-          ref.read(packingListsProvider.notifier).updatePackingList(result.packingList!);
+          ref
+              .read(packingListsProvider.notifier)
+              .updatePackingList(result.packingList!);
           debugPrint('✅ Packing list complete!');
         } else {
           _showErrorToast('Failed to complete packing list');

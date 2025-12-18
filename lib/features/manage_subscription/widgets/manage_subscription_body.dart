@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:toastification/toastification.dart';
 import 'package:kaboodle_app/services/subscription/subscription_service.dart';
+import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
 class ManageSubscriptionBody extends StatefulWidget {
   const ManageSubscriptionBody({super.key});
@@ -73,35 +73,17 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
 
   void _showSuccessToast(String message) {
     if (!mounted) return;
-    toastification.show(
-      context: context,
-      type: ToastificationType.success,
-      style: ToastificationStyle.flat,
-      autoCloseDuration: const Duration(seconds: 3),
-      title: Text(message),
-    );
+    AppToast.success(context, message);
   }
 
   void _showInfoToast(String message) {
     if (!mounted) return;
-    toastification.show(
-      context: context,
-      type: ToastificationType.info,
-      style: ToastificationStyle.flat,
-      autoCloseDuration: const Duration(seconds: 3),
-      title: Text(message),
-    );
+    AppToast.info(context, message);
   }
 
   void _showErrorToast(String message) {
     if (!mounted) return;
-    toastification.show(
-      context: context,
-      type: ToastificationType.error,
-      style: ToastificationStyle.flat,
-      autoCloseDuration: const Duration(seconds: 3),
-      title: Text(message),
-    );
+    AppToast.error(context, message);
   }
 
   String _formatDate(DateTime? date) {
