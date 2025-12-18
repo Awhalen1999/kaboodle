@@ -2,10 +2,7 @@ MVP:
 
 - test help and support opens email (?)
 - setup apple auth (?)
-- versioning
 - post hog (?)
-- Update rev cat keys / how we handle billing here
-- Update backend URL for hosted app
 
 OTHER:
 
