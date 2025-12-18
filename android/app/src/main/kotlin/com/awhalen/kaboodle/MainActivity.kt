@@ -1,4 +1,4 @@
-package com.example.kaboodle_app
+package com.awhalen.kaboodle
 
 import io.flutter.embedding.android.FlutterActivity
 

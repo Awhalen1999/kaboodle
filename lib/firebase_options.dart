@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '896080834328',
     projectId: 'kaboodle-348de',
     storageBucket: 'kaboodle-348de.firebasestorage.app',
-    iosBundleId: 'com.example.kaboodleApp',
+    iosBundleId: 'com.awhalen.kaboodle',
   );
 }

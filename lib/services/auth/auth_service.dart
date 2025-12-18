@@ -309,6 +309,8 @@ class AuthService {
       // Generate nonce for security
       final rawNonce = _generateNonce();
       final nonce = _sha256ofString(rawNonce);
+      debugPrint(
+          '🔐 [AuthService] Generated nonce (length: ${rawNonce.length})');
 
       // Request Apple credentials
       final appleCredential = await SignInWithApple.getAppleIDCredential(
@@ -318,15 +320,27 @@ class AuthService {
         ],
         nonce: nonce,
       );
+      debugPrint('✅ [AuthService] Apple credentials received');
+      debugPrint(
+          '🔐 [AuthService] Identity token length: ${appleCredential.identityToken?.length ?? 0}');
 
       // Create Firebase credential from Apple credential
+      debugPrint('🔥 [AuthService] Creating Firebase credential...');
+      debugPrint(
+          '🔥 [AuthService] Has identityToken: ${appleCredential.identityToken != null}');
+      debugPrint(
+          '🔥 [AuthService] Has authorizationCode: ${appleCredential.authorizationCode != null}');
+
       final oauthCredential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
         rawNonce: rawNonce,
       );
+      debugPrint('🔥 [AuthService] Firebase credential created');
 
       // Sign in to Firebase with the Apple credential
+      debugPrint('🔥 [AuthService] Signing in to Firebase...');
       await _auth.signInWithCredential(oauthCredential);
+      debugPrint('✅ [AuthService] Firebase sign in successful');
 
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
@@ -342,13 +356,20 @@ class AuthService {
         debugPrint('⚠️ [AuthService] Apple signin cancelled by user');
         return; // User cancelled, no toast needed
       }
+      debugPrint(
+          '❌ [AuthService] Apple authorization error: ${e.code} - ${e.message}');
+      debugPrint('❌ [AuthService] Error details: ${e.toString()}');
       _showErrorToast(context, 'Apple sign in failed. Please try again.');
     } on FirebaseAuthException catch (e) {
+      debugPrint(
+          '❌ [AuthService] Firebase auth error: ${e.code} - ${e.message}');
       final message = switch (e.code) {
         'account-exists-with-different-credential' =>
           'An account already exists with a different sign-in method.',
-        'invalid-credential' => 'The credential is invalid.',
-        'operation-not-allowed' => 'Apple sign-in is not enabled.',
+        'invalid-credential' =>
+          'Invalid credential. Please check Firebase Console: Apple Sign In must be enabled and bundle ID must match.',
+        'operation-not-allowed' =>
+          'Apple sign-in is not enabled in Firebase Console.',
         _ => e.message ?? 'An error occurred during Apple sign in.',
       };
       _showErrorToast(context, message);
