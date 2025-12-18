@@ -3,7 +3,9 @@ MVP:
 - test help and support opens email (?)
 - setup apple auth (?)
 - versioning
-- post hog
+- post hog (?)
+- Update rev cat keys / how we handle billing here
+- Update backend URL for hosted app
 
 OTHER:
 
@@ -13,3 +15,5 @@ OTHER:
 - make reusable loading with sleepy cat
 - setup email verification (look into other apps for this)
 - setup feedback board
+- reordering lists
+- more robust posthog captures

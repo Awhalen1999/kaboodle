@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:kaboodle_app/services/api/api_client.dart';
 import 'package:kaboodle_app/services/api/endpoints.dart';
@@ -142,6 +143,7 @@ class SubscriptionService {
 
   /// Navigate to paywall screen
   void showPaywall(BuildContext context) {
+    Posthog().capture(eventName: 'paywall_viewed');
     context.push('/paywall');
   }
 
@@ -171,6 +173,13 @@ class SubscriptionService {
   Future<bool> purchasePackage(Package package) async {
     try {
       await Purchases.purchasePackage(package);
+
+      // Track successful subscription
+      Posthog().capture(
+        eventName: 'subscription_started',
+        properties: {'package': package.identifier},
+      );
+
       return true;
     } catch (e) {
       debugPrint('❌ [SubscriptionService] Purchase failed: $e');
@@ -206,6 +215,10 @@ class SubscriptionService {
 
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
+
+        // Track subscription management opened
+        Posthog().capture(eventName: 'subscription_management_opened');
+
         return true;
       } else {
         return false;

@@ -10,6 +10,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/shared/utils/app_toast.dart';
@@ -65,12 +66,15 @@ class AuthService {
     ref.read(userProvider.notifier).clear();
   }
 
-  /// Identify RevenueCat user with Firebase user ID
+  /// Identify RevenueCat user and PostHog with Firebase user ID
   Future<void> _identifyRevenueCatUser() async {
     final user = _auth.currentUser;
     if (user != null) {
       try {
         await Purchases.logIn(user.uid);
+        await Posthog().identify(
+          userId: user.uid,
+        );
       } catch (e) {
         debugPrint('⚠️ [AuthService] Failed to identify RevenueCat user: $e');
         // Don't throw - this shouldn't block authentication
@@ -166,11 +170,12 @@ class AuthService {
       await _auth.signOut();
       await _googleSignIn.signOut();
 
-      // Sign out from RevenueCat
+      // Sign out from RevenueCat and PostHog
       try {
         await Purchases.logOut();
+        await Posthog().reset();
       } catch (e) {
-        debugPrint('⚠️ [AuthService] Failed to log out RevenueCat user: $e');
+        debugPrint('⚠️ [AuthService] Failed to log out user: $e');
         // Don't throw - this shouldn't block signout
       }
 

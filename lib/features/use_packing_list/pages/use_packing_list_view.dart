@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:kaboodle_app/features/use_packing_list/widgets/use_packing_list_body.dart';
 import 'package:kaboodle_app/models/packing_item.dart';
 import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
@@ -22,6 +23,16 @@ class UsePackingListView extends ConsumerStatefulWidget {
 class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
   OverlayEntry? _overlayEntry;
   final GlobalKey _menuButtonKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    // Track list opened
+    Posthog().capture(
+      eventName: 'list_opened',
+      properties: {'list_name': widget.packingListName},
+    );
+  }
 
   void _onStatsUpdated(PackingListStats stats) {
     // Stats updated callback - can be used for progress bar in future

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_1_general_info_body.dart';
 import 'package:kaboodle_app/features/create_packing_list/widgets/step_2_details_body.dart';
@@ -537,6 +538,20 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
           ref
               .read(packingListsProvider.notifier)
               .updatePackingList(result.packingList!);
+
+          // Track list creation
+          final selectedItems =
+              _formData['selectedItems'] as Map<String, bool>? ?? {};
+          final itemCount = selectedItems.values.where((v) => v).length;
+
+          Posthog().capture(
+            eventName: 'list_created',
+            properties: {
+              'list_name': _formData['name'],
+              'destination': _formData['destination'],
+              'item_count': itemCount,
+            },
+          );
         } else {
           _showErrorToast('Failed to complete packing list');
         }

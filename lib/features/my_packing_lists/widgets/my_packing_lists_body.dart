@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:kaboodle_app/features/my_packing_lists/widgets/packing_list_tile.dart';
 import 'package:kaboodle_app/models/packing_list.dart';
@@ -63,6 +64,9 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
       );
 
       if (success && mounted) {
+        // Track list deleted
+        Posthog().capture(eventName: 'list_deleted');
+
         // Refresh the list
         ref.read(packingListsProvider.notifier).refresh();
 

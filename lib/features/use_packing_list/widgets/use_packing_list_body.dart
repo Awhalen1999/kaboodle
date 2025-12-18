@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:kaboodle_app/models/packing_item.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
@@ -107,12 +108,24 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
         );
 
         if (allPacked) {
+          // Track list finished
+          Posthog().capture(
+            eventName: 'list_finished',
+            properties: {'list_name': widget.packingListName},
+          );
+
           // Navigate back after a short delay to show the success message
           Future.delayed(const Duration(milliseconds: 1500), () {
             if (mounted) {
               Navigator.of(context).pop();
             }
           });
+        } else {
+          // Track progress saved (but not complete)
+          Posthog().capture(
+            eventName: 'list_progress_saved',
+            properties: {'list_name': widget.packingListName},
+          );
         }
       } else {
         _showErrorToast('Failed to save progress');

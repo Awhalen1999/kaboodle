@@ -52,20 +52,15 @@ Future<void> _initializePostHog() async {
     final config =
         PostHogConfig('phc_4xMN0XVRwApTPxxDpvsWvWcKijeIKKgVog7896N7NTR');
     config.host = 'https://us.i.posthog.com';
-    config.debug = true; // Set to false in production
+    config.debug = true;
     config.captureApplicationLifecycleEvents = true;
-
-    // Enable session replay
-    config.sessionReplay = true;
-    config.sessionReplayConfig.maskAllTexts = false;
-    config.sessionReplayConfig.maskAllImages = false;
 
     await Posthog().setup(config);
 
     // Register super property to identify events from mobile app
     await Posthog().register('app_source', 'mobile_app');
 
-    debugPrint('✅ [PostHog] Initialized with session replay');
+    debugPrint('✅ [PostHog] Initialized');
   } catch (e) {
     debugPrint('❌ [PostHog] Failed to initialize: $e');
   }
@@ -76,7 +71,6 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Use select to only rebuild when themeMode changes, not on every theme state change
     final themeMode =
         ref.watch(themeProvider.select((state) => state.themeMode));
 
