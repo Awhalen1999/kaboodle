@@ -2,7 +2,8 @@ MVP:
 
 - test help and support opens email (?)
 - setup apple auth (?)
-- post hog (?)
+- setup proper items inside rev cat
+- BUILD_GUIDE.md
 
 OTHER:
 
@@ -13,4 +14,4 @@ OTHER:
 - setup email verification (look into other apps for this)
 - setup feedback board
 - reordering lists
-- more robust posthog captures
+- more robust posthog captures (potentially scrap the screens)
