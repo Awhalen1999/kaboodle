@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>kaboodle_app</string>
+	<string>Kaboodle</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -29,7 +29,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.896080834328-2gc94svdnmtpds7bma4aikfsqa1pr92c</string>
+				<string>com.googleusercontent.apps.896080834328-48j7g29fljr1d05gqm9d9vqgn2pptsth</string>
 			</array>
 		</dict>
 	</array>

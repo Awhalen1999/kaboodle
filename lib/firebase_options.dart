@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAC8AiLHll309iP4TIYRgj6G-XE0FuYJ-w',
-    appId: '1:896080834328:android:e310f169edf40a34e3b86d',
+    appId: '1:896080834328:android:ede2bbfa2935efb2e3b86d',
     messagingSenderId: '896080834328',
     projectId: 'kaboodle-348de',
     storageBucket: 'kaboodle-348de.firebasestorage.app',
@@ -59,7 +59,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDOq7GejZFmITodz1_rJLbGzpPyEiJ-Z10',
-    appId: '1:896080834328:ios:51efe196a62bb0cae3b86d',
+    appId: '1:896080834328:ios:6c0f1e49b6376d5fe3b86d',
     messagingSenderId: '896080834328',
     projectId: 'kaboodle-348de',
     storageBucket: 'kaboodle-348de.firebasestorage.app',
