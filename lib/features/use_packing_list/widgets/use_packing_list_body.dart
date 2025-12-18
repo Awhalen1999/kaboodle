@@ -37,12 +37,9 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
   @override
   void initState() {
     super.initState();
-    debugPrint(
-        '🎬 [UsePackingListBody] Initializing for list: ${widget.packingListId}');
   }
 
   void _toggleItemPacked(String itemId) {
-    debugPrint('🔘 [UsePackingListBody] User toggled item: $itemId');
     ref
         .read(usePackingItemsProvider(widget.packingListId).notifier)
         .toggleItemPacked(itemId);
@@ -50,8 +47,6 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
   }
 
   Future<void> _handleSaveProgress() async {
-    debugPrint('💾 [UsePackingListBody] Save button pressed');
-
     final itemsAsync = ref.read(usePackingItemsProvider(widget.packingListId));
 
     // Get allPacked state from items
@@ -60,8 +55,6 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
               items.isNotEmpty && items.every((item) => item.isPacked),
         ) ??
         false;
-
-    debugPrint('💾 [UsePackingListBody] All items packed: $allPacked');
 
     setState(() {
       _isSaving = true;
@@ -75,12 +68,8 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
       if (!mounted) return;
 
       if (success) {
-        debugPrint('✅ [UsePackingListBody] Save successful');
-
         // If all items are packed, mark the packing list as complete
         if (allPacked) {
-          debugPrint(
-              '🎯 [UsePackingListBody] Marking packing list as complete');
           final tripService = TripService();
           final packingList = await tripService.getPackingList(
             packingListId: widget.packingListId,
@@ -102,14 +91,10 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
               activities: packingList.activities,
               isCompleted: true,
             );
-            debugPrint(
-                '📦 [UsePackingListBody] Mark complete result: ${updateResult.success}');
 
             // Refresh the packing lists provider so the main page shows the complete tag
             if (updateResult.success) {
               ref.read(packingListsProvider.notifier).refresh();
-              debugPrint(
-                  '🔄 [UsePackingListBody] Refreshed packing lists provider');
             }
           }
         }
@@ -122,8 +107,6 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
         );
 
         if (allPacked) {
-          debugPrint(
-              '🎯 [UsePackingListBody] All items complete, navigating back');
           // Navigate back after a short delay to show the success message
           Future.delayed(const Duration(milliseconds: 1500), () {
             if (mounted) {
@@ -132,12 +115,10 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
           });
         }
       } else {
-        debugPrint('❌ [UsePackingListBody] Save failed');
         _showErrorToast('Failed to save progress');
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('❌ [UsePackingListBody] Error saving: $e');
-      debugPrint(stackTrace.toString());
 
       if (mounted) {
         _showErrorToast('Error saving progress: ${e.toString()}');

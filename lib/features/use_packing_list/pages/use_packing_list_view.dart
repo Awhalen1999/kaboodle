@@ -153,20 +153,13 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
   }
 
   Future<bool> _onWillPop() async {
-    debugPrint('🚪 [UsePackingListView] Back button pressed');
-
     final notifier =
         ref.read(usePackingItemsProvider(widget.packingListId).notifier);
     final hasUnsavedChanges = notifier.hasUnsavedChanges();
 
     if (!hasUnsavedChanges) {
-      debugPrint(
-          '✅ [UsePackingListView] No unsaved changes, allowing navigation');
       return true;
     }
-
-    debugPrint(
-        '⚠️ [UsePackingListView] Unsaved changes detected, showing dialog');
 
     if (!mounted) return false;
 
@@ -180,8 +173,6 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
           label: 'Discard',
           isDestructive: true,
           onPressed: () {
-            debugPrint(
-                '🗑️ [UsePackingListView] User chose to discard changes');
             // Restore provider state to original (before any local changes)
             ref
                 .read(usePackingItemsProvider(widget.packingListId).notifier)
@@ -193,7 +184,6 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
           label: 'Save',
           isPrimary: true,
           onPressed: () async {
-            debugPrint('💾 [UsePackingListView] User chose to save changes');
             final navigator = Navigator.of(context);
 
             final success = await notifier.saveProgress();

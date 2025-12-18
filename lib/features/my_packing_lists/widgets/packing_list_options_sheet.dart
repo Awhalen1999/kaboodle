@@ -102,7 +102,6 @@ class PackingListOptionsSheet extends StatelessWidget {
               InkWell(
                 onTap: () {
                   Navigator.pop(context);
-                  debugPrint('🔄 Reset Progress clicked');
                   onResetProgress!();
                 },
                 borderRadius: BorderRadius.circular(8),

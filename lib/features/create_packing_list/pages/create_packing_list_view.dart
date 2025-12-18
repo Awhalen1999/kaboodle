@@ -109,10 +109,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         });
 
         if (isCompleteList) {
-          debugPrint('✏️ Editing complete packing list: ${packingList.name}');
+          // Editing complete packing list
         } else {
-          debugPrint(
-              '▶️ Continuing incomplete packing list: ${packingList.name} (step ${packingList.stepCompleted}/4)');
+          // Continuing incomplete packing list
         }
       });
     } catch (e) {
@@ -212,9 +211,6 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
             stepNumber > currentStepCompleted ? stepNumber : null;
       }
 
-      debugPrint(
-          '📝 Step $stepNumber: ${isNewList ? "Creating" : "Updating"} "${_formData['name']}" (stepCompleted: ${stepCompletedValue ?? "unchanged"})');
-
       final result = await _tripService.upsertPackingList(
         id: packingListId,
         name: _formData['name'] as String,
@@ -252,18 +248,14 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
               .read(packingListsProvider.notifier)
               .updatePackingList(packingList);
         }
-        debugPrint(
-            '✅ Step $stepNumber saved (progress: ${packingList.stepCompleted}/4)');
         return true;
       } else {
         _showErrorToast('Failed to save trip details');
-        debugPrint('❌ Step $stepNumber failed: No result');
         return false;
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       _showErrorToast('Error saving trip details: ${e.toString()}');
       debugPrint('❌ Step $stepNumber error: $e');
-      debugPrint(stackTrace.toString());
       return false;
     } finally {
       if (mounted) {
@@ -284,7 +276,6 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
 
       if (packingListId == null) {
         _showErrorToast('No packing list found. Please start from Step 1.');
-        debugPrint('❌ Step 3: No packing list ID');
         return false;
       }
 
@@ -463,10 +454,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
       );
 
       return success;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _showErrorToast('Error saving packing items: ${e.toString()}');
       debugPrint('❌ Step 3 error: $e');
-      debugPrint(stackTrace.toString());
       return false;
     } finally {
       if (mounted) {
@@ -547,15 +537,13 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
           ref
               .read(packingListsProvider.notifier)
               .updatePackingList(result.packingList!);
-          debugPrint('✅ Packing list complete!');
         } else {
           _showErrorToast('Failed to complete packing list');
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       _showErrorToast('Error completing packing list: ${e.toString()}');
       debugPrint('❌ Finish error: $e');
-      debugPrint(stackTrace.toString());
     } finally {
       if (mounted) {
         setState(() {

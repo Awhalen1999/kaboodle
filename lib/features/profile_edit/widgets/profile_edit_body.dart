@@ -75,21 +75,16 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
     return userAsync.when(
       data: (user) {
         if (user == null) {
-          print('⚠️ [ProfileEditBody] User data is null');
           return const Center(child: CircularProgressIndicator());
         }
 
-        print(
-            '✅ [ProfileEditBody] User data received: ${user.displayName ?? user.email}');
         _initializeControllers(user);
         return _buildEditForm(context, user);
       },
       loading: () {
-        print('⏳ [ProfileEditBody] User loading...');
         return const Center(child: CircularProgressIndicator());
       },
       error: (error, stackTrace) {
-        print('❌ [ProfileEditBody] User error: $error');
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

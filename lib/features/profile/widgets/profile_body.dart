@@ -39,25 +39,20 @@ class ProfileBody extends ConsumerWidget {
     return userAsync.when(
       data: (user) {
         if (user == null) {
-          print('⚠️ [ProfileBody] User data is null');
           // todo: maybe show that we are logging out maybe handle error here
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
-        print(
-            '✅ [ProfileBody] User data received: ${user.displayName ?? user.email}');
         return _buildProfileContent(context, ref, user);
       },
       loading: () {
-        print('⏳ [ProfileBody] User loading...');
         return const Center(
           child: CircularProgressIndicator(),
         );
       },
       error: (error, stackTrace) {
-        print('❌ [ProfileBody] User error: $error');
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -393,7 +388,8 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
 }
 
 /// Shows delete account confirmation dialog
-Future<void> _showDeleteAccountDialog(BuildContext context, WidgetRef ref) async {
+Future<void> _showDeleteAccountDialog(
+    BuildContext context, WidgetRef ref) async {
   await DeleteAccountDialog.show(
     context,
     () => _handleDeleteAccount(context, ref),

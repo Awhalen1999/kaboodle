@@ -71,7 +71,6 @@ class AuthService {
     if (user != null) {
       try {
         await Purchases.logIn(user.uid);
-        debugPrint('✅ [AuthService] RevenueCat user identified: ${user.uid}');
       } catch (e) {
         debugPrint('⚠️ [AuthService] Failed to identify RevenueCat user: $e');
         // Don't throw - this shouldn't block authentication
@@ -87,8 +86,6 @@ class AuthService {
     required WidgetRef ref,
   }) async {
     try {
-      debugPrint('📝 [AuthService] Starting signup...');
-
       await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -97,7 +94,6 @@ class AuthService {
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
 
-      debugPrint('✅ [AuthService] Signup successful, refreshing providers...');
       _refreshProvidersAfterAuth(ref);
 
       if (!context.mounted) return;
@@ -124,8 +120,6 @@ class AuthService {
     required WidgetRef ref,
   }) async {
     try {
-      debugPrint('🔑 [AuthService] Starting signin...');
-
       await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -134,7 +128,6 @@ class AuthService {
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
 
-      debugPrint('✅ [AuthService] Signin successful, refreshing providers...');
       _refreshProvidersAfterAuth(ref);
 
       if (!context.mounted) return;
@@ -165,34 +158,27 @@ class AuthService {
     required WidgetRef ref,
   }) async {
     try {
-      debugPrint('🚪 [AuthService] Starting signout...');
-
       // Step 1: Clear provider state BEFORE signing out
       // This prevents race conditions where providers rebuild with stale auth
-      debugPrint('🧹 [AuthService] Clearing provider state...');
       _clearProvidersBeforeSignout(ref);
 
       // Step 2: Perform async signout
-      debugPrint('🔐 [AuthService] Signing out from Firebase & Google...');
       await _auth.signOut();
       await _googleSignIn.signOut();
 
       // Sign out from RevenueCat
       try {
         await Purchases.logOut();
-        debugPrint('✅ [AuthService] RevenueCat user logged out');
       } catch (e) {
         debugPrint('⚠️ [AuthService] Failed to log out RevenueCat user: $e');
         // Don't throw - this shouldn't block signout
       }
 
-      debugPrint('✅ [AuthService] Signout complete');
-
       // Step 3: Redirect to welcome page
       if (!context.mounted) return;
       context.go('/welcome');
     } catch (e) {
-      debugPrint('❌ [AuthService] Error during signout: $e');
+      debugPrint('❌ [AuthService] Signout error: $e');
       // Still try to redirect even if signout fails
       if (context.mounted) {
         context.go('/welcome');
@@ -206,11 +192,8 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
-      debugPrint('📧 [AuthService] Sending password reset email...');
-
       await _auth.sendPasswordResetEmail(email: email);
 
-      debugPrint('✅ [AuthService] Password reset email sent successfully');
       _showSuccessToast(
         context,
         'Password reset email sent. Please check your inbox.',
@@ -234,14 +217,11 @@ class AuthService {
     required WidgetRef ref,
   }) async {
     try {
-      debugPrint('🔑 [AuthService] Starting Google signin...');
-
       // Trigger the Google Sign In flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        debugPrint('⚠️ [AuthService] Google signin cancelled by user');
-        return;
+        return; // User cancelled
       }
 
       // Obtain the auth details from the request
@@ -260,8 +240,6 @@ class AuthService {
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
 
-      debugPrint(
-          '✅ [AuthService] Google signin successful, refreshing providers...');
       _refreshProvidersAfterAuth(ref);
 
       if (!context.mounted) return;
@@ -304,13 +282,9 @@ class AuthService {
     required WidgetRef ref,
   }) async {
     try {
-      debugPrint('🍎 [AuthService] Starting Apple signin...');
-
       // Generate nonce for security
       final rawNonce = _generateNonce();
       final nonce = _sha256ofString(rawNonce);
-      debugPrint(
-          '🔐 [AuthService] Generated nonce (length: ${rawNonce.length})');
 
       // Request Apple credentials
       final appleCredential = await SignInWithApple.getAppleIDCredential(
@@ -320,49 +294,31 @@ class AuthService {
         ],
         nonce: nonce,
       );
-      debugPrint('✅ [AuthService] Apple credentials received');
-      debugPrint(
-          '🔐 [AuthService] Identity token length: ${appleCredential.identityToken?.length ?? 0}');
 
       // Create Firebase credential from Apple credential
-      debugPrint('🔥 [AuthService] Creating Firebase credential...');
-      debugPrint(
-          '🔥 [AuthService] Has identityToken: ${appleCredential.identityToken != null}');
-      debugPrint(
-          '🔥 [AuthService] Has authorizationCode: ${appleCredential.authorizationCode != null}');
-
       final oauthCredential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
         rawNonce: rawNonce,
       );
-      debugPrint('🔥 [AuthService] Firebase credential created');
 
       // Sign in to Firebase with the Apple credential
-      debugPrint('🔥 [AuthService] Signing in to Firebase...');
       await _auth.signInWithCredential(oauthCredential);
-      debugPrint('✅ [AuthService] Firebase sign in successful');
 
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
 
-      debugPrint(
-          '✅ [AuthService] Apple signin successful, refreshing providers...');
       _refreshProvidersAfterAuth(ref);
 
       if (!context.mounted) return;
       context.go('/my-packing-lists');
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) {
-        debugPrint('⚠️ [AuthService] Apple signin cancelled by user');
         return; // User cancelled, no toast needed
       }
-      debugPrint(
-          '❌ [AuthService] Apple authorization error: ${e.code} - ${e.message}');
-      debugPrint('❌ [AuthService] Error details: ${e.toString()}');
+      debugPrint('❌ [AuthService] Apple auth error: ${e.code}');
       _showErrorToast(context, 'Apple sign in failed. Please try again.');
     } on FirebaseAuthException catch (e) {
-      debugPrint(
-          '❌ [AuthService] Firebase auth error: ${e.code} - ${e.message}');
+      debugPrint('❌ [AuthService] Firebase auth error: ${e.code}');
       final message = switch (e.code) {
         'account-exists-with-different-credential' =>
           'An account already exists with a different sign-in method.',

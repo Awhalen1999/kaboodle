@@ -16,29 +16,16 @@ class UserNotifier extends AsyncNotifier<User?> {
 
   @override
   Future<User?> build() async {
-    debugPrint('📦 [UserProvider] build() called - initializing user data');
-
     // Check if user is authenticated before making API call
     final authUser = auth.FirebaseAuth.instance.currentUser;
     if (authUser == null) {
-      debugPrint('⚠️ [UserProvider] No authenticated user, returning null');
       return null;
     }
 
-    debugPrint('🔄 [UserProvider] Loading user profile from API...');
     try {
-      final user = await _userService.getUserProfile();
-      if (user != null) {
-        debugPrint(
-            '✅ [UserProvider] User profile loaded: ${user.displayName ?? user.email}');
-      } else {
-        debugPrint(
-            '❌ [UserProvider] Failed to load user profile (null returned)');
-      }
-      return user;
-    } catch (e, stackTrace) {
-      debugPrint('❌ [UserProvider] Error loading user profile: $e');
-      debugPrint('📍 [UserProvider] Stack trace: $stackTrace');
+      return await _userService.getUserProfile();
+    } catch (e) {
+      debugPrint('❌ [UserProvider] Error loading profile: $e');
       rethrow;
     }
   }
@@ -48,21 +35,13 @@ class UserNotifier extends AsyncNotifier<User?> {
   /// Sets loading state first, then fetches fresh data from API.
   /// Use this after login to ensure user sees a loading indicator.
   Future<void> refresh() async {
-    debugPrint('🔄 [UserProvider] refresh() called - forcing reload');
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final authUser = auth.FirebaseAuth.instance.currentUser;
       if (authUser == null) {
-        debugPrint('⚠️ [UserProvider] No authenticated user during refresh');
         return null;
       }
-      debugPrint('🔄 [UserProvider] Refreshing user profile from API...');
-      final user = await _userService.getUserProfile();
-      if (user != null) {
-        debugPrint(
-            '✅ [UserProvider] User profile refreshed: ${user.displayName ?? user.email}');
-      }
-      return user;
+      return await _userService.getUserProfile();
     });
   }
 
@@ -71,7 +50,6 @@ class UserNotifier extends AsyncNotifier<User?> {
   /// Sets state to null immediately without triggering a rebuild/fetch.
   /// Call this BEFORE signing out to prevent race conditions.
   void clear() {
-    debugPrint('🧹 [UserProvider] clear() called - clearing user data');
     state = const AsyncValue.data(null);
   }
 
@@ -84,7 +62,6 @@ class UserNotifier extends AsyncNotifier<User?> {
     String? photoUrl,
     String? country,
   }) async {
-    debugPrint('📝 [UserProvider] updateUserProfile() called');
     final previousState = state;
 
     // Show loading state
@@ -98,17 +75,14 @@ class UserNotifier extends AsyncNotifier<User?> {
       );
 
       if (updatedUser != null) {
-        debugPrint('✅ [UserProvider] User profile updated successfully');
         state = AsyncValue.data(updatedUser);
         return true;
       } else {
-        debugPrint(
-            '❌ [UserProvider] Failed to update user profile (null returned)');
         state = previousState;
         return false;
       }
     } catch (e, stackTrace) {
-      debugPrint('❌ [UserProvider] Error updating user profile: $e');
+      debugPrint('❌ [UserProvider] Error updating profile: $e');
       state = AsyncValue.error(e, stackTrace);
       return false;
     }

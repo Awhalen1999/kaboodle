@@ -11,7 +11,6 @@ class ProfileView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch provider - AsyncNotifier automatically loads data when first accessed
-    print('👀 [ProfileView] Watching user provider');
     ref.watch(userProvider);
 
     return Scaffold(

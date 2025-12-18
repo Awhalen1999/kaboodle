@@ -57,8 +57,6 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
   }
 
   Future<void> _handleCancelSubscription() async {
-    debugPrint('🔄 [ManageSubscription] Cancel subscription tapped');
-
     final success = await _subscriptionService.openSubscriptionManagement();
 
     if (mounted) {

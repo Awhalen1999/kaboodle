@@ -217,10 +217,7 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
 
     return packingListsAsync.when(
       data: (packingLists) {
-        print(
-            '✅ [MyPackingListsBody] Packing lists data received: ${packingLists.length} list(s)');
         if (packingLists.isEmpty) {
-          print('📭 [MyPackingListsBody] Showing empty state');
           return _buildEmptyState(context);
         }
 
@@ -254,13 +251,11 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
         );
       },
       loading: () {
-        print('⏳ [MyPackingListsBody] Packing lists loading...');
         return const Center(
           child: CircularProgressIndicator(),
         );
       },
       error: (error, stackTrace) {
-        print('❌ [MyPackingListsBody] Packing lists error: $error');
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -314,7 +309,6 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               setState(() {
                 selectedFilter = 'all';
               });
-              print('🔍 Filter: All trips');
             },
           ),
           const SizedBox(width: 8),
@@ -326,7 +320,6 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               setState(() {
                 selectedFilter = 'upcoming_trips';
               });
-              print('🔍 Filter: Upcoming Trips');
             },
           ),
           const SizedBox(width: 8),
@@ -338,7 +331,6 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               setState(() {
                 selectedFilter = 'incomplete_lists';
               });
-              print('🔍 Filter: Incomplete Lists');
             },
           ),
           const SizedBox(width: 8),
@@ -350,7 +342,6 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               setState(() {
                 selectedFilter = 'current_trips';
               });
-              print('🔍 Filter: Current Trips');
             },
           ),
           const SizedBox(width: 8),
@@ -362,7 +353,6 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
               setState(() {
                 selectedFilter = 'past_trips';
               });
-              print('🔍 Filter: Past Trips');
             },
           ),
           const SizedBox(width: 16),
@@ -459,7 +449,6 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
             if (packingList.stepCompleted < 4) {
               // List is incomplete - continue creation
               final step = packingList.stepCompleted;
-              debugPrint('🚧 Continuing "${packingList.name}" from step $step');
               context.push(
                 '/create-packing-list?id=${packingList.id}&step=$step',
               );
@@ -484,7 +473,6 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
           onShare: packingList.stepCompleted >= 4
               ? () {
                   // TODO: Implement share functionality
-                  debugPrint('📤 Share packing list: ${packingList.name}');
                 }
               : null,
           onDelete: () =>

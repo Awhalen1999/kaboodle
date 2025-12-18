@@ -29,7 +29,6 @@ class SettingsTile extends StatelessWidget {
     final tileContent = InkWell(
       onTap: onTap != null
           ? () {
-              print('🔧 [SettingsTile] Tapped: $text');
               onTap!();
             }
           : null,

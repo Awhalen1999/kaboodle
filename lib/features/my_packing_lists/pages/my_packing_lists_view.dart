@@ -54,7 +54,6 @@ class _MyPackingListsViewState extends ConsumerState<MyPackingListsView> {
   @override
   Widget build(BuildContext context) {
     // Watch providers - AsyncNotifier automatically loads data when first accessed
-    debugPrint('👀 [MyPackingListsView] Watching providers');
     ref.watch(userProvider);
     ref.watch(packingListsProvider);
 

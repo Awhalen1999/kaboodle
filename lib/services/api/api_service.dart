@@ -23,10 +23,8 @@ class ApiService {
 
       try {
         return onSuccess(data);
-      } catch (e, stackTrace) {
+      } catch (e) {
         debugPrint('❌ [ApiService] Error parsing response: $e');
-        debugPrint('❌ [ApiService] Response data: $data');
-        debugPrint('❌ [ApiService] Stack trace: $stackTrace');
         _showErrorToast(context, 'Error processing response');
         return null;
       }
@@ -34,9 +32,8 @@ class ApiService {
       debugPrint('❌ [ApiService] ${e.statusCode}: ${e.message}');
       _showErrorToast(context, e.message);
       return null;
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('❌ [ApiService] Unexpected error: $e');
-      debugPrint('❌ [ApiService] Stack trace: $stackTrace');
       _showErrorToast(context, 'An unexpected error occurred');
       return null;
     }

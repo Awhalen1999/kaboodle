@@ -104,8 +104,6 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
     });
 
     try {
-      print('💡 Generating packing suggestions...');
-
       // Load both suggestions and existing items in parallel
       final suggestionsFuture = _tripService.generateSuggestions(
         packingListId: packingListId,
@@ -119,8 +117,6 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
       final results = await Future.wait([suggestionsFuture, itemsFuture]);
       final suggestionsResult = results[0] as List?;
       final itemsResult = results[1] as Map<String, dynamic>?;
-
-      print('✅ Generated ${suggestionsResult?.length ?? 0} suggestions');
 
       if (suggestionsResult != null) {
         final suggestions = suggestionsResult
@@ -162,8 +158,6 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
               _selectedItems[customId] = true;
               _itemQuantities[customId] = item.quantity;
               _itemNotes[customId] = item.notes ?? '';
-
-              print('✨ [Step3] Restored custom item: ${item.name}');
             } else {
               // It's a template item - find matching suggestion by name
               final matchingSuggestion = suggestions.where(
@@ -197,11 +191,9 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
         });
         _showErrorToast(errorMsg);
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       final errorMsg = 'Error generating suggestions: ${e.toString()}';
       _showErrorToast(errorMsg);
-      print('❌ [Step3] Error: $e');
-      print('❌ Stack trace: $stackTrace');
 
       setState(() {
         _errorMessage = errorMsg;
@@ -427,7 +419,6 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
             _itemNotes[item.id] = note;
           });
           _notifyDataChanged();
-          print('💾 [Step3] Saved ${item.name}: Qty=$quantity, Note="$note"');
         },
       ),
     );

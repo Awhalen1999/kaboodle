@@ -15,8 +15,6 @@ class ProfileTile extends ConsumerWidget {
       margin: const EdgeInsets.only(top: 8.0),
       child: userAsync.when(
         data: (user) {
-          print(
-              '✅ [ProfileTile] User data: ${user?.displayName ?? user?.email ?? 'null'}');
           return ListTile(
             visualDensity: const VisualDensity(
               horizontal: -2,
@@ -65,11 +63,9 @@ class ProfileTile extends ConsumerWidget {
           );
         },
         loading: () {
-          print('⏳ [ProfileTile] User loading...');
           return const _ProfileTileSkeleton();
         },
         error: (error, stackTrace) {
-          print('❌ [ProfileTile] User error: $error');
           return ListTile(
             visualDensity: const VisualDensity(
               horizontal: -2,

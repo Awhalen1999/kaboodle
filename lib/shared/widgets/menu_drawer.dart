@@ -14,7 +14,6 @@ class MenuDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final packingListsAsync = ref.watch(packingListsProvider);
-    print('👀 [MenuDrawer] Watching packing lists provider');
 
     return Drawer(
       child: SafeArea(
@@ -66,9 +65,6 @@ class MenuDrawer extends ConsumerWidget {
               Expanded(
                 child: packingListsAsync.when(
                   data: (packingLists) {
-                    print(
-                        '✅ [MenuDrawer] Packing lists data: ${packingLists.length} list(s)');
-
                     if (packingLists.isEmpty) {
                       return Center(
                         child: Padding(
@@ -123,7 +119,6 @@ class MenuDrawer extends ConsumerWidget {
                     );
                   },
                   loading: () {
-                    print('⏳ [MenuDrawer] Trips loading...');
                     return const Center(
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
@@ -132,7 +127,6 @@ class MenuDrawer extends ConsumerWidget {
                     );
                   },
                   error: (error, stackTrace) {
-                    print('❌ [MenuDrawer] Trips error: $error');
                     return Center(
                       child: Padding(
                         padding: EdgeInsets.all(16.0),

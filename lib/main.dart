@@ -32,10 +32,8 @@ void main() async {
   if (firebaseUser != null) {
     try {
       await Purchases.logIn(firebaseUser.uid);
-      debugPrint(
-          '✅ [main] RevenueCat user identified on startup: ${firebaseUser.uid}');
     } catch (e) {
-      debugPrint('⚠️ [main] Failed to identify RevenueCat user on startup: $e');
+      debugPrint('⚠️ [main] Failed to identify RevenueCat user: $e');
       // Don't throw - this shouldn't block app startup
     }
   }

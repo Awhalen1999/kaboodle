@@ -98,19 +98,13 @@ class SubscriptionService {
   /// Returns result with canCreate flag and relevant info
   Future<CanCreateListResult?> canCreateList() async {
     try {
-      debugPrint('🔍 [SubscriptionService] Checking can create list...');
       final response = await _client.get(ApiEndpoints.canCreateList);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final result = CanCreateListResult.fromJson(data);
-        debugPrint(
-            '✅ [SubscriptionService] Can create: ${result.canCreate}, lists: ${result.listCount}/${result.maxFreeLists}');
-        return result;
+        return CanCreateListResult.fromJson(data);
       }
 
-      debugPrint(
-          '❌ [SubscriptionService] Failed to check: ${response.statusCode}');
       return null;
     } catch (e) {
       debugPrint('❌ [SubscriptionService] Error checking can create: $e');
@@ -121,19 +115,13 @@ class SubscriptionService {
   /// Get full subscription status for UI display
   Future<SubscriptionStatus?> getSubscriptionStatus() async {
     try {
-      debugPrint('🔍 [SubscriptionService] Getting subscription status...');
       final response = await _client.get(ApiEndpoints.subscriptionStatus);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final status = SubscriptionStatus.fromJson(data);
-        debugPrint(
-            '✅ [SubscriptionService] isPro: ${status.isPro}, entitlements: ${status.entitlements}');
-        return status;
+        return SubscriptionStatus.fromJson(data);
       }
 
-      debugPrint(
-          '❌ [SubscriptionService] Failed to get status: ${response.statusCode}');
       return null;
     } catch (e) {
       debugPrint('❌ [SubscriptionService] Error getting status: $e');
@@ -160,9 +148,7 @@ class SubscriptionService {
   /// Restore previous purchases
   Future<bool> restorePurchases() async {
     try {
-      debugPrint('🔄 [SubscriptionService] Restoring purchases...');
       await Purchases.restorePurchases();
-      debugPrint('✅ [SubscriptionService] Purchases restored');
       return true;
     } catch (e) {
       debugPrint('❌ [SubscriptionService] Error restoring purchases: $e');
@@ -184,10 +170,7 @@ class SubscriptionService {
   /// Purchase a package
   Future<bool> purchasePackage(Package package) async {
     try {
-      debugPrint(
-          '💳 [SubscriptionService] Purchasing ${package.identifier}...');
       await Purchases.purchasePackage(package);
-      debugPrint('✅ [SubscriptionService] Purchase successful');
       return true;
     } catch (e) {
       debugPrint('❌ [SubscriptionService] Purchase failed: $e');
@@ -199,8 +182,6 @@ class SubscriptionService {
   /// RevenueCat doesn't provide direct cancellation - users must cancel via App Store/Play Store
   Future<bool> openSubscriptionManagement() async {
     try {
-      debugPrint('🔗 [SubscriptionService] Opening subscription management...');
-
       // Try to get management URL from RevenueCat CustomerInfo
       final customerInfo = await Purchases.getCustomerInfo();
       final managementURL = customerInfo.managementURL;
@@ -219,22 +200,18 @@ class SubscriptionService {
           url =
               Uri.parse('https://play.google.com/store/account/subscriptions');
         } else {
-          debugPrint('❌ [SubscriptionService] Unsupported platform');
           return false;
         }
       }
 
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
-        debugPrint('✅ [SubscriptionService] Opened subscription management');
         return true;
       } else {
-        debugPrint('❌ [SubscriptionService] Cannot launch URL: $url');
         return false;
       }
     } catch (e) {
-      debugPrint(
-          '❌ [SubscriptionService] Error opening subscription management: $e');
+      debugPrint('❌ [SubscriptionService] Error opening management: $e');
       return false;
     }
   }

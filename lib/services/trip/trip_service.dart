@@ -71,8 +71,6 @@ class TripService {
       if (response.statusCode == 403) {
         final data = jsonDecode(response.body);
         if (data['error'] == 'subscription_required') {
-          debugPrint(
-              '🔒 [TripService] Subscription required: ${data['message']}');
           return UpsertResult(
             subscriptionRequired: true,
             message: data['message'] as String?,
@@ -89,8 +87,7 @@ class TripService {
       }
 
       // Handle other errors
-      debugPrint(
-          '❌ [TripService] Upsert failed: ${response.statusCode} ${response.body}');
+      debugPrint('❌ [TripService] Upsert failed: ${response.statusCode}');
       return UpsertResult();
     } catch (e) {
       debugPrint('❌ [TripService] Upsert error: $e');
@@ -100,19 +97,12 @@ class TripService {
 
   /// Get all packing lists for the current user
   Future<Map<String, dynamic>?> getPackingLists({BuildContext? context}) async {
-    debugPrint(
-        '🚀 [TripService.getPackingLists] Calling GET ${ApiEndpoints.packingLists}');
-
     return await _apiService.safeApiCall(
       apiCall: () => _apiService.client.get(ApiEndpoints.packingLists),
       onSuccess: (data) {
-        debugPrint('✅ [TripService.getPackingLists] Raw response: $data');
         final packingLists = (data['packingLists'] as List)
             .map((json) => PackingList.fromJson(json))
             .toList();
-        debugPrint(
-            '✅ [TripService.getPackingLists] Parsed ${packingLists.length} packing lists');
-        debugPrint('🎯 [TripService.getPackingLists] Returning result: true');
         return {'packingLists': packingLists, 'count': packingLists.length};
       },
       context: context,

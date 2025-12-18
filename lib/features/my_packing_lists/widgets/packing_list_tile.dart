@@ -61,7 +61,6 @@ class PackingListTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        debugPrint('🎯 Tapped packing list: $tripName');
         onTap();
       },
       child: Stack(

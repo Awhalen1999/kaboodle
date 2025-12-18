@@ -3,6 +3,7 @@ MVP:
 - test help and support opens email (?)
 - setup apple auth (?)
 - versioning
+- post hog
 
 OTHER:
 
