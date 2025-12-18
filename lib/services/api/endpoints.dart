@@ -29,6 +29,7 @@ class ApiEndpoints {
 
   // User
   static const String userProfile = '/api/user-profile';
+  static const String deleteAccount = '/api/user-profile';
 
   // Subscription
   static const String canCreateList = '/api/packing-lists/can-create';

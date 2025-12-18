@@ -48,4 +48,20 @@ class UserService {
 
     return result;
   }
+
+  /// Delete user account and all associated data
+  /// Returns true on success, false on error
+  Future<bool> deleteAccount({
+    BuildContext? context,
+  }) async {
+    final result = await _apiService.safeApiCall(
+      apiCall: () => _apiService.client.delete(ApiEndpoints.deleteAccount),
+      onSuccess: (data) {
+        return data['success'] == true;
+      },
+      context: context,
+    );
+
+    return result ?? false;
+  }
 }

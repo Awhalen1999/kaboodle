@@ -1,8 +1,8 @@
 MVP:
 
-- test help and support opens email
-- setup apple auth
-- implement delete account
+- test help and support opens email (?)
+- setup apple auth (?)
+- versioning
 
 OTHER:
 

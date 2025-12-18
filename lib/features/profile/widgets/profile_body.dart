@@ -14,6 +14,8 @@ import 'package:kaboodle_app/shared/utils/format_utils.dart';
 import 'package:lottie/lottie.dart';
 import 'package:kaboodle_app/features/profile/widgets/settings_tile.dart';
 import 'package:kaboodle_app/features/profile/widgets/theme_switch.dart';
+import 'package:kaboodle_app/features/profile/widgets/delete_account_dialog.dart';
+import 'package:kaboodle_app/services/user/user_service.dart';
 
 class ProfileBody extends ConsumerWidget {
   const ProfileBody({super.key});
@@ -302,9 +304,7 @@ class ProfileBody extends ConsumerWidget {
                   icon: Icons.delete_forever_rounded,
                   iconColor: Colors.red,
                   text: 'Delete Account',
-                  onTap: () {
-                    AppToast.info(context, 'Coming soon');
-                  },
+                  onTap: () => _showDeleteAccountDialog(context, ref),
                   showDivider: false,
                   showChevron: false,
                 ),
@@ -389,5 +389,54 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
       },
       showDivider: false,
     );
+  }
+}
+
+/// Shows delete account confirmation dialog
+Future<void> _showDeleteAccountDialog(BuildContext context, WidgetRef ref) async {
+  await DeleteAccountDialog.show(
+    context,
+    () => _handleDeleteAccount(context, ref),
+  );
+}
+
+/// Handles the account deletion process
+Future<void> _handleDeleteAccount(BuildContext context, WidgetRef ref) async {
+  final userService = UserService();
+
+  // Show loading indicator
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => const Center(
+      child: CircularProgressIndicator(),
+    ),
+  );
+
+  try {
+    final success = await userService.deleteAccount(context: context);
+
+    // Close loading dialog
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
+
+    if (success) {
+      // Sign out and navigate to auth
+      if (context.mounted) {
+        AppToast.success(context, 'Account deleted successfully');
+        await AuthService().signout(context: context, ref: ref);
+      }
+    } else {
+      if (context.mounted) {
+        AppToast.error(context, 'Failed to delete account');
+      }
+    }
+  } catch (e) {
+    // Close loading dialog
+    if (context.mounted) {
+      Navigator.of(context).pop();
+      AppToast.error(context, 'An error occurred');
+    }
   }
 }
