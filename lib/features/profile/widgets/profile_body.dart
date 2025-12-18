@@ -182,16 +182,16 @@ class ProfileBody extends ConsumerWidget {
                 SettingsTileGroup(
                   tiles: [
                     SettingsTile(
-                      icon: Icons.star_outline,
-                      iconColor: Colors.purple,
-                      text: 'Give Feedback',
+                      icon: Icons.star_rounded,
+                      iconColor: Colors.purpleAccent,
+                      text: 'Rate App',
                       onTap: () {
-                        // Give feedback action
+                        AppToast.info(context, 'Coming soon');
                       },
                       isGrouped: true,
                     ),
                     SettingsTile(
-                      icon: Icons.info,
+                      icon: Icons.info_rounded,
                       iconColor: Colors.blueAccent,
                       text: 'Help & Support',
                       onTap: () async {
@@ -303,7 +303,7 @@ class ProfileBody extends ConsumerWidget {
                   iconColor: Colors.red,
                   text: 'Delete Account',
                   onTap: () {
-                    // Delete account action - to be implemented
+                    AppToast.info(context, 'Coming soon');
                   },
                   showDivider: false,
                   showChevron: false,
