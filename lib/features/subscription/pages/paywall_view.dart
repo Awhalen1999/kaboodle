@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:toastification/toastification.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:kaboodle_app/services/subscription/subscription_service.dart';
 
 class PaywallView extends StatefulWidget {
@@ -20,8 +21,9 @@ class _PaywallViewState extends State<PaywallView> {
   bool _isLoading = true;
   bool _isPurchasing = false;
 
-  static const String _privacyPolicyUrl = 'https://kaboodle.app/privacy';
-  static const String _termsUrl = 'https://kaboodle.app/terms';
+  static const String _privacyPolicyUrl =
+      'https://legal.kaboodle.now/privacy-policy';
+  static const String _termsUrl = 'https://legal.kaboodle.now/terms-of-service';
 
   @override
   void initState() {
@@ -126,9 +128,22 @@ class _PaywallViewState extends State<PaywallView> {
     );
   }
 
-  void _handleLegalLinkTap(String url) {
-    debugPrint('Legal link tapped: $url');
-    // TODO: Implement URL launching when ready
+  Future<void> _handleLegalLinkTap(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 4),
+          title: const Text('Unable to open link'),
+          description: const Text('Please try again later'),
+        );
+      }
+    }
   }
 
   @override
@@ -452,37 +467,42 @@ class _PaywallViewState extends State<PaywallView> {
   }
 
   Widget _buildLegalText(ThemeData theme, ColorScheme colorScheme) {
-    final textStyle = theme.textTheme.bodySmall?.copyWith(
-      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-      fontSize: 11,
-      height: 1.4,
-    );
-
-    final linkStyle = textStyle?.copyWith(
-      decoration: TextDecoration.underline,
-    );
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
-          style: textStyle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
           children: [
             const TextSpan(
               text:
                   'Subscription automatically renews unless canceled at least 24 hours before the end of the current period. ',
             ),
             TextSpan(
-              text: 'Terms of Use',
-              style: linkStyle,
+              text: 'Terms of Service',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurface,
+                decoration: TextDecoration.underline,
+                decorationColor: colorScheme.onSurface,
+              ),
               recognizer: TapGestureRecognizer()
                 ..onTap = () => _handleLegalLinkTap(_termsUrl),
             ),
-            const TextSpan(text: ' and '),
+            TextSpan(
+              text: ' and ',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
             TextSpan(
               text: 'Privacy Policy',
-              style: linkStyle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurface,
+                decoration: TextDecoration.underline,
+                decorationColor: colorScheme.onSurface,
+              ),
               recognizer: TapGestureRecognizer()
                 ..onTap = () => _handleLegalLinkTap(_privacyPolicyUrl),
             ),
