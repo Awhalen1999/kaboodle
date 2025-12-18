@@ -241,24 +241,72 @@ class ProfileBody extends ConsumerWidget {
                     SettingsTile(
                       iconColor: Theme.of(context).colorScheme.primary,
                       text: 'Terms of Service',
-                      onTap: () {
-                        // Terms of service action
+                      onTap: () async {
+                        final uri = Uri.parse(
+                            'https://legal.kaboodle.now/terms-of-service');
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri,
+                              mode: LaunchMode.externalApplication);
+                        } else {
+                          if (context.mounted) {
+                            toastification.show(
+                              context: context,
+                              type: ToastificationType.error,
+                              style: ToastificationStyle.flat,
+                              autoCloseDuration: const Duration(seconds: 4),
+                              title: const Text('Unable to open link'),
+                              description: const Text('Please try again later'),
+                            );
+                          }
+                        }
                       },
                       isGrouped: true,
                     ),
                     SettingsTile(
                       iconColor: Theme.of(context).colorScheme.primary,
                       text: 'Privacy Policy',
-                      onTap: () {
-                        // Privacy policy action
+                      onTap: () async {
+                        final uri = Uri.parse(
+                            'https://legal.kaboodle.now/privacy-policy');
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri,
+                              mode: LaunchMode.externalApplication);
+                        } else {
+                          if (context.mounted) {
+                            toastification.show(
+                              context: context,
+                              type: ToastificationType.error,
+                              style: ToastificationStyle.flat,
+                              autoCloseDuration: const Duration(seconds: 4),
+                              title: const Text('Unable to open link'),
+                              description: const Text('Please try again later'),
+                            );
+                          }
+                        }
                       },
                       isGrouped: true,
                     ),
                     SettingsTile(
                       iconColor: Theme.of(context).colorScheme.primary,
                       text: 'Data Deletion',
-                      onTap: () {
-                        // Data deletion action
+                      onTap: () async {
+                        final uri = Uri.parse(
+                            'https://legal.kaboodle.now/data-deletion');
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri,
+                              mode: LaunchMode.externalApplication);
+                        } else {
+                          if (context.mounted) {
+                            toastification.show(
+                              context: context,
+                              type: ToastificationType.error,
+                              style: ToastificationStyle.flat,
+                              autoCloseDuration: const Duration(seconds: 4),
+                              title: const Text('Unable to open link'),
+                              description: const Text('Please try again later'),
+                            );
+                          }
+                        }
                       },
                       isGrouped: true,
                       showDivider: false,
