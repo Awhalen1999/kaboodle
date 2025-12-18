@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'firebase_options.dart';
 import 'package:kaboodle_app/router.dart';
 import 'package:kaboodle_app/theme/light_mode.dart';
@@ -24,6 +25,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Initialize PostHog with session replay
+  await _initializePostHog();
+
   // Initialize RevenueCat
   await initializeRevenueCat();
 
@@ -32,13 +36,39 @@ void main() async {
   if (firebaseUser != null) {
     try {
       await Purchases.logIn(firebaseUser.uid);
+      // Also identify in PostHog
+      await Posthog().identify(userId: firebaseUser.uid);
     } catch (e) {
-      debugPrint('⚠️ [main] Failed to identify RevenueCat user: $e');
+      debugPrint('⚠️ [main] Failed to identify user: $e');
       // Don't throw - this shouldn't block app startup
     }
   }
 
   runApp(const ProviderScope(child: MyApp()));
+}
+
+Future<void> _initializePostHog() async {
+  try {
+    final config =
+        PostHogConfig('phc_4xMN0XVRwApTPxxDpvsWvWcKijeIKKgVog7896N7NTR');
+    config.host = 'https://us.i.posthog.com';
+    config.debug = true; // Set to false in production
+    config.captureApplicationLifecycleEvents = true;
+
+    // Enable session replay
+    config.sessionReplay = true;
+    config.sessionReplayConfig.maskAllTexts = false;
+    config.sessionReplayConfig.maskAllImages = false;
+
+    await Posthog().setup(config);
+
+    // Register super property to identify events from mobile app
+    await Posthog().register('app_source', 'mobile_app');
+
+    debugPrint('✅ [PostHog] Initialized with session replay');
+  } catch (e) {
+    debugPrint('❌ [PostHog] Failed to initialize: $e');
+  }
 }
 
 class MyApp extends ConsumerWidget {
