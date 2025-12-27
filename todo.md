@@ -1,9 +1,9 @@
 MVP:
 
-- test help and support opens email (?)
-- setup apple auth (?)
+- setup apple auth
 - setup proper items inside rev cat
 - BUILD_GUIDE.md
+- test forgot email
 
 OTHER:
 

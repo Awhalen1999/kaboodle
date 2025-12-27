@@ -123,6 +123,9 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
   }
 
   Future<void> _selectDateRange() async {
+    // Unfocus any text fields before opening picker
+    FocusScope.of(context).unfocus();
+
     final results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
@@ -139,6 +142,12 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
       value: _selectedDates,
       borderRadius: BorderRadius.circular(15),
     );
+
+    // Aggressively clear focus after dialog closes to prevent auto-focus
+    if (mounted) {
+      // Use requestFocus on the root scope to steal focus from text fields
+      FocusScope.of(context).requestFocus(FocusNode());
+    }
 
     if (results != null && results.isNotEmpty) {
       setState(() {
@@ -180,11 +189,16 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return GestureDetector(
+      onTap: () {
+        // Dismiss keyboard when tapping outside text fields
+        FocusScope.of(context).unfocus();
+      },
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Text(
             'General Information',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -266,7 +280,10 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
               ),
               const SizedBox(height: 8),
               InkWell(
-                onTap: () {
+                onTap: () async {
+                  // Unfocus any text fields before opening picker
+                  FocusScope.of(context).unfocus();
+
                   showCountryPicker(
                     context: context,
                     showPhoneCode: false,
@@ -275,6 +292,11 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                         _selectedCountry = country;
                       });
                       _updateFormData();
+
+                      // Aggressively clear focus after selection
+                      if (mounted) {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      }
                     },
                     countryListTheme: CountryListThemeData(
                       bottomSheetHeight:
@@ -360,7 +382,9 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                     ),
               ),
               const SizedBox(height: 16),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
                 children: [
                   // Grey
                   _ColorTagOption(
@@ -368,42 +392,36 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
                     selectedColor: widget.formData['colorTag'] as String?,
                     onTap: _selectColorTag,
                   ),
-                  const SizedBox(width: 12),
                   // Red
                   _ColorTagOption(
                     color: 'red',
                     selectedColor: widget.formData['colorTag'] as String?,
                     onTap: _selectColorTag,
                   ),
-                  const SizedBox(width: 12),
                   // Blue
                   _ColorTagOption(
                     color: 'blue',
                     selectedColor: widget.formData['colorTag'] as String?,
                     onTap: _selectColorTag,
                   ),
-                  const SizedBox(width: 12),
                   // Green
                   _ColorTagOption(
                     color: 'green',
                     selectedColor: widget.formData['colorTag'] as String?,
                     onTap: _selectColorTag,
                   ),
-                  const SizedBox(width: 12),
                   // Purple
                   _ColorTagOption(
                     color: 'purple',
                     selectedColor: widget.formData['colorTag'] as String?,
                     onTap: _selectColorTag,
                   ),
-                  const SizedBox(width: 12),
                   // Orange
                   _ColorTagOption(
                     color: 'orange',
                     selectedColor: widget.formData['colorTag'] as String?,
                     onTap: _selectColorTag,
                   ),
-                  const SizedBox(width: 12),
                   // Pink
                   _ColorTagOption(
                     color: 'pink',
@@ -535,6 +553,7 @@ class _Step1GeneralInfoBodyState extends State<Step1GeneralInfoBody> {
           ),
         ],
       ),
+    ),
     );
   }
 }
