@@ -4,6 +4,7 @@ MVP:
 - setup proper items inside rev cat
 - BUILD_GUIDE.md
 - test forgot email
+- step 3 entire row clickable for minimize/expand
 
 OTHER:
 

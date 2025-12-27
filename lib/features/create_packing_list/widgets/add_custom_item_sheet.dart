@@ -71,22 +71,33 @@ class _AddCustomItemSheetState extends State<AddCustomItemSheet> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Material(
-      color: colorScheme.surface,
-      borderRadius: const BorderRadius.vertical(
-        top: Radius.circular(20),
-      ),
+    return GestureDetector(
+      onTap: () {
+        // Dismiss keyboard when tapping outside text fields
+        FocusScope.of(context).unfocus();
+      },
       child: Padding(
         padding: EdgeInsets.only(
-          left: 24.0,
-          right: 24.0,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 40.0,
-          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+        child: Material(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(20),
+          ),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 24.0,
+                  right: 24.0,
+                  bottom: 24.0,
+                  top: 16,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
             // Header with close button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,7 +140,6 @@ class _AddCustomItemSheetState extends State<AddCustomItemSheet> {
                 const SizedBox(height: 12),
                 TextField(
                   controller: _nameController,
-                  autofocus: true,
                   decoration: InputDecoration(
                     hintText: 'e.g., Beach Towel',
                     hintStyle: theme.textTheme.bodyMedium?.copyWith(
@@ -364,6 +374,10 @@ class _AddCustomItemSheetState extends State<AddCustomItemSheet> {
           ],
         ),
       ),
+    ),
+    ),
+    ),
+    ),
     );
   }
 }
