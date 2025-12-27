@@ -86,10 +86,12 @@ class PackingListOptionsSheet extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Text(
-                        'Set New Trip Date',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.onSurface,
+                      Expanded(
+                        child: Text(
+                          'Set New Trip Date',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ],
@@ -125,10 +127,12 @@ class PackingListOptionsSheet extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Text(
-                        'Reset Packing Progress',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.onSurface,
+                      Expanded(
+                        child: Text(
+                          'Reset Packing Progress',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ],
@@ -164,12 +168,14 @@ class PackingListOptionsSheet extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Text(
-                        stepCompleted < 4
-                            ? 'Continue Building List (Step ${stepCompleted + 1}/4)'
-                            : 'Edit List',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.onSurface,
+                      Expanded(
+                        child: Text(
+                          stepCompleted < 4
+                              ? 'Continue Building List (Step ${stepCompleted + 1}/4)'
+                              : 'Edit List',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ],
@@ -244,10 +250,12 @@ class PackingListOptionsSheet extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Text(
-                        'Delete List',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.onSurface,
+                      Expanded(
+                        child: Text(
+                          'Delete List',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ],
