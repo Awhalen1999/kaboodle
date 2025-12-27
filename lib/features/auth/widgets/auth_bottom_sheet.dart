@@ -51,62 +51,67 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
 
     if (!mounted) return;
 
-    final result = await CustomDialog.show<bool>(
-      context: context,
-      title: 'Reset Password',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Enter your email address and we\'ll send you a link to reset your password.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+    try {
+      final result = await CustomDialog.show<bool>(
+        context: context,
+        title: 'Reset Password',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Enter your email address and we\'ll send you a link to reset your password.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tip: Check your spam or junk folder if you don\'t see the email.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withValues(alpha: 0.7),
+                    fontStyle: FontStyle.italic,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            StandardTextField(
+              controller: emailController,
+              hintText: 'Email Address',
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.done,
+            ),
+          ],
+        ),
+        actions: [
+          CustomDialogAction(
+            label: 'Cancel',
+            isOutlined: true,
+            onPressed: () => Navigator.of(context).pop(false),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Tip: Check your spam or junk folder if you don\'t see the email.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurfaceVariant
-                      .withValues(alpha: 0.7),
-                  fontStyle: FontStyle.italic,
-                ),
-          ),
-          const SizedBox(height: 16),
-          StandardTextField(
-            controller: emailController,
-            hintText: 'Email Address',
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.done,
+          CustomDialogAction(
+            label: 'Send',
+            isPrimary: true,
+            onPressed: () => Navigator.of(context).pop(true),
           ),
         ],
-      ),
-      actions: [
-        CustomDialogAction(
-          label: 'Cancel',
-          isOutlined: true,
-          onPressed: () => Navigator.of(context).pop(false),
-        ),
-        CustomDialogAction(
-          label: 'Send',
-          isPrimary: true,
-          onPressed: () => Navigator.of(context).pop(true),
-        ),
-      ],
-    );
-
-    if (result == true && emailController.text.trim().isNotEmpty) {
-      final email = emailController.text.trim();
-      await AuthService().sendPasswordReset(
-        email: email,
-        context: context,
       );
-    }
 
-    emailController.dispose();
+      if (result == true && emailController.text.trim().isNotEmpty) {
+        final email = emailController.text.trim();
+        if (!mounted) return;
+        await AuthService().sendPasswordReset(
+          email: email,
+          context: context,
+        );
+      }
+    } finally {
+      // Dispose controller after dialog animation completes
+      await Future.delayed(const Duration(milliseconds: 300));
+      emailController.dispose();
+    }
   }
 
   Future<void> _handleEmailAuth() async {
@@ -175,25 +180,31 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: const BorderRadius.vertical(
-        top: Radius.circular(20),
-      ),
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.915,
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 24.0,
-            right: 24.0,
-            bottom: 24.0,
-            top: 16,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        // Dismiss keyboard when tapping outside text fields
+        FocusScope.of(context).unfocus();
+      },
+      child: Material(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.915,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: 24.0,
+              right: 24.0,
+              bottom: 24.0,
+              top: 16,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                 // Title with close button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -515,10 +526,11 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
                     ),
                   ),
                 ),
-                // Add bottom padding for safe area
-                // todo: investigate if this is still needed
-                SizedBox(height: MediaQuery.of(context).padding.bottom),
-              ],
+                  // Add bottom padding for safe area
+                  // todo: investigate if this is still needed
+                  SizedBox(height: MediaQuery.of(context).padding.bottom),
+                ],
+              ),
             ),
           ),
         ),
