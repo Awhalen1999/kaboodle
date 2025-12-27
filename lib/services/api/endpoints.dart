@@ -2,8 +2,8 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   // Base URL - TODO: Update to production URL when deployed
-  static const String baseUrl = 'http://localhost:9000';
-  // static const String baseUrl = 'https://kaboodle-api.vercel.app';
+  // static const String baseUrl = 'http://localhost:9000';
+  static const String baseUrl = 'https://kaboodle-api.vercel.app';
 
   // Health
   static const String health = '/api/health';
