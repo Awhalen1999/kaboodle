@@ -114,11 +114,16 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
   }
 
   Widget _buildEditForm(BuildContext context, User user) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    return GestureDetector(
+      onTap: () {
+        // Dismiss keyboard when tapping outside text fields
+        FocusScope.of(context).unfocus();
+      },
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           // Email display
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,6 +374,7 @@ class _ProfileEditBodyState extends ConsumerState<ProfileEditBody> {
           SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
+    ),
     );
   }
 }

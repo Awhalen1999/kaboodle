@@ -5,6 +5,7 @@ MVP:
 - BUILD_GUIDE.md
 - test forgot email
 - step 3 entire row clickable for minimize/expand
+- date tile on pro page spacing
 
 OTHER:
 
