@@ -103,10 +103,11 @@ class MenuDrawer extends ConsumerWidget {
                           onTap: () {
                             Navigator.pop(context);
                             if (packingList.stepCompleted < 4) {
-                              // List is not complete - log for now
-                              debugPrint(
-                                  '🚧 User clicked continue creation for "${packingList.name}" (step ${packingList.stepCompleted}/4)');
-                              // TODO: Ask user if they want to continue creation
+                              // List is incomplete - continue creation
+                              final step = packingList.stepCompleted;
+                              context.push(
+                                '/create-packing-list?id=${packingList.id}&step=$step',
+                              );
                             } else {
                               // List is complete - navigate to use page
                               context.push(
