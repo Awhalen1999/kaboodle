@@ -410,7 +410,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
         // Category header with clickable arrow
         Row(
           children: [
-            // Clickable arrow icon
+            // Clickable arrow icon with larger tap area
             InkWell(
               onTap: () {
                 setState(() {
@@ -419,7 +419,7 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
               },
               borderRadius: BorderRadius.circular(4),
               child: Padding(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(8),
                 child: AnimatedRotation(
                   turns: isExpanded ? 0.25 : 0,
                   duration: const Duration(milliseconds: 200),

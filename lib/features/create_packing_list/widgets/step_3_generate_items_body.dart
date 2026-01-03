@@ -315,7 +315,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
         // Category header with clickable arrow and add button
         Row(
           children: [
-            // Clickable arrow icon
+            // Clickable arrow icon with larger tap area
             InkWell(
               onTap: () {
                 setState(() {
@@ -324,7 +324,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
               },
               borderRadius: BorderRadius.circular(4),
               child: Padding(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(8),
                 child: AnimatedRotation(
                   turns: isExpanded ? 0.25 : 0,
                   duration: const Duration(milliseconds: 200),
@@ -337,7 +337,7 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
               ),
             ),
             const SizedBox(width: 8),
-            // Non-clickable category title
+            // Category title
             Expanded(
               child: Text(
                 category.toUpperCase(),
@@ -348,12 +348,12 @@ class _Step3GenerateItemsBodyState extends State<Step3GenerateItemsBody> {
                     ),
               ),
             ),
-            // Add custom item button
+            // Add custom item button with larger tap area
             InkWell(
               onTap: () => _showAddCustomItemSheet(category),
               borderRadius: BorderRadius.circular(4),
               child: Padding(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(8),
                 child: Icon(
                   Icons.add,
                   size: 20,
