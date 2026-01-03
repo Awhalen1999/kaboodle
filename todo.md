@@ -3,7 +3,6 @@ MVP:
 - setup apple auth
 - setup proper items inside rev cat
 - BUILD_GUIDE.md
-- test forgot email
 - test spacing on paywall
 
 OTHER:
