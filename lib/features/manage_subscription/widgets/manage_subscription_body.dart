@@ -86,7 +86,7 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'N/A';
-    return DateFormat('MMMM d, yyyy').format(date);
+    return DateFormat('MM/dd/yyyy').format(date);
   }
 
   String _getStatusDisplayText(SubscriptionStatus status) {
