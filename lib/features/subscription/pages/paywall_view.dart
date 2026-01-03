@@ -1,20 +1,22 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/services/subscription/subscription_service.dart';
 import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
-class PaywallView extends StatefulWidget {
+class PaywallView extends ConsumerStatefulWidget {
   const PaywallView({super.key});
 
   @override
-  State<PaywallView> createState() => _PaywallViewState();
+  ConsumerState<PaywallView> createState() => _PaywallViewState();
 }
 
-class _PaywallViewState extends State<PaywallView> {
+class _PaywallViewState extends ConsumerState<PaywallView> {
   final SubscriptionService _subscriptionService = SubscriptionService();
   List<Package> _packages = [];
   Package? _selectedPackage;
@@ -76,7 +78,11 @@ class _PaywallViewState extends State<PaywallView> {
 
       if (success) {
         _showSuccessToast('Welcome to Kaboodle Pro!');
-        context.pop();
+        // Refresh user provider to update subscription status across the app
+        await ref.read(userProvider.notifier).refresh();
+        if (mounted) {
+          context.pop();
+        }
       } else {
         _showErrorToast('Purchase failed. Please try again.');
       }
@@ -96,7 +102,11 @@ class _PaywallViewState extends State<PaywallView> {
             await _subscriptionService.hasActiveSubscription();
         if (hasSubscription) {
           _showSuccessToast('Purchases restored!');
-          context.pop();
+          // Refresh user provider to update subscription status across the app
+          await ref.read(userProvider.notifier).refresh();
+          if (mounted) {
+            context.pop();
+          }
         } else {
           _showInfoToast('No previous purchases found.');
         }

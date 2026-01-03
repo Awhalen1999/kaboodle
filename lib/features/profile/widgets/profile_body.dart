@@ -333,12 +333,14 @@ class ProfileBody extends ConsumerWidget {
 }
 
 /// Subscription tile that loads status and shows appropriate action
-class _SubscriptionTile extends StatefulWidget {
+class _SubscriptionTile extends ConsumerStatefulWidget {
+  const _SubscriptionTile();
+
   @override
-  State<_SubscriptionTile> createState() => _SubscriptionTileState();
+  ConsumerState<_SubscriptionTile> createState() => _SubscriptionTileState();
 }
 
-class _SubscriptionTileState extends State<_SubscriptionTile> {
+class _SubscriptionTileState extends ConsumerState<_SubscriptionTile> {
   final SubscriptionService _subscriptionService = SubscriptionService();
   SubscriptionStatus? _status;
   bool _isLoading = true;
@@ -349,7 +351,15 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
     _loadStatus();
   }
 
+  @override
+  void didUpdateWidget(_SubscriptionTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reload status when widget updates
+    _loadStatus();
+  }
+
   Future<void> _loadStatus() async {
+    setState(() => _isLoading = true);
     final status = await _subscriptionService.getSubscriptionStatus();
     if (mounted) {
       setState(() {
@@ -361,6 +371,9 @@ class _SubscriptionTileState extends State<_SubscriptionTile> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch userProvider to trigger rebuild when subscription changes
+    ref.watch(userProvider);
+
     if (_isLoading) {
       return SettingsTile(
         icon: Icons.credit_card,
