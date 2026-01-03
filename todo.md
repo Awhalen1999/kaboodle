@@ -4,7 +4,7 @@ MVP:
 - setup proper items inside rev cat
 - BUILD_GUIDE.md
 - test forgot email
-- step 3 entire row clickable for minimize/expand
+- test spacing on paywall
 
 OTHER:
 
@@ -16,3 +16,4 @@ OTHER:
 - setup feedback board
 - reordering lists
 - more robust posthog captures (potentially scrap the screens)
+- revisit expand/collapse clickable area (make title of section also clickable?)

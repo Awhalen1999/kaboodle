@@ -138,6 +138,20 @@ class _PaywallViewState extends State<PaywallView> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Kaboodle',
+          style: theme.textTheme.headlineLarge,
+        ),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            onPressed: () => context.pop(),
+            icon: const Icon(Icons.close),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -149,9 +163,6 @@ class _PaywallViewState extends State<PaywallView> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       children: [
-                        // Header
-                        _buildHeader(theme),
-
                         // Flexible space - expands on tall phones, collapses on short
                         const Spacer(),
 
@@ -226,27 +237,6 @@ class _PaywallViewState extends State<PaywallView> {
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 8),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            'Kaboodle',
-            style: theme.textTheme.headlineLarge,
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              onPressed: () => context.pop(),
-              icon: const Icon(Icons.close),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPackageTiles(ThemeData theme, ColorScheme colorScheme) {
     if (_isLoading) {
