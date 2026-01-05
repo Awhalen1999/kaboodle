@@ -1,13 +1,8 @@
-import 'dart:convert';
-import 'dart:math';
-
-import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
@@ -21,6 +16,7 @@ import 'package:kaboodle_app/shared/utils/app_toast.dart';
 /// - Email/password signup and signin
 /// - Password reset via email
 /// - Google Sign-In
+/// - Apple Sign-In
 /// - Sign out with proper provider state management
 /// - Firebase token management
 class AuthService {
@@ -263,51 +259,21 @@ class AuthService {
     }
   }
 
-  /// Generates a cryptographically secure random nonce for Apple Sign In
-  String _generateNonce([int length = 32]) {
-    const charset =
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
-    final random = Random.secure();
-    return List.generate(
-      length,
-      (_) => charset[random.nextInt(charset.length)],
-    ).join();
-  }
-
-  /// Returns the SHA256 hash of [input] for Apple Sign In nonce
-  String _sha256ofString(String input) {
-    final bytes = utf8.encode(input);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
-
   /// Sign in with Apple
+  ///
+  /// Uses Firebase's signInWithProvider for cleaner implementation
+  /// that handles the OAuth flow automatically.
   Future<void> signInWithApple({
     required BuildContext context,
     required WidgetRef ref,
   }) async {
     try {
-      // Generate nonce for security
-      final rawNonce = _generateNonce();
-      final nonce = _sha256ofString(rawNonce);
+      final appleProvider = AppleAuthProvider();
+      appleProvider.addScope('email');
+      appleProvider.addScope('name');
 
-      // Request Apple credentials
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-        nonce: nonce,
-      );
-
-      // Create Firebase credential from Apple credential
-      final oauthCredential = OAuthProvider('apple.com').credential(
-        idToken: appleCredential.identityToken,
-        rawNonce: rawNonce,
-      );
-
-      // Sign in to Firebase with the Apple credential
-      await _auth.signInWithCredential(oauthCredential);
+      // Sign in to Firebase with Apple provider
+      await _auth.signInWithProvider(appleProvider);
 
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
@@ -316,14 +282,15 @@ class AuthService {
 
       if (!context.mounted) return;
       context.go('/my-packing-lists');
-    } on SignInWithAppleAuthorizationException catch (e) {
-      if (e.code == AuthorizationErrorCode.canceled) {
+    } on FirebaseAuthException catch (e) {
+      debugPrint('❌ [AuthService] Firebase auth error code: ${e.code}');
+      debugPrint('❌ [AuthService] Firebase auth error message: ${e.message}');
+
+      // Check if user cancelled
+      if (e.code == 'canceled' || e.message?.contains('canceled') == true) {
         return; // User cancelled, no toast needed
       }
-      debugPrint('❌ [AuthService] Apple auth error: ${e.code}');
-      _showErrorToast(context, 'Apple sign in failed. Please try again.');
-    } on FirebaseAuthException catch (e) {
-      debugPrint('❌ [AuthService] Firebase auth error: ${e.code}');
+
       final message = switch (e.code) {
         'account-exists-with-different-credential' =>
           'An account already exists with a different sign-in method.',
@@ -336,6 +303,13 @@ class AuthService {
       _showErrorToast(context, message);
     } catch (e) {
       debugPrint('❌ [AuthService] Apple signin error: $e');
+
+      // Check if user cancelled (can come as a different exception type)
+      if (e.toString().contains('canceled') ||
+          e.toString().contains('cancelled')) {
+        return; // User cancelled, no toast needed
+      }
+
       _showErrorToast(context, 'An unexpected error occurred: ${e.toString()}');
     }
   }
