@@ -6,12 +6,13 @@ Future<void> initializeRevenueCat() async {
   // todo: replace with actual api keys
   String apiKey;
   if (Platform.isIOS) {
-    apiKey = 'test_jTuNfakbMmCOfdxdlTMaBTUvhGy';
+    apiKey = 'appl_WgUgyZNJMkQbxUQLbKSfAMmEbzt';
   } else if (Platform.isAndroid) {
+    // todo: replace with actual api key
     apiKey = 'test_jTuNfakbMmCOfdxdlTMaBTUvhGy';
   } else {
     throw UnsupportedError('Platform not supported');
   }
-  
+
   await Purchases.configure(PurchasesConfiguration(apiKey));
 }
