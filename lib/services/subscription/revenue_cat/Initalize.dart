@@ -6,7 +6,8 @@ Future<void> initializeRevenueCat() async {
   // todo: replace with actual api keys
   String apiKey;
   if (Platform.isIOS) {
-    apiKey = 'appl_WgUgyZNJMkQbxUQLbKSfAMmEbzt';
+    // apiKey = 'appl_WgUgyZNJMkQbxUQLbKSfAMmEbzt';
+    apiKey = 'test_jTuNfakbMmCOfdxdlTMaBTUvhGy';
   } else if (Platform.isAndroid) {
     // todo: replace with actual api key
     apiKey = 'test_jTuNfakbMmCOfdxdlTMaBTUvhGy';
