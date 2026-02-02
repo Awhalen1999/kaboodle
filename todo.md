@@ -3,7 +3,7 @@ MVP:
 - BUILD_GUIDE.md
 - test spacing on paywall
 - setup proper items inside rev cat
-- setup apple products in rev cat
+- setup google products inside rev cat
 - setup google play keys and products
 - update entitlement subscription verification key
 - ensure that subscription services are working properly
