@@ -247,7 +247,6 @@ class _PaywallViewState extends ConsumerState<PaywallView> {
     );
   }
 
-
   Widget _buildPackageTiles(ThemeData theme, ColorScheme colorScheme) {
     if (_isLoading) {
       return const Padding(
@@ -381,7 +380,7 @@ class _PaywallViewState extends ConsumerState<PaywallView> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Save 20%',
+                  'Save 25%',
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: colorScheme.onPrimary,
                     fontWeight: FontWeight.bold,
