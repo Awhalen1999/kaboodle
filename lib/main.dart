@@ -53,7 +53,8 @@ Future<void> _initializePostHog() async {
     final config =
         PostHogConfig('phc_4xMN0XVRwApTPxxDpvsWvWcKijeIKKgVog7896N7NTR');
     config.host = 'https://us.i.posthog.com';
-    config.debug = true;
+    // config.debug = true;
+    config.debug = false;
     config.captureApplicationLifecycleEvents = true;
 
     await Posthog().setup(config);
