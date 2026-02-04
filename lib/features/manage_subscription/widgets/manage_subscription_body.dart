@@ -1,36 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:kaboodle_app/providers/subscription_provider.dart';
 import 'package:kaboodle_app/services/subscription/subscription_service.dart';
 import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
-class ManageSubscriptionBody extends StatefulWidget {
+class ManageSubscriptionBody extends ConsumerStatefulWidget {
   const ManageSubscriptionBody({super.key});
 
   @override
-  State<ManageSubscriptionBody> createState() => _ManageSubscriptionBodyState();
+  ConsumerState<ManageSubscriptionBody> createState() =>
+      _ManageSubscriptionBodyState();
 }
 
-class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
+class _ManageSubscriptionBodyState
+    extends ConsumerState<ManageSubscriptionBody> {
   final SubscriptionService _subscriptionService = SubscriptionService();
-  SubscriptionStatus? _status;
-  bool _isLoading = true;
   bool _isRestoring = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadStatus();
-  }
-
-  Future<void> _loadStatus() async {
-    final status = await _subscriptionService.getSubscriptionStatus();
-    if (mounted) {
-      setState(() {
-        _status = status;
-        _isLoading = false;
-      });
-    }
-  }
 
   Future<void> _handleRestore() async {
     setState(() => _isRestoring = true);
@@ -45,8 +31,8 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
             await _subscriptionService.hasActiveSubscription();
         if (hasSubscription) {
           _showSuccessToast('Purchases restored successfully!');
-          // Refresh status after restore
-          _loadStatus();
+          // Refresh subscription provider after restore
+          ref.read(subscriptionProvider.notifier).refresh();
         } else {
           _showInfoToast('No previous purchases found.');
         }
@@ -125,17 +111,20 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(
+    final subscriptionAsync = ref.watch(subscriptionProvider);
+
+    return subscriptionAsync.when(
+      data: (status) {
+        if (status == null) {
+          return _buildErrorState(context);
+        }
+        return _buildContent(context, status);
+      },
+      loading: () => const Center(
         child: CircularProgressIndicator(),
-      );
-    }
-
-    if (_status == null) {
-      return _buildErrorState(context);
-    }
-
-    return _buildContent(context);
+      ),
+      error: (error, stackTrace) => _buildErrorState(context),
+    );
   }
 
   Widget _buildErrorState(BuildContext context) {
@@ -166,8 +155,7 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                setState(() => _isLoading = true);
-                _loadStatus();
+                ref.read(subscriptionProvider.notifier).refresh();
               },
               child: const Text('Retry'),
             ),
@@ -177,10 +165,9 @@ class _ManageSubscriptionBodyState extends State<ManageSubscriptionBody> {
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(BuildContext context, SubscriptionStatus status) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final status = _status!;
 
     return Column(
       children: [

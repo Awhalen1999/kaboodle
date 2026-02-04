@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/shared/utils/app_toast.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/providers/subscription_provider.dart';
 import 'package:kaboodle_app/providers/theme_provider.dart';
 import 'package:kaboodle_app/shared/constants/theme_constants.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
@@ -332,78 +333,54 @@ class ProfileBody extends ConsumerWidget {
   }
 }
 
-/// Subscription tile that loads status and shows appropriate action
-class _SubscriptionTile extends ConsumerStatefulWidget {
+/// Subscription tile that displays status from subscriptionProvider
+class _SubscriptionTile extends ConsumerWidget {
   const _SubscriptionTile();
 
   @override
-  ConsumerState<_SubscriptionTile> createState() => _SubscriptionTileState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final subscriptionAsync = ref.watch(subscriptionProvider);
+    final subscriptionService = SubscriptionService();
 
-class _SubscriptionTileState extends ConsumerState<_SubscriptionTile> {
-  final SubscriptionService _subscriptionService = SubscriptionService();
-  SubscriptionStatus? _status;
-  bool _isLoading = true;
+    return subscriptionAsync.when(
+      data: (status) {
+        final isPro = status?.isPro ?? false;
+        final listCount = status?.listCount ?? 0;
+        final maxFreeLists = status?.maxFreeLists ?? 2;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadStatus();
-  }
-
-  @override
-  void didUpdateWidget(_SubscriptionTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Reload status when widget updates
-    _loadStatus();
-  }
-
-  Future<void> _loadStatus() async {
-    setState(() => _isLoading = true);
-    final status = await _subscriptionService.getSubscriptionStatus();
-    if (mounted) {
-      setState(() {
-        _status = status;
-        _isLoading = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Watch userProvider to trigger rebuild when subscription changes
-    ref.watch(userProvider);
-
-    if (_isLoading) {
-      return SettingsTile(
+        return SettingsTile(
+          icon: Icons.credit_card,
+          iconColor: isPro ? Colors.amber : Colors.grey,
+          text: 'Subscription',
+          mode: isPro ? 'Pro' : 'Free ($listCount/$maxFreeLists lists)',
+          onTap: () {
+            if (isPro) {
+              context.push('/manage-subscription');
+            } else {
+              subscriptionService.showPaywall(context);
+            }
+          },
+          showDivider: false,
+        );
+      },
+      loading: () => SettingsTile(
         icon: Icons.credit_card,
         iconColor: Theme.of(context).colorScheme.outlineVariant,
         text: 'Subscription',
         mode: '',
         onTap: () {},
         showDivider: false,
-      );
-    }
-
-    final isPro = _status?.isPro ?? false;
-    final listCount = _status?.listCount ?? 0;
-    final maxFreeLists = _status?.maxFreeLists ?? 2;
-
-    return SettingsTile(
-      icon: Icons.credit_card,
-      iconColor: isPro ? Colors.amber : Colors.grey,
-      text: 'Subscription',
-      mode: isPro ? 'Pro' : 'Free ($listCount/$maxFreeLists lists)',
-      onTap: () {
-        if (isPro) {
-          // Navigate to manage subscription for Pro users
-          context.push('/manage-subscription');
-        } else {
-          // Show paywall for free users
-          _subscriptionService.showPaywall(context);
-        }
-      },
-      showDivider: false,
+      ),
+      error: (error, stackTrace) => SettingsTile(
+        icon: Icons.credit_card,
+        iconColor: Colors.grey,
+        text: 'Subscription',
+        mode: 'Error',
+        onTap: () {
+          ref.read(subscriptionProvider.notifier).refresh();
+        },
+        showDivider: false,
+      ),
     );
   }
 }

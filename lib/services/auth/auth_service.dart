@@ -8,6 +8,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/providers/subscription_provider.dart';
 import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
 /// Service for handling authentication operations
@@ -54,12 +55,14 @@ class AuthService {
   void _refreshProvidersAfterAuth(WidgetRef ref) {
     ref.read(userProvider.notifier).refresh();
     ref.read(packingListsProvider.notifier).refresh();
+    ref.read(subscriptionProvider.notifier).refresh();
   }
 
   /// Clear providers before signing out
   void _clearProvidersBeforeSignout(WidgetRef ref) {
     ref.read(packingListsProvider.notifier).clear();
     ref.read(userProvider.notifier).clear();
+    ref.read(subscriptionProvider.notifier).clear();
   }
 
   /// Identify RevenueCat user and PostHog with Firebase user ID

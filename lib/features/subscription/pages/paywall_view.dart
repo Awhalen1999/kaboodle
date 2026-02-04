@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:kaboodle_app/providers/user_provider.dart';
+import 'package:kaboodle_app/providers/subscription_provider.dart';
 import 'package:kaboodle_app/services/subscription/subscription_service.dart';
 import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
@@ -78,8 +78,8 @@ class _PaywallViewState extends ConsumerState<PaywallView> {
 
       if (success) {
         _showSuccessToast('Welcome to Kaboodle Pro!');
-        // Refresh user provider to update subscription status across the app
-        await ref.read(userProvider.notifier).refresh();
+        // Refresh subscription provider to update status across the app
+        await ref.read(subscriptionProvider.notifier).refresh();
         if (mounted) {
           context.pop();
         }
@@ -102,8 +102,8 @@ class _PaywallViewState extends ConsumerState<PaywallView> {
             await _subscriptionService.hasActiveSubscription();
         if (hasSubscription) {
           _showSuccessToast('Purchases restored!');
-          // Refresh user provider to update subscription status across the app
-          await ref.read(userProvider.notifier).refresh();
+          // Refresh subscription provider to update status across the app
+          await ref.read(subscriptionProvider.notifier).refresh();
           if (mounted) {
             context.pop();
           }
