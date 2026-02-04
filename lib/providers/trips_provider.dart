@@ -69,11 +69,10 @@ class PackingListsNotifier extends AsyncNotifier<List<PackingList>> {
   /// Call this after successfully creating a packing list via API.
   /// Idempotent: won't add duplicates if called multiple times.
   void addPackingList(PackingList packingList) {
-    if (!state.hasValue) {
+    final currentLists = state.valueOrNull;
+    if (currentLists == null) {
       return;
     }
-
-    final currentLists = state.value!;
 
     // Prevent duplicates
     if (currentLists.any((pl) => pl.id == packingList.id)) {
@@ -88,11 +87,11 @@ class PackingListsNotifier extends AsyncNotifier<List<PackingList>> {
   ///
   /// Call this after successfully deleting a packing list via API.
   void removePackingList(String packingListId) {
-    if (!state.hasValue) {
+    final currentLists = state.valueOrNull;
+    if (currentLists == null) {
       return;
     }
 
-    final currentLists = state.value!;
     final filteredLists =
         currentLists.where((pl) => pl.id != packingListId).toList();
 
@@ -108,11 +107,11 @@ class PackingListsNotifier extends AsyncNotifier<List<PackingList>> {
   /// Call this after successfully updating a packing list via API.
   /// If the list doesn't exist, it will be added instead.
   void updatePackingList(PackingList updatedPackingList) {
-    if (!state.hasValue) {
+    final currentLists = state.valueOrNull;
+    if (currentLists == null) {
       return;
     }
 
-    final currentLists = state.value!;
     final existingIndex =
         currentLists.indexWhere((pl) => pl.id == updatedPackingList.id);
 

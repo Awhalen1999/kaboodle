@@ -149,13 +149,13 @@ class UsePackingItemsNotifier
   /// Use this when user wants to discard unsaved changes without an API call.
   /// Fast operation since it just restores from cached original items.
   void discardChanges() {
-    if (_originalItems == null) {
+    final originalItems = _originalItems;
+    if (originalItems == null) {
       return;
     }
 
     // Restore state to original items (deep copy to avoid reference issues)
-    final restoredItems =
-        _originalItems!.map((item) => item.copyWith()).toList();
+    final restoredItems = originalItems.map((item) => item.copyWith()).toList();
     state = AsyncData(restoredItems);
   }
 
@@ -169,7 +169,8 @@ class UsePackingItemsNotifier
 
   /// Get list of items that have changed from original state
   List<PackingItem> _getChangedItems() {
-    if (_originalItems == null) return [];
+    final originalItems = _originalItems;
+    if (originalItems == null) return [];
 
     final currentItems = state.valueOrNull;
     if (currentItems == null) return [];
@@ -178,7 +179,7 @@ class UsePackingItemsNotifier
 
     for (final currentItem in currentItems) {
       // Find original item by ID
-      final originalItem = _originalItems!.firstWhere(
+      final originalItem = originalItems.firstWhere(
         (o) => o.id == currentItem.id,
         orElse: () => currentItem, // New item, treat as changed
       );
