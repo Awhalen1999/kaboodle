@@ -52,10 +52,14 @@ class AuthService {
   }
 
   /// Refresh providers after successful authentication
-  void _refreshProvidersAfterAuth(WidgetRef ref) {
-    ref.read(userProvider.notifier).refresh();
-    ref.read(packingListsProvider.notifier).refresh();
-    ref.read(subscriptionProvider.notifier).refresh();
+  ///
+  /// Awaits all refreshes in parallel to ensure data is loaded before navigation.
+  Future<void> _refreshProvidersAfterAuth(WidgetRef ref) async {
+    await Future.wait([
+      ref.read(userProvider.notifier).refresh(),
+      ref.read(packingListsProvider.notifier).refresh(),
+      ref.read(subscriptionProvider.notifier).refresh(),
+    ]);
   }
 
   /// Clear providers before signing out
@@ -97,7 +101,8 @@ class AuthService {
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
 
-      _refreshProvidersAfterAuth(ref);
+      // Wait for all providers to load before navigating
+      await _refreshProvidersAfterAuth(ref);
 
       if (!context.mounted) return;
       context.go('/my-packing-lists');
@@ -131,7 +136,8 @@ class AuthService {
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
 
-      _refreshProvidersAfterAuth(ref);
+      // Wait for all providers to load before navigating
+      await _refreshProvidersAfterAuth(ref);
 
       if (!context.mounted) return;
       context.go('/my-packing-lists');
@@ -244,7 +250,8 @@ class AuthService {
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
 
-      _refreshProvidersAfterAuth(ref);
+      // Wait for all providers to load before navigating
+      await _refreshProvidersAfterAuth(ref);
 
       if (!context.mounted) return;
       context.go('/my-packing-lists');
@@ -281,7 +288,8 @@ class AuthService {
       // Identify RevenueCat user with Firebase user ID
       await _identifyRevenueCatUser();
 
-      _refreshProvidersAfterAuth(ref);
+      // Wait for all providers to load before navigating
+      await _refreshProvidersAfterAuth(ref);
 
       if (!context.mounted) return;
       context.go('/my-packing-lists');
