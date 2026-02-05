@@ -11,9 +11,10 @@ Future<void> initializeRevenueCat() async {
     // test key
     // apiKey = 'test_jTuNfakbMmCOfdxdlTMaBTUvhGy';
   } else if (Platform.isAndroid) {
-    // todo: replace with actual api key
+    // android key
+    apiKey = 'goog_QyEkCxSQHlrwXcehGaCzPJXsYAd';
     // test key
-    apiKey = 'test_jTuNfakbMmCOfdxdlTMaBTUvhGy';
+    // apiKey = 'test_jTuNfakbMmCOfdxdlTMaBTUvhGy';
   } else {
     throw UnsupportedError('Platform not supported');
   }
