@@ -205,16 +205,18 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(20),
           ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 24.0,
-                  right: 24.0,
-                  bottom: 24.0,
-                  top: 16,
-                ),
-                child: Column(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.915,
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 24.0,
+                    right: 24.0,
+                    bottom: 24.0,
+                    top: 16,
+                  ),
+                  child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -554,6 +556,7 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
               ),
             ),
           ),
+        ),
         ),
         ),
       ),
