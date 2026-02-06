@@ -32,6 +32,7 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
   bool _obscureConfirmPassword = true;
 
   Future<void> _handleGoogleAuth() async {
+    FocusScope.of(context).unfocus();
     // Google Sign-In works for both signup and login
     // If user doesn't exist, Firebase creates account automatically
     await AuthService().signInWithGoogle(context: context, ref: ref);
@@ -43,6 +44,7 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
   }
 
   Future<void> _handleAppleAuth() async {
+    FocusScope.of(context).unfocus();
     await AuthService().signInWithApple(context: context, ref: ref);
 
     // Close sheet on success (AuthService navigates away)
