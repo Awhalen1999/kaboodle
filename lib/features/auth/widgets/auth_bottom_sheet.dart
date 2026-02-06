@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,6 +25,9 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final FocusNode _confirmPasswordFocusNode = FocusNode();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -175,6 +180,9 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
     super.dispose();
   }
 
@@ -186,22 +194,25 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
         // Dismiss keyboard when tapping outside text fields
         FocusScope.of(context).unfocus();
       },
-      child: Material(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(20),
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.915,
-          child: Padding(
-            padding: const EdgeInsets.only(
-              left: 24.0,
-              right: 24.0,
-              bottom: 24.0,
-              top: 16,
-            ),
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(20),
+          ),
+          child: SafeArea(
             child: SingleChildScrollView(
-              child: Column(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 24.0,
+                  right: 24.0,
+                  bottom: 24.0,
+                  top: 16,
+                ),
+                child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -256,6 +267,10 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
                       hintText: 'Email Address',
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
+                      focusNode: _emailFocusNode,
+                      onEditingComplete: () {
+                        _passwordFocusNode.requestFocus();
+                      },
                     ),
                   ],
                 ),
@@ -276,11 +291,15 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
                       controller: _passwordController,
                       hintText: 'Password',
                       obscureText: _obscurePassword,
+                      focusNode: _passwordFocusNode,
                       textInputAction: widget.isSignUp
                           ? TextInputAction.next
                           : TextInputAction.done,
-                      onEditingComplete:
-                          widget.isSignUp ? null : _handleEmailAuth,
+                      onEditingComplete: widget.isSignUp
+                          ? () {
+                              _confirmPasswordFocusNode.requestFocus();
+                            }
+                          : _handleEmailAuth,
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
@@ -314,6 +333,7 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
                         controller: _confirmPasswordController,
                         hintText: 'Confirm Password',
                         obscureText: _obscureConfirmPassword,
+                        focusNode: _confirmPasswordFocusNode,
                         textInputAction: TextInputAction.done,
                         onEditingComplete: _handleEmailAuth,
                         suffixIcon: IconButton(
@@ -447,46 +467,48 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                // Apple OAuth Button
-                ElevatedButton(
-                  onPressed: _handleAppleAuth,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                if (Platform.isIOS) ...[
+                  const SizedBox(height: 16),
+                  // Apple OAuth Button
+                  ElevatedButton(
+                    onPressed: _handleAppleAuth,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      minimumSize: const Size(double.infinity, 48),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
-                    minimumSize: const Size(double.infinity, 48),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Apple logo
-                      SvgPicture.asset(
-                        'assets/svg/apple-logo.svg',
-                        width: 20,
-                        height: 20,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.white,
-                          BlendMode.srcIn,
-                        ),
-                        placeholderBuilder: (context) => const SizedBox(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Apple logo
+                        SvgPicture.asset(
+                          'assets/svg/apple-logo.svg',
                           width: 20,
                           height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                          placeholderBuilder: (context) => const SizedBox(
+                            width: 20,
+                            height: 20,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Continue with Apple',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.white,
-                            ),
-                      ),
-                    ],
+                        const SizedBox(width: 12),
+                        Text(
+                          'Continue with Apple',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                color: Colors.white,
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 16),
                 // Toggle between login and signup
                 InkWell(
@@ -526,13 +548,11 @@ class _AuthBottomSheetState extends ConsumerState<AuthBottomSheet> {
                     ),
                   ),
                 ),
-                  // Add bottom padding for safe area
-                  // todo: investigate if this is still needed
-                  SizedBox(height: MediaQuery.of(context).padding.bottom),
                 ],
               ),
             ),
           ),
+        ),
         ),
       ),
     );

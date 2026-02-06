@@ -11,6 +11,7 @@ class StandardTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final TextInputAction? textInputAction;
   final VoidCallback? onEditingComplete;
+  final FocusNode? focusNode;
 
   const StandardTextField({
     super.key,
@@ -23,6 +24,7 @@ class StandardTextField extends StatelessWidget {
     this.suffixIcon,
     this.textInputAction,
     this.onEditingComplete,
+    this.focusNode,
   });
 
   @override
@@ -38,6 +40,7 @@ class StandardTextField extends StatelessWidget {
       obscureText: obscureText,
       textInputAction: textInputAction,
       onEditingComplete: onEditingComplete,
+      focusNode: focusNode,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: theme.textTheme.bodyLarge,
