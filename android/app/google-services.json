@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "896080834328-3he7lktm4tjd1fh9vu5gr16im6gusf8a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.awhalen.kaboodle",
+            "certificate_hash": "4357860ded8ce77f8b987c39e1ac96e00da07561"
+          }
+        },
+        {
+          "client_id": "896080834328-6fo5h1sp16kkjncins9skldv7b302spm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.awhalen.kaboodle",
+            "certificate_hash": "6318710d1e9fe01c41ddb9bda518d8c65e79e7b9"
+          }
+        },
+        {
           "client_id": "896080834328-gug9hj3eceo9vunudn7v59fgffeernam.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -31,10 +47,10 @@
               "client_type": 3
             },
             {
-              "client_id": "896080834328-48j7g29fljr1d05gqm9d9vqgn2pptsth.apps.googleusercontent.com",
+              "client_id": "896080834328-2gc94svdnmtpds7bma4aikfsqa1pr92c.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.awhalen.kaboodle"
+                "bundle_id": "com.example.kaboodleApp"
               }
             }
           ]
