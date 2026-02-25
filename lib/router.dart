@@ -3,6 +3,7 @@ import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:kaboodle_app/features/my_packing_lists/pages/my_packing_lists_view.dart';
 import 'package:kaboodle_app/services/auth/auth_gate.dart';
 import 'package:kaboodle_app/features/auth/pages/welcome_view.dart';
+import 'package:kaboodle_app/features/guest_demo/pages/guest_demo_view.dart';
 import 'package:kaboodle_app/features/profile/pages/profile_view.dart';
 import 'package:kaboodle_app/features/profile_edit/pages/profile_edit_view.dart';
 import 'package:kaboodle_app/features/create_packing_list/pages/create_packing_list_view.dart';
@@ -24,6 +25,11 @@ final router = GoRouter(
       name: 'welcome',
       path: '/welcome',
       builder: (context, state) => const WelcomeView(),
+    ),
+    GoRoute(
+      name: 'guest-demo',
+      path: '/guest-demo',
+      builder: (context, state) => const GuestDemoView(),
     ),
     GoRoute(
       name: 'my-packing-lists',

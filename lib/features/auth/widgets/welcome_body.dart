@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:kaboodle_app/features/auth/widgets/auth_bottom_sheet.dart';
 import 'package:kaboodle_app/shared/utils/app_toast.dart';
@@ -80,6 +82,31 @@ class WelcomeBody extends StatelessWidget {
                   ),
             ),
           ),
+          if (Platform.isIOS) ...[
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: () => context.push('/guest-demo'),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Explore the app first',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
