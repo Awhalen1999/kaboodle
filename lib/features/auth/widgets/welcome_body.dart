@@ -83,7 +83,7 @@ class WelcomeBody extends StatelessWidget {
             ),
           ),
           if (Platform.isIOS) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -113,21 +113,20 @@ class WelcomeBody extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             GestureDetector(
               onTap: () => context.push('/guest-demo'),
               child: Text(
                 'Explore the app without an account',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      decoration: TextDecoration.underline,
                       decorationColor:
                           Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: RichText(
