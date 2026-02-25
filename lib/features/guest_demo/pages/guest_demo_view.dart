@@ -23,8 +23,8 @@ class GuestDemoView extends StatelessWidget {
       context: context,
       title: 'Ready to Get Started?',
       description:
-          'Create an account to build your own AI-powered packing lists, '
-          'sync across all your devices, and never forget an item again.',
+          'Create an account to build custom packing lists, '
+          'save your progress, and sync everything across your devices.',
       showCloseButton: false,
       actions: [
         CustomDialogAction(

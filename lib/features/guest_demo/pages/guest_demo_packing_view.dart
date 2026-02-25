@@ -69,8 +69,8 @@ class _GuestDemoPackingViewState extends State<GuestDemoPackingView> {
       context: context,
       title: 'Ready to Get Started?',
       description:
-          'Create an account to build your own AI-powered packing lists, '
-          'sync across all your devices, and never forget an item again.',
+          'Create an account to build custom packing lists, '
+          'save your progress, and sync everything across your devices.',
       showCloseButton: false,
       actions: [
         CustomDialogAction(
@@ -596,24 +596,36 @@ class _GuestDemoPackingViewState extends State<GuestDemoPackingView> {
     }
 
     return [
-      item('Swimsuit', 'Clothing'),
-      item('T-Shirts', 'Clothing', qty: 4),
-      item('Shorts', 'Clothing', qty: 3),
-      item('Sandals', 'Clothing'),
-      item('Light Jacket', 'Clothing'),
-      item('Sunglasses', 'Accessories', packed: true),
-      item('Hat', 'Accessories'),
-      item('Sunscreen SPF 50', 'Toiletries', packed: true),
-      item('Toothbrush & Toothpaste', 'Toiletries'),
-      item('Shampoo', 'Toiletries', notes: 'Travel size'),
-      item('Phone Charger', 'Electronics', packed: true),
-      item('Camera', 'Electronics'),
-      item('Portable Speaker', 'Electronics'),
-      item('Passport', 'Documents', packed: true),
-      item('Travel Insurance', 'Documents'),
-      item('Reusable Water Bottle', 'Miscellaneous'),
-      item('Beach Towel', 'Miscellaneous'),
-      item('Snorkeling Gear', 'Miscellaneous'),
+      // clothing
+      item('Swimsuit', 'clothing'),
+      item('T-Shirts', 'clothing', qty: 4),
+      item('Shorts', 'clothing', qty: 3),
+      item('Sandals', 'clothing'),
+      item('Light Jacket', 'clothing'),
+      item('Beach Towel', 'clothing'),
+      // toiletries
+      item('Sunscreen SPF 50', 'toiletries', packed: true),
+      item('Toothbrush & Toothpaste', 'toiletries'),
+      item('Shampoo', 'toiletries', notes: 'Travel size'),
+      // electronics
+      item('Phone Charger', 'electronics', packed: true),
+      item('Camera', 'electronics'),
+      item('Portable Speaker', 'electronics'),
+      // medications
+      item('Pain Relievers', 'medications'),
+      item('First Aid Kit', 'medications'),
+      item('Band-Aids', 'medications', qty: 10),
+      // documents
+      item('Passport', 'documents', packed: true),
+      item('Travel Insurance', 'documents'),
+      item('Wallet', 'documents', packed: true),
+      // accessories
+      item('Sunglasses', 'accessories', packed: true),
+      item('Hat', 'accessories'),
+      item('Reusable Water Bottle', 'accessories'),
+      // sports
+      item('Snorkel Gear', 'sports'),
+      item('Hiking Boots', 'sports'),
     ];
   }
 }
