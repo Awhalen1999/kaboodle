@@ -7,6 +7,7 @@ import 'package:kaboodle_app/models/user.dart';
 import 'package:kaboodle_app/shared/utils/app_toast.dart';
 import 'package:kaboodle_app/providers/user_provider.dart';
 import 'package:kaboodle_app/providers/subscription_provider.dart';
+import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/theme_provider.dart';
 import 'package:kaboodle_app/shared/constants/theme_constants.dart';
 import 'package:kaboodle_app/services/auth/auth_service.dart';
@@ -340,12 +341,13 @@ class _SubscriptionTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final subscriptionAsync = ref.watch(subscriptionProvider);
+    final packingListsAsync = ref.watch(packingListsProvider);
     final subscriptionService = SubscriptionService();
 
     return subscriptionAsync.when(
       data: (status) {
         final isPro = status?.isPro ?? false;
-        final listCount = status?.listCount ?? 0;
+        final listCount = packingListsAsync.valueOrNull?.length ?? 0;
         final maxFreeLists = status?.maxFreeLists ?? 2;
 
         return SettingsTile(
