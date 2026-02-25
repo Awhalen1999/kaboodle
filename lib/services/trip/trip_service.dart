@@ -235,6 +235,19 @@ class TripService {
 
   // Items
 
+  /// Delete an item from a packing list
+  Future<bool> deleteItem({
+    required String itemId,
+    BuildContext? context,
+  }) async {
+    final result = await _apiService.safeApiCall(
+      apiCall: () => _apiService.client.delete(ApiEndpoints.item(itemId)),
+      onSuccess: (data) => data['success'] as bool? ?? true,
+      context: context,
+    );
+    return result ?? false;
+  }
+
   /// Update an item
   Future<PackingItem?> updateItem({
     required String itemId,

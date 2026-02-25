@@ -310,6 +310,48 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
         templateIdToName[suggestion.id] = suggestion.name;
       }
 
+      // Step 0: Delete items that were deselected
+      // Template items: find existing items whose name matches a deselected suggestion
+      for (var entry in selectedItems.entries) {
+        final itemId = entry.key;
+        final isSelected = entry.value;
+
+        if (isSelected || itemId.startsWith('custom_')) continue;
+
+        final itemName = templateIdToName[itemId];
+        if (itemName == null) continue;
+
+        // Find the existing server item by name and delete it
+        for (var existingItem in existingItems) {
+          if (existingItem.name.toLowerCase() == itemName.toLowerCase()) {
+            await _tripService.deleteItem(
+              itemId: existingItem.id,
+              context: mounted ? context : null,
+            );
+            existingItemNames.remove(existingItem.name.toLowerCase());
+            break;
+          }
+        }
+      }
+
+      // Custom items: the key is 'custom_<serverItemId>' — if deselected, delete by ID
+      for (var entry in selectedItems.entries) {
+        final itemId = entry.key;
+        final isSelected = entry.value;
+
+        if (isSelected || !itemId.startsWith('custom_')) continue;
+
+        final serverItemId = itemId.replaceFirst('custom_', '');
+        if (existingItemsById.containsKey(serverItemId)) {
+          await _tripService.deleteItem(
+            itemId: serverItemId,
+            context: mounted ? context : null,
+          );
+          final deletedItem = existingItemsById[serverItemId];
+          existingItemNames.remove(deletedItem.name.toLowerCase());
+        }
+      }
+
       // Separate template items from custom items, filter out existing ones
       final List<String> newTemplateItemIds = [];
       final Map<String, Map<String, dynamic>> itemUpdates = {};
