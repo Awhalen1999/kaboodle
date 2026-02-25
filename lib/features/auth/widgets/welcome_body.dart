@@ -83,27 +83,47 @@ class WelcomeBody extends StatelessWidget {
             ),
           ),
           if (Platform.isIOS) ...[
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () => context.push('/guest-demo'),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Explore the app first',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
+                  Expanded(
+                    child: Divider(
+                      thickness: 1,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                   ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'or',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(
+                      thickness: 1,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () => context.push('/guest-demo'),
+              child: Text(
+                'Explore the app without an account',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      decoration: TextDecoration.underline,
+                      decorationColor:
+                          Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
           ],
