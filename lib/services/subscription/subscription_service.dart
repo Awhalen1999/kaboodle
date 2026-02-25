@@ -41,15 +41,13 @@ class CanCreateListResult {
 
 /// Response from subscription status endpoint
 /// Uses entitlements as single source of truth from RevenueCat
+/// Only owns subscription state — list counts are derived from packingListsProvider
 class SubscriptionStatus {
   final List<String> entitlements;
   final bool isPro;
   final DateTime? expiresAt;
   final DateTime? startedAt;
   final DateTime? cancelledAt;
-  final int listCount;
-  final int maxFreeLists;
-  final bool canCreateList;
 
   SubscriptionStatus({
     required this.entitlements,
@@ -57,14 +55,10 @@ class SubscriptionStatus {
     this.expiresAt,
     this.startedAt,
     this.cancelledAt,
-    required this.listCount,
-    required this.maxFreeLists,
-    required this.canCreateList,
   });
 
   factory SubscriptionStatus.fromJson(Map<String, dynamic> json) {
     final subscription = json['subscription'] as Map<String, dynamic>;
-    final usage = json['usage'] as Map<String, dynamic>;
 
     return SubscriptionStatus(
       entitlements: (subscription['entitlements'] as List<dynamic>?)
@@ -81,9 +75,6 @@ class SubscriptionStatus {
       cancelledAt: subscription['cancelledAt'] != null
           ? DateTime.parse(subscription['cancelledAt'] as String)
           : null,
-      listCount: usage['listCount'] as int,
-      maxFreeLists: usage['maxFreeLists'] as int,
-      canCreateList: usage['canCreateList'] as bool,
     );
   }
 

@@ -10,6 +10,7 @@ import 'package:kaboodle_app/features/create_packing_list/widgets/step_4_overvie
 import 'package:kaboodle_app/services/trip/trip_service.dart';
 import 'package:kaboodle_app/services/subscription/subscription_service.dart';
 import 'package:kaboodle_app/providers/trips_provider.dart';
+import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 import 'package:kaboodle_app/shared/utils/app_toast.dart';
 
 class CreatePackingListView extends ConsumerStatefulWidget {
@@ -73,19 +74,19 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
     });
 
     try {
-      // Get packing list from provider
-      final packingListsAsync = ref.read(packingListsProvider);
+      // Use valueOrNull — if provider is still loading, wait for it
+      final packingLists = ref.read(packingListsProvider).valueOrNull ??
+          await ref.read(packingListsProvider.future);
 
-      packingListsAsync.whenData((packingLists) {
-        final packingList = packingLists.firstWhere(
-          (pl) => pl.id == widget.packingListId,
-          orElse: () => throw Exception('Packing list not found'),
-        );
+      final packingList = packingLists!.firstWhere(
+        (pl) => pl.id == widget.packingListId,
+        orElse: () => throw Exception('Packing list not found'),
+      );
 
-        // Determine if this is editing (complete list) or continuing (incomplete list)
-        final isCompleteList = packingList.stepCompleted >= 4;
+      // Determine if this is editing (complete list) or continuing (incomplete list)
+      final isCompleteList = packingList.stepCompleted >= 4;
 
-        // Populate form data with existing values
+      if (mounted) {
         setState(() {
           _formData['packingListId'] = packingList.id;
           _formData['name'] = packingList.name;
@@ -108,13 +109,7 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
           // Mark step 1 as valid since we have existing data
           _isStep1Valid = true;
         });
-
-        if (isCompleteList) {
-          // Editing complete packing list
-        } else {
-          // Continuing incomplete packing list
-        }
-      });
+      }
     } catch (e) {
       debugPrint('❌ Error loading packing list: $e');
       _showErrorToast('Failed to load packing list data');
@@ -538,6 +533,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
           ref
               .read(packingListsProvider.notifier)
               .updatePackingList(result.packingList!);
+
+          // Invalidate cached items so the use-list screen refetches fresh data
+          ref.invalidate(usePackingItemsProvider(packingListId));
 
           // Track list creation
           final selectedItems =

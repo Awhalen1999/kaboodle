@@ -167,13 +167,13 @@ class AuthService {
     required WidgetRef ref,
   }) async {
     try {
-      // Step 1: Clear provider state BEFORE signing out
-      // This prevents race conditions where providers rebuild with stale auth
-      _clearProvidersBeforeSignout(ref);
-
-      // Step 2: Perform async signout
+      // Step 1: Sign out from Firebase and Google first
       await _auth.signOut();
       await _googleSignIn.signOut();
+
+      // Step 2: Clear provider state AFTER Firebase is signed out
+      // This ensures auth and provider state are always in sync
+      _clearProvidersBeforeSignout(ref);
 
       // Sign out from RevenueCat and PostHog
       try {

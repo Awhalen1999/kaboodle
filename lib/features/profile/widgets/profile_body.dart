@@ -348,7 +348,7 @@ class _SubscriptionTile extends ConsumerWidget {
       data: (status) {
         final isPro = status?.isPro ?? false;
         final listCount = packingListsAsync.valueOrNull?.length ?? 0;
-        final maxFreeLists = status?.maxFreeLists ?? 2;
+        const maxFreeLists = 2;
 
         return SettingsTile(
           icon: Icons.credit_card,
