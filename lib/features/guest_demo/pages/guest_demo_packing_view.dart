@@ -11,7 +11,12 @@ import 'package:lottie/lottie.dart';
 /// Replicates the wave header, categorized items, floating buttons,
 /// progress bars, and save button — all with local state.
 class GuestDemoPackingView extends StatefulWidget {
-  const GuestDemoPackingView({super.key});
+  final List<PackingItem> initialItems;
+
+  const GuestDemoPackingView({
+    super.key,
+    required this.initialItems,
+  });
 
   @override
   State<GuestDemoPackingView> createState() => _GuestDemoPackingViewState();
@@ -26,7 +31,7 @@ class _GuestDemoPackingViewState extends State<GuestDemoPackingView> {
   @override
   void initState() {
     super.initState();
-    _items = _buildDemoItems();
+    _items = widget.initialItems.map((item) => item.copyWith()).toList();
   }
 
   @override
@@ -60,16 +65,15 @@ class _GuestDemoPackingViewState extends State<GuestDemoPackingView> {
 
   void _resetItems() {
     setState(() {
-      _items = _buildDemoItems();
+      _items = widget.initialItems.map((item) => item.copyWith()).toList();
     });
   }
 
   void _showSignUpDialog() {
     CustomDialog.show(
       context: context,
-      title: 'Ready to Get Started?',
-      description:
-          'Create an account to build custom packing lists, '
+      title: 'Ready to get started?',
+      description: 'Create an account to build custom packing lists, '
           'save your progress, and sync everything across your devices.',
       showCloseButton: false,
       actions: [
@@ -278,8 +282,7 @@ class _GuestDemoPackingViewState extends State<GuestDemoPackingView> {
                             const SizedBox(height: 8),
                             Text(
                               'Lets get started!',
-                              style:
-                                  theme.textTheme.headlineMedium?.copyWith(
+                              style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -535,8 +538,8 @@ class _GuestDemoPackingViewState extends State<GuestDemoPackingView> {
                 duration: const Duration(milliseconds: 500),
                 curve: Curves.easeInOut,
                 builder: (context, value, _) {
-                  final color = ExpandedPalette.getCategoryColorWithContext(
-                      cat, context);
+                  final color =
+                      ExpandedPalette.getCategoryColorWithContext(cat, context);
                   return Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceTint,
@@ -563,70 +566,6 @@ class _GuestDemoPackingViewState extends State<GuestDemoPackingView> {
         }).toList(),
       ),
     );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Demo data
-  // ---------------------------------------------------------------------------
-
-  static List<PackingItem> _buildDemoItems() {
-    final now = DateTime.now();
-    var i = 0;
-
-    PackingItem item(
-      String name,
-      String category, {
-      bool packed = false,
-      int qty = 1,
-      String? notes,
-    }) {
-      return PackingItem(
-        id: 'demo_$i',
-        packingListId: 'demo_list',
-        name: name,
-        category: category,
-        quantity: qty,
-        notes: notes,
-        isPacked: packed,
-        isCustom: false,
-        orderIndex: i++,
-        createdAt: now,
-        updatedAt: now,
-      );
-    }
-
-    return [
-      // clothing
-      item('Swimsuit', 'clothing'),
-      item('T-Shirts', 'clothing', qty: 4),
-      item('Shorts', 'clothing', qty: 3),
-      item('Sandals', 'clothing'),
-      item('Light Jacket', 'clothing'),
-      item('Beach Towel', 'clothing'),
-      // toiletries
-      item('Sunscreen SPF 50', 'toiletries', packed: true),
-      item('Toothbrush & Toothpaste', 'toiletries'),
-      item('Shampoo', 'toiletries', notes: 'Travel size'),
-      // electronics
-      item('Phone Charger', 'electronics', packed: true),
-      item('Camera', 'electronics'),
-      item('Portable Speaker', 'electronics'),
-      // medications
-      item('Pain Relievers', 'medications'),
-      item('First Aid Kit', 'medications'),
-      item('Band-Aids', 'medications', qty: 10),
-      // documents
-      item('Passport', 'documents', packed: true),
-      item('Travel Insurance', 'documents'),
-      item('Wallet', 'documents', packed: true),
-      // accessories
-      item('Sunglasses', 'accessories', packed: true),
-      item('Hat', 'accessories'),
-      item('Reusable Water Bottle', 'accessories'),
-      // sports
-      item('Snorkel Gear', 'sports'),
-      item('Hiking Boots', 'sports'),
-    ];
   }
 }
 
