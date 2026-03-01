@@ -57,6 +57,12 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
 
     if (confirmed != true || !mounted) return;
 
+    // Read list details before deletion so we can include them in the event
+    final pl = ref
+        .read(packingListsProvider)
+        .valueOrNull
+        ?.firstWhere((l) => l.id == packingListId, orElse: () => throw StateError(''));
+
     try {
       final success = await _tripService.deletePackingList(
         packingListId: packingListId,
@@ -65,7 +71,15 @@ class _MyPackingListsBodyState extends ConsumerState<MyPackingListsBody> {
 
       if (success && mounted) {
         // Track list deleted
-        Posthog().capture(eventName: 'list_deleted');
+        Posthog().capture(
+          eventName: 'list_deleted',
+          properties: {
+            'list_name': packingListName,
+            if (pl?.destination != null) 'destination': pl!.destination!,
+            if (pl?.purpose != null) 'purpose': pl!.purpose!,
+            if (pl?.gender != null) 'gender': pl!.gender!,
+          },
+        );
 
         // Refresh the list
         ref.read(packingListsProvider.notifier).refresh();

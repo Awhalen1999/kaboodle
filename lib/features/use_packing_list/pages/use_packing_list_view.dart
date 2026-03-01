@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:kaboodle_app/features/use_packing_list/widgets/use_packing_list_body.dart';
 import 'package:kaboodle_app/models/packing_item.dart';
+import 'package:kaboodle_app/providers/trips_provider.dart';
 import 'package:kaboodle_app/providers/use_packing_items_provider.dart';
 import 'package:kaboodle_app/shared/widgets/custom_dialog.dart';
 
@@ -27,10 +28,19 @@ class _UsePackingListViewState extends ConsumerState<UsePackingListView> {
   @override
   void initState() {
     super.initState();
-    // Track list opened
+    final pl = ref
+        .read(packingListsProvider)
+        .valueOrNull
+        ?.firstWhere((l) => l.id == widget.packingListId,
+            orElse: () => throw StateError(''));
     Posthog().capture(
       eventName: 'list_opened',
-      properties: {'list_name': widget.packingListName},
+      properties: {
+        'list_name': widget.packingListName,
+        if (pl?.destination != null) 'destination': pl!.destination!,
+        if (pl?.purpose != null) 'purpose': pl!.purpose!,
+        if (pl?.gender != null) 'gender': pl!.gender!,
+      },
     );
   }
 

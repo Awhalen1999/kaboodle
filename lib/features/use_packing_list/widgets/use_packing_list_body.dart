@@ -97,6 +97,19 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
             if (updateResult.success) {
               ref.read(packingListsProvider.notifier).refresh();
             }
+
+            // Track list finished
+            Posthog().capture(
+              eventName: 'list_finished',
+              properties: {
+                'list_name': widget.packingListName,
+                if (packingList.destination != null)
+                  'destination': packingList.destination!,
+                if (packingList.purpose != null)
+                  'purpose': packingList.purpose!,
+                if (packingList.gender != null) 'gender': packingList.gender!,
+              },
+            );
           }
         }
 
@@ -108,24 +121,12 @@ class _UsePackingListBodyState extends ConsumerState<UsePackingListBody> {
         );
 
         if (allPacked) {
-          // Track list finished
-          Posthog().capture(
-            eventName: 'list_finished',
-            properties: {'list_name': widget.packingListName},
-          );
-
           // Navigate back after a short delay to show the success message
           Future.delayed(const Duration(milliseconds: 1500), () {
             if (mounted) {
               Navigator.of(context).pop();
             }
           });
-        } else {
-          // Track progress saved (but not complete)
-          Posthog().capture(
-            eventName: 'list_progress_saved',
-            properties: {'list_name': widget.packingListName},
-          );
         }
       } else {
         _showErrorToast('Failed to save progress');

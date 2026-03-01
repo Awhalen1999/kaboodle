@@ -463,8 +463,9 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
           }
 
           final quantity =
-              itemQuantities[itemId] ?? customItem['quantity'] as int;
-          final note = itemNotes[itemId] ?? customItem['note'] as String;
+              itemQuantities[itemId] ?? customItem['quantity'] as int? ?? 1;
+          final note =
+              itemNotes[itemId] ?? customItem['note'] as String? ?? '';
 
           await _tripService.addCustomItem(
             packingListId: packingListId,
@@ -587,8 +588,14 @@ class _CreatePackingListViewState extends ConsumerState<CreatePackingListView> {
           Posthog().capture(
             eventName: 'list_created',
             properties: {
-              'list_name': _formData['name'],
-              'destination': _formData['destination'],
+              if (_formData['name'] != null)
+                'list_name': _formData['name'] as String,
+              if (_formData['destination'] != null)
+                'destination': _formData['destination'] as String,
+              if (_formData['purpose'] != null)
+                'purpose': _formData['purpose'] as String,
+              if (_formData['gender'] != null)
+                'gender': _formData['gender'] as String,
               'item_count': itemCount,
             },
           );
