@@ -12,7 +12,7 @@ Future<void> initializeRevenueCat() async {
     // apiKey = 'test_jTuNfakbMmCOfdxdlTMaBTUvhGy';
   } else if (Platform.isAndroid) {
     // android key
-    apiKey = 'goog_QyEkCxSQHlrwXcehGaCzPJXsYAd';
+    apiKey = 'goog_kQnjXEBMeIBlilBBBVxUIaaoSQw';
     // test key
     // apiKey = 'test_jTuNfakbMmCOfdxdlTMaBTUvhGy';
   } else {
