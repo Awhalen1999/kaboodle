@@ -33,7 +33,11 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 #   1.1.0+3  → New feature
 #   1.1.1+4  → Another bug fix
 #
-version: 1.0.6+7
+# Apple running version: 1.0.6+7
+# Android running version: 1.0.7+8
+#
+
+version: 1.0.7+8
 
 environment:
   sdk: ^3.6.0
